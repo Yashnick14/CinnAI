@@ -1,0 +1,89 @@
+{
+  "samples": [
+    {
+      "sample": "Q1",
+      "manual_mm": 25,
+      "raw_mm": 29,
+      "calibrated_mm": 27.5,
+      "absolute_error_before": 4,
+      "absolute_error_after": 2.5,
+      "ape_before": 16.0,
+      "ape_after": 10.0,
+      "grade_before": "H2",
+      "grade_after": "H2",
+      "manual_expected": "Manual review"
+    },
+    {
+      "sample": "Q2",
+      "manual_mm": 22,
+      "raw_mm": 23,
+      "calibrated_mm": 21.5,
+      "absolute_error_before": 1,
+      "absolute_error_after": 0.5,
+      "ape_before": 4.545454545454546,
+      "ape_after": 2.272727272727273,
+      "grade_before": "H1",
+      "grade_after": "H1",
+      "manual_expected": "H1"
+    },
+    {
+      "sample": "Q3",
+      "manual_mm": 18,
+      "raw_mm": 21,
+      "calibrated_mm": 19.5,
+      "absolute_error_before": 3,
+      "absolute_error_after": 1.5,
+      "ape_before": 16.666666666666668,
+      "ape_after": 8.333333333333334,
+      "grade_before": "Manual review",
+      "grade_after": "M4",
+      "manual_expected": "Manual review"
+    },
+    {
+      "sample": "Q4",
+      "manual_mm": 17,
+      "raw_mm": 19,
+      "calibrated_mm": 17.5,
+      "absolute_error_before": 2,
+      "absolute_error_after": 0.5,
+      "ape_before": 11.764705882352942,
+      "ape_after": 2.9411764705882355,
+      "grade_before": "M4",
+      "grade_after": "M5",
+      "manual_expected": "M5"
+    },
+    {
+      "sample": "Q5",
+      "manual_mm": 16,
+      "raw_mm": 18,
+      "calibrated_mm": 16.5,
+      "absolute_error_before": 2,
+      "absolute_error_after": 0.5,
+      "ape_before": 12.5,
+      "ape_after": 3.125,
+      "grade_before": "Manual review",
+      "grade_after": "M5",
+      "manual_expected": "Manual review"
+    },
+    {
+      "sample": "Q6",
+      "manual_mm": 13,
+      "raw_mm": 14,
+      "calibrated_mm": 12.5,
+      "absolute_error_before": 1,
+      "absolute_error_after": 0.5,
+      "ape_before": 7.6923076923076925,
+      "ape_after": 3.8461538461538463,
+      "grade_before": "C4",
+      "grade_after": "C4",
+      "manual_expected": "C4"
+    }
+  ],
+  "metrics": {
+    "mae_before_mm": 2.1666666666666665,
+    "mae_after_mm": 1.0,
+    "mape_before_percent": 11.52818913113031,
+    "mape_after_percent": 5.086398487133781
+  },
+  "source": "User-supplied six numeric pairs, not image replay"
+}

@@ -1,0 +1,20 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.34,<1
+python-multipart>=0.0.20,<1
+pydantic>=2.10,<3
+pillow>=11,<13
+python-dotenv>=1.0,<2
+# Training-compatible visual inference; no database is used by the active app.
+scikit-learn==1.6.1
+joblib==1.6.0
+ultralytics==8.4.182
+torch==2.11.0
+# cv2.__version__ reports 5.0.0; this is its published wheel version.
+opencv-python==5.0.0.93
+numpy>=2,<3
+pandas>=2,<4
+
+
+# Optional assistant, loaded only when /assistant/ask is used.
+sentence-transformers>=5,<6
+google-genai>=1,<2

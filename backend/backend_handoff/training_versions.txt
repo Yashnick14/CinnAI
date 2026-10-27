@@ -1,0 +1,7 @@
+
+Python: 3.13.16 (main, Oct  1 2026, 15:40:24) [GCC 13.3.0]
+PyTorch: 2.11.0+cpu
+Ultralytics: 8.4.182
+OpenCV: 5.0.0
+scikit-learn: 1.6.1
+joblib: 1.6.0

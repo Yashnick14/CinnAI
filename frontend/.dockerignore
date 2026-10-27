@@ -1,0 +1,17 @@
+.git
+node_modules/
+.expo/
+dist/
+dist-ios/
+.auth-ios-export/
+.auth-tmp/
+**/*.log
+.env
+.env.*
+!.env.example
+coverage/
+htmlcov/
+*.tsbuildinfo
+junit*.xml
+# Tests remain in Git and should run in CI before image construction.
+tests/

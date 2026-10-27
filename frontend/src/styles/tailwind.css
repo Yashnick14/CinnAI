@@ -1,0 +1,43 @@
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+@source "../**/*.web.tsx";
+@theme {
+  --color-cinnamon: #845334;
+  --color-parchment: #faf5ef;
+  --color-charcoal: #302019;
+  --color-sage: #927058;
+  --font-sans: "Poppins_400Regular", "Segoe UI", Arial, sans-serif;
+  --font-editorial: "Poppins_400Regular", "Segoe UI", Arial, sans-serif;
+}
+/* Deliberately omit Preflight: React Native Web owns its element resets. */
+.workspace { font-family: var(--font-sans); color: #302019; }
+.workspace *, .workspace *::before, .workspace *::after { box-sizing: border-box; }
+@layer base { .workspace :where(h1,h2,h3,p) { margin: 0; } }
+.workspace button { font-family: inherit; cursor: pointer; }
+.workspace button:disabled { cursor: not-allowed; opacity: .45; }
+.workspace button:focus-visible, .workspace [role="button"]:focus-visible { outline: 3px solid #a9784b; outline-offset: 4px; }
+.workspace button { transition: background-color .18s, transform .18s, box-shadow .18s; }
+.workspace button:active:not(:disabled) { transform: translateY(1px); }
+.workspace .surface { background: #fff; border: 1px solid #e9dfd3; border-radius: 18px; box-shadow: 0 4px 20px #30201904; }
+.workspace .eyebrow { font-size: 10px; letter-spacing: .18em; font-weight: 700; text-transform: uppercase; color: #927b68; }
+.workspace .quiet-button { border: 1px solid #e5d6c5; border-radius: 10px; padding: 11px 16px; background: white; color: #634a37; }
+.workspace .quiet-button:hover { background: #f5e9da; }
+.workspace .primary-button { border: 0; border-radius: 10px; padding: 14px 20px; background: #845334; color: white; font-weight: 600; }
+.workspace .primary-button:hover { background: #6b4027; box-shadow: 0 5px 15px #84533425; }
+.workspace .page-grid { display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); gap: 20px; }
+.workspace .page-grid > * { grid-column: 1 / -1; min-width: 0; }
+.workspace .page-grid > .panel { grid-column: span 6; }
+.workspace .page-grid > .action { grid-column: 1 / -1; align-self: start; justify-self: start; min-width: 220px; }
+.workspace .enter { animation: enter .4s ease-out both; }
+@keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media(max-width: 767px) {
+  .workspace .page-grid > .panel, .workspace .page-grid > .action { grid-column: 1 / -1; }
+  .workspace .page-grid > .action { justify-self: stretch; min-width: 0; }
+}
+@media(prefers-reduced-motion: reduce) {
+  .workspace *, .workspace *::before, .workspace *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+.workspace input, .workspace textarea { font-family: "Poppins_400Regular", sans-serif; }
+.workspace .font-semibold { font-family: "Poppins_600SemiBold", sans-serif; font-weight: normal; }
+.workspace .font-bold { font-family: "Poppins_700Bold", sans-serif; font-weight: normal; }

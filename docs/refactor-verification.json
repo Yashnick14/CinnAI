@@ -1,0 +1,125 @@
+{
+  "hashes": {
+    "quill_detector_v5.pt": "78a09c742380691bbc53a60e866656aa3b529a171f5aad459125d7adf4c80f1f",
+    "coin_quill_segmentation.pt": "4ce2b6106517a7b8168a507fe50aad3c74a576e1546f534eb18544cae06ad9f9",
+    "rf_vision_8_class.pkl": "7f87c62c025d332965c20d2f0075673471810dd5fef9a4c37efd7c2558d9f245"
+  },
+  "segmentation": {
+    "task": "segment",
+    "names": {
+      "0": "Coin",
+      "1": "Quill"
+    }
+  },
+  "assistant": {
+    "shape": [
+      62,
+      384
+    ],
+    "documents": 62,
+    "knowledge_loaded": true
+  },
+  "calibration": {
+    "enabled": true,
+    "offset_mm": 1.5
+  },
+  "requests": [
+    {
+      "image": "diameter_test_01.jpg",
+      "visual_identical": true,
+      "visual": {
+        "error": "No quill detected in the uploaded image."
+      },
+      "diameter_identical": true,
+      "diameter_error": null,
+      "diameter_mm": 29.35775537771715,
+      "endpoints": {
+        "/predict-visual": {
+          "http_status": 422,
+          "sample_status": null,
+          "error": "No quill detected in the uploaded image."
+        },
+        "/measure-diameter": {
+          "http_status": 200,
+          "sample_status": null,
+          "error": null
+        },
+        "/validate-sample": {
+          "http_status": 200,
+          "sample_status": "INVALID",
+          "error": null
+        }
+      }
+    },
+    {
+      "image": "diameter_test_02.jpg",
+      "visual_identical": true,
+      "visual": {
+        "error": "No quill detected in the uploaded image."
+      },
+      "diameter_identical": true,
+      "diameter_error": null,
+      "diameter_mm": 21.293277205308495,
+      "endpoints": {
+        "/predict-visual": {
+          "http_status": 422,
+          "sample_status": null,
+          "error": "No quill detected in the uploaded image."
+        },
+        "/measure-diameter": {
+          "http_status": 200,
+          "sample_status": null,
+          "error": null
+        },
+        "/validate-sample": {
+          "http_status": 200,
+          "sample_status": "INVALID",
+          "error": null
+        }
+      }
+    },
+    {
+      "image": "diameter_test_03.jpg",
+      "visual_identical": true,
+      "visual": {
+        "error": "No quill detected in the uploaded image."
+      },
+      "diameter_identical": true,
+      "diameter_error": null,
+      "diameter_mm": 18.628395070665274,
+      "endpoints": {
+        "/predict-visual": {
+          "http_status": 422,
+          "sample_status": null,
+          "error": "No quill detected in the uploaded image."
+        },
+        "/measure-diameter": {
+          "http_status": 200,
+          "sample_status": null,
+          "error": null
+        },
+        "/validate-sample": {
+          "http_status": 200,
+          "sample_status": "INVALID",
+          "error": null
+        }
+      }
+    }
+  ],
+  "health": {
+    "status": "ok"
+  },
+  "detector": {
+    "task": "detect",
+    "names": {
+      "0": "Quill"
+    }
+  },
+  "tests": {
+    "backend": 170,
+    "frontend": 235,
+    "typescript": "passed",
+    "web_export": "passed",
+    "ios_export": "passed"
+  }
+}

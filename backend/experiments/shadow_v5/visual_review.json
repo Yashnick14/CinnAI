@@ -1,0 +1,117 @@
+{
+  "20261021T154723829680Z_9b8745e995724128aa16d4da43f74f50.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261021T155140006067Z_8fc912ece0ec482ca35f86d5d2d8f6dd.jpg": {
+    "scene_review": "non-quill scene",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "correct negative, not a quill miss"
+  },
+  "20261021T155205870197Z_64171a7eab074d979ae0de0a7ff4e1c4.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261021T155231763253Z_e3c2d750d96946f6a3dadeb5b3a0a0bc.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261021T155255297651Z_7867c8c025994e2dbeb7734354f9792d.jpg": {
+    "scene_review": "non-quill scene",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "correct negative, not a quill miss"
+  },
+  "20261021T155633402218Z_8ea51930d8f24b708eab128e1236a0d2.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "yes; box covers visible quill",
+    "interpretation": "quill detection below production threshold"
+  },
+  "20261021T175704913617Z_96a9d8e8284749db95c73142f353b847.jpg": {
+    "scene_review": "non-quill scene",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "correct negative, not a quill miss"
+  },
+  "20261021T175748053705Z_a0542ea3e4814697b601a100366a2401.jpg": {
+    "scene_review": "non-quill scene",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "correct negative, not a quill miss"
+  },
+  "20261025T132248296674Z_6b12f4d0918547bdaffe2f9c56ac4ad9.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "yes; box covers visible quill",
+    "interpretation": "quill detection below production threshold"
+  },
+  "20261025T132313939507Z_f27811ac4e6f400eb744d30641c40095.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "yes; box covers visible quill",
+    "interpretation": "quill detection below production threshold"
+  },
+  "20261025T133115012912Z_bbcfe0d032094cca832cfe8da24c68f7.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T133231376749Z_a803f1f1202a4a3db67c683dd4208ec3.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T133243646209Z_14c2fd12d18c4d2f8ef019130d56e1c4.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T133524723360Z_36716459584c4ced805a62e7f6664a5d.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "yes; box covers visible quill",
+    "interpretation": "quill detection below production threshold"
+  },
+  "20261025T135543111915Z_a9ec0cf435f845d489b99b1a54cef7af.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T135603933063Z_b00b61ebe2594c8cbb40071faf9db496.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T135616576898Z_6224986477784683bd66995a8c641b11.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T135656046730Z_7e3a2cd96de24d87933a7bd818e041e5.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T135722454325Z_4ae60e07278340a4a711a69682dfd039.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T135736592268Z_9c90f8510b124e518131e70d54fc3df0.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T140022304623Z_82c0f128e06946e49ff19426c2374497.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "yes; box covers visible quill",
+    "interpretation": "quill detection below production threshold"
+  },
+  "20261025T140047293941Z_80e1f9ae4ada4869bb5803bfd97e9e88.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "not applicable; no predicted box",
+    "interpretation": "quill missed even at 0.05 (predictions below 0.05 remain unknown)"
+  },
+  "20261025T140117105954Z_2d996198c70443f5b2bac09e22279d11.jpg": {
+    "scene_review": "quill visible",
+    "visual_correspondence": "yes; box covers visible quill",
+    "interpretation": "quill detection below production threshold"
+  }
+}

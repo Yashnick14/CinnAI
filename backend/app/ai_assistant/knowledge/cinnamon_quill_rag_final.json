@@ -1,0 +1,2583 @@
+{
+  "meta": {
+    "title": "Ceylon cinnamon quill grading knowledge base (supported grades only)",
+    "supported_grades": [
+      "Alba",
+      "C5 Special",
+      "C5",
+      "C4",
+      "M5",
+      "M4",
+      "H1",
+      "H2"
+    ],
+    "record_count": 48,
+    "scope_notes": [
+      "Source: Sinhala cinnamon handbook (Kuruindu Athpotha), Department of Cinnamon Development, 2025 second revised printing. 90 page PDF.",
+      "Source Page is the page number of the PDF file. The pages carry no printed page numbers.",
+      "Pages with quill relevant content: 57 to 63, 65 and 67. Pages 1 to 56 (cultivation, nutrition, diseases, pests), 64 (yield), 66 and 68 to 72 (other products and oils) and 73 to 90 (GAP, GI, organic, records, costs, services) were reviewed or skipped as out of scope.",
+      "Rows for grades outside the eight supported grades were left out of the records on purpose.",
+      "The PDF has no text layer, and no Sinhala OCR was available. The Sinhala text was transcribed by reading page images, so small spelling errors are possible. Each record keeps its page number for checking against the source.",
+      "Passages whose meaning is uncertain are marked [Manual verification required]."
+    ]
+  },
+  "system_rules": [
+    "Measured quill diameter determines the official grade in this system.",
+    "Colour and other visual characteristics are supplementary quality evidence. They never replace or override the diameter based grade.",
+    "Moisture is a separate export quality or compliance check. It never replaces or overrides the diameter based grade.",
+    "These rules are application policy. They are not text taken from the handbook. The handbook records are kept exactly as the handbook states them.",
+    "Never invent a grade requirement that the handbook does not state. If a value is missing, say it is not stated in the handbook.",
+    "Never say that a processing recommendation guarantees a particular grade.",
+    "Only the eight supported grades are in scope: Alba, C5 Special, C5, C4, M5, M4, H1, H2."
+  ],
+  "grade_profiles": {
+    "Alba": {
+      "handbook_label_sinhala": "ඇල්බා",
+      "handbook_group": "No group heading in the table",
+      "handbook_category": "Fine (heen)",
+      "table_values": {
+        "bark_width_to_remove_mm": "22",
+        "diameter_mm": "6",
+        "quills_42_inch_per_kg": "45",
+        "spot_and_blemish_percentage": "10"
+      },
+      "moisture": "Handbook states a general moisture maximum of 14 for quills. No grade specific moisture value is stated.",
+      "colour": "No grade specific colour is stated. General colour statements: finished quill is yellow tending towards brown (page 61); cinnamon products are golden brown to brown, PANTON CC4 to CC10 (page 63).",
+      "grade_specific_production_method": "None stated. General quill production records apply.",
+      "related_records": [
+        "G01",
+        "T01",
+        "T02",
+        "R24",
+        "R36"
+      ]
+    },
+    "C5 Special": {
+      "handbook_label_sinhala": "C5 - විශේෂ",
+      "handbook_group": "Continental",
+      "handbook_category": "Fine (heen)",
+      "table_values": {
+        "bark_width_to_remove_mm": "35",
+        "diameter_mm": "10",
+        "quills_42_inch_per_kg": "30",
+        "spot_and_blemish_percentage": "10"
+      },
+      "moisture": "Handbook states a general moisture maximum of 14 for quills. No grade specific moisture value is stated.",
+      "colour": "No grade specific colour is stated. General colour statements: finished quill is yellow tending towards brown (page 61); cinnamon products are golden brown to brown, PANTON CC4 to CC10 (page 63).",
+      "grade_specific_production_method": "None stated. General quill production records apply.",
+      "related_records": [
+        "G02",
+        "T01",
+        "T02",
+        "R24",
+        "R36"
+      ]
+    },
+    "C5": {
+      "handbook_label_sinhala": "C5",
+      "handbook_group": "Continental",
+      "handbook_category": "Fine (heen)",
+      "table_values": {
+        "bark_width_to_remove_mm": "42",
+        "diameter_mm": "12",
+        "quills_42_inch_per_kg": "27",
+        "spot_and_blemish_percentage": "15"
+      },
+      "moisture": "Handbook states a general moisture maximum of 14 for quills. No grade specific moisture value is stated.",
+      "colour": "No grade specific colour is stated. General colour statements: finished quill is yellow tending towards brown (page 61); cinnamon products are golden brown to brown, PANTON CC4 to CC10 (page 63).",
+      "grade_specific_production_method": "None stated. General quill production records apply.",
+      "related_records": [
+        "G03",
+        "T01",
+        "T02",
+        "R24",
+        "R36"
+      ]
+    },
+    "C4": {
+      "handbook_label_sinhala": "C4",
+      "handbook_group": "Continental",
+      "handbook_category": "Fine (heen)",
+      "table_values": {
+        "bark_width_to_remove_mm": "54",
+        "diameter_mm": "16",
+        "quills_42_inch_per_kg": "22",
+        "spot_and_blemish_percentage": "15"
+      },
+      "moisture": "Handbook states a general moisture maximum of 14 for quills. No grade specific moisture value is stated.",
+      "colour": "No grade specific colour is stated. General colour statements: finished quill is yellow tending towards brown (page 61); cinnamon products are golden brown to brown, PANTON CC4 to CC10 (page 63).",
+      "grade_specific_production_method": "None stated. General quill production records apply.",
+      "related_records": [
+        "G04",
+        "T01",
+        "T02",
+        "R24",
+        "R36"
+      ]
+    },
+    "M5": {
+      "handbook_label_sinhala": "M5",
+      "handbook_group": "Mexican",
+      "handbook_category": "Coarse (gorosu)",
+      "table_values": {
+        "bark_width_to_remove_mm": "60",
+        "diameter_mm": "18",
+        "quills_42_inch_per_kg": "20",
+        "spot_and_blemish_percentage": "60"
+      },
+      "moisture": "Handbook states a general moisture maximum of 14 for quills. No grade specific moisture value is stated.",
+      "colour": "No grade specific colour is stated. General colour statements: finished quill is yellow tending towards brown (page 61); cinnamon products are golden brown to brown, PANTON CC4 to CC10 (page 63).",
+      "grade_specific_production_method": "None stated. General quill production records apply.",
+      "related_records": [
+        "G05",
+        "T01",
+        "T02",
+        "R24",
+        "R36"
+      ]
+    },
+    "M4": {
+      "handbook_label_sinhala": "M4",
+      "handbook_group": "Mexican",
+      "handbook_category": "Coarse (gorosu)",
+      "table_values": {
+        "bark_width_to_remove_mm": "70",
+        "diameter_mm": "21",
+        "quills_42_inch_per_kg": "15",
+        "spot_and_blemish_percentage": "60"
+      },
+      "moisture": "Handbook states a general moisture maximum of 14 for quills. No grade specific moisture value is stated.",
+      "colour": "No grade specific colour is stated. General colour statements: finished quill is yellow tending towards brown (page 61); cinnamon products are golden brown to brown, PANTON CC4 to CC10 (page 63).",
+      "grade_specific_production_method": "None stated. General quill production records apply.",
+      "related_records": [
+        "G06",
+        "T01",
+        "T02",
+        "R24",
+        "R36"
+      ]
+    },
+    "H1": {
+      "handbook_label_sinhala": "H1",
+      "handbook_group": "Hamburg",
+      "handbook_category": "Coarse (gorosu)",
+      "table_values": {
+        "bark_width_to_remove_mm": "76",
+        "diameter_mm": "23",
+        "quills_42_inch_per_kg": "10",
+        "spot_and_blemish_percentage": "25"
+      },
+      "moisture": "Handbook states a general moisture maximum of 14 for quills. No grade specific moisture value is stated.",
+      "colour": "No grade specific colour is stated. General colour statements: finished quill is yellow tending towards brown (page 61); cinnamon products are golden brown to brown, PANTON CC4 to CC10 (page 63).",
+      "grade_specific_production_method": "None stated. General quill production records apply.",
+      "related_records": [
+        "G07",
+        "T01",
+        "T02",
+        "R24",
+        "R36"
+      ]
+    },
+    "H2": {
+      "handbook_label_sinhala": "H2",
+      "handbook_group": "Hamburg",
+      "handbook_category": "Coarse (gorosu)",
+      "table_values": {
+        "bark_width_to_remove_mm": "105",
+        "diameter_mm": "32",
+        "quills_42_inch_per_kg": "07",
+        "spot_and_blemish_percentage": "55"
+      },
+      "moisture": "Handbook states a general moisture maximum of 14 for quills. No grade specific moisture value is stated.",
+      "colour": "No grade specific colour is stated. General colour statements: finished quill is yellow tending towards brown (page 61); cinnamon products are golden brown to brown, PANTON CC4 to CC10 (page 63).",
+      "grade_specific_production_method": "None stated. General quill production records apply.",
+      "related_records": [
+        "G08",
+        "T01",
+        "T02",
+        "R24",
+        "R36"
+      ]
+    }
+  },
+  "answering_guide": {
+    "What are the requirements for Alba?": [
+      "G01",
+      "T01",
+      "T02",
+      "R36",
+      "R24"
+    ],
+    "How can I produce Alba quality quills?": [
+      "G01 (bark width 22 mm)",
+      "R06",
+      "R09",
+      "R10",
+      "R11",
+      "R12",
+      "R13",
+      "R14",
+      "R15",
+      "R16",
+      "R20",
+      "R21",
+      "R22",
+      "R23",
+      "R28"
+    ],
+    "What is the diameter requirement for C5 Special?": [
+      "G02"
+    ],
+    "Why did this quill receive M4 instead of H1?": [
+      "G06",
+      "G07",
+      "T02",
+      "R24 (grade follows the measured diameter in this system)"
+    ],
+    "What visual characteristics should a C4 quill have?": [
+      "G04 (blemish percentage 15)",
+      "R20",
+      "R21",
+      "R22",
+      "R23",
+      "R30",
+      "Note: no C4 specific colour is stated"
+    ],
+    "What defects can reduce quill quality?": [
+      "R07",
+      "R18",
+      "R26",
+      "R32",
+      "R08"
+    ],
+    "How should I dry quills correctly?": [
+      "R10",
+      "R11",
+      "R12",
+      "R14",
+      "R16"
+    ],
+    "How does excessive moisture affect export quality?": [
+      "R26",
+      "R28",
+      "R16",
+      "Note: the handbook lists excess moisture as a factor that reduces quality and gives a 14 maximum; no mechanism is described"
+    ],
+    "How can I improve this quill toward a higher grade?": [
+      "R09",
+      "R15",
+      "R16",
+      "R25",
+      "G01 to G08",
+      "Note: the handbook gives no method that guarantees a grade"
+    ]
+  },
+  "knowledge_gaps": [
+    "The grade table gives one diameter value per grade. It gives no minimum, maximum, tolerance or boundary between grades.",
+    "The table also contains intermediate grades that this system does not use, so a measured diameter may fall between supported grades. The handbook gives no rule for that case. The application policy must decide.",
+    "No grade specific colour requirement is stated. Colour statements are general (page 61 and page 63).",
+    "The spot and blemish percentage is given per grade, but the handbook does not say how it is measured or whether it is a maximum, and it does not use the word foxing.",
+    "Brittle or broken quills are not discussed in the handbook pages reviewed.",
+    "No grade specific moisture limit is stated. The 14 maximum covers quills as a group.",
+    "No method is stated for moving a quill from one grade to a higher grade. The handbook only advises aiming for more fine grades (Alba and C).",
+    "The storage passage on page 67 refers to cinnamon bales in general and does not name quills."
+  ],
+  "records": [
+    {
+      "id": "R01",
+      "source_page": 57,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "preparation",
+      "original_sinhala": "ඒ වන විට අස්වැන්න නෙළීමට සුදුසු කඳන්වල අග කොටස් හැරුණු විට පිටත සුඹුල සම්පූර්ණයෙන්ම දුඹුරු පැහැ වී තිබීම දැකිය හැක. තැලුම් පරීක්ෂාවෙන් අනතුරුව එම කඳ අස්වැන්න ලබා ගැනීමට සුදුසු ද නැද්ද යන්න තීරණය කළ හැකිය. තැලුම් පරීක්ෂාව: අස්වනු නෙලා ගැනීමට පළමුව, කැත්ත භාවිතා කරමින් කුරුඳු පොත්ත ලීයෙන් පහසුවෙන් වෙන්වෙන බව තහවුරු කරගැනීමේ පරීක්ෂාව වේ.",
+      "corrected_english": "By that time, in stems suitable for harvesting, the outer layer (subula), except for the tip portions, can be seen to have turned completely brown. After the thalum test, it can be decided whether the stem is suitable for harvesting. The thalum test (තැලුම් පරීක්ෂාව): before harvesting, a test carried out with a knife to confirm that the cinnamon bark separates easily from the wood.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Before harvesting, carry out the test with a knife to confirm that the bark separates easily from the wood.",
+        "Check that the outer layer of stems is completely brown except at the tips before deciding to harvest."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "peeling test",
+        "thalum test",
+        "bark separates from wood",
+        "harvest readiness",
+        "outer layer brown",
+        "stem selection",
+        "quill preparation"
+      ],
+      "verification_note": "Harvest readiness is included only because it governs whether the bark can be peeled for quills. The handbook does not link it to a specific grade."
+    },
+    {
+      "id": "R02",
+      "source_page": 58,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "preparation",
+      "original_sinhala": "හිමිදිරි උදයේම අස්වැන්න නෙළා ගත යුතු අතර, හිරු එළිය වැටීම සහ කැපූ කඳන් ක්ෂේත්‍රයේ දිගු වේලාවක් නිරාවරණය වී තැබීම යන හේතූන් නිසා කඳන් වියළීමට ලක් වී, පොත්ත වෙන් කර ගැනීම අපහසු විය හැක.",
+      "corrected_english": "Harvesting should be done at early dawn. Because of sunlight falling on the stems and cut stems being left exposed in the field for a long time, the stems may dry out and separating the bark may become difficult.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Harvest at early dawn.",
+        "Do not leave cut stems exposed in the field for a long time."
+      ],
+      "quality_problems_to_avoid": [
+        "Cut stems exposed to sunlight or left long in the field can dry out, making bark separation difficult."
+      ],
+      "rag_keywords": [
+        "early morning harvest",
+        "cut stems drying",
+        "sunlight exposure",
+        "bark separation difficult",
+        "quill preparation",
+        "stem handling"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R03",
+      "source_page": 58,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "preparation",
+      "original_sinhala": "අස්වනු නෙළීමෙන් පසු කුරුඳු කඳන් සෙවණ සහිත ස්ථානයක එකතු කර පසුව මිටි බැඳ කුරුඳු සකසන ස්ථානයට ගෙන යා යුතු අතර, එලෙස ගෙන යන කුරුඳු කඳන් පළමුවම පිරිසිදු ජලය සහිත චතුර ටැංකියක බහා පිරිසිදු කිරීම සිදු කළ යුතුය. ජලය සමග ගැටීමෙන් පොතු ගැලවීමේ ක්‍රියාවලිය ආරම්භ කරන තෙක් කුරුඳු කඳන් වියළීමෙන් ආරක්ෂා වනු ඇත.",
+      "corrected_english": "After harvesting, the cinnamon stems should be gathered in a shaded place, then tied into bundles and taken to the cinnamon processing place. The stems taken there should first be cleaned by placing them in a tank containing clean water. Through contact with the water, the stems are protected from drying until the process of peeling the bark begins.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Gather harvested stems in a shaded place and bundle them before moving them to the processing place.",
+        "Clean the stems first in a tank of clean water.",
+        "Keep stems in contact with water to protect them from drying until peeling begins."
+      ],
+      "quality_problems_to_avoid": [
+        "Stems drying before peeling begins."
+      ],
+      "rag_keywords": [
+        "shaded collection",
+        "bundling stems",
+        "clean water tank",
+        "washing stems",
+        "protect from drying",
+        "quill preparation"
+      ],
+      "verification_note": "The Sinhala word used for the tank type (චතුර) is kept as written; the shape of the tank is not stated in English here."
+    },
+    {
+      "id": "R04",
+      "source_page": 58,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "preparation",
+      "original_sinhala": "පිරිසිදු ජලයෙන් සෝදා ගත් කුරුඳු කඳන් කුරුඳු සකසන්නාට හසුරුවා ගැනීමට පහසුවන පරිදි කොටස්කර ගැනීම (අඩි 4-5 කොටස් වලට) සුදුසු වේ.",
+      "corrected_english": "Cinnamon stems washed with clean water are suitably cut into sections (of 4 to 5 feet) so that the cinnamon processor can handle them easily.",
+      "exact_requirements": [
+        "Section length: 4 to 5 feet."
+      ],
+      "practical_guidance": [
+        "Cut washed stems into sections of 4 to 5 feet so they are easy to handle."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "stem sections",
+        "4 to 5 feet",
+        "handling stems",
+        "washed stems",
+        "quill preparation"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R05",
+      "source_page": 58,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "preparation",
+      "original_sinhala": "ඉන්පසුව ගැට පෑහිම කළයුතුයි. මෙහිදී, පොත්තට වන හානිය අවම වන පරිදි ගැට ඉවත්කිරීම කළයුතු අතර ඒ සඳහා වෙන්වූ කැත්ත ආධාරයෙන් සිදුකිරීම සුදුසු වේ. ඉන් අනතුරුව සකස්කරගත් නොමේරූ අගිස් හා ප්‍රධාන කඳන් වෙන වෙනම සුඹුල සූරන ස්ථානය වෙත යොමු කිරීම කළයුතු වේ.",
+      "corrected_english": "Thereafter, the knots should be dealt with (ගැට පෑහිම). The knots should be removed in a way that minimises damage to the bark, and it is suitable to do this with the help of a knife set aside for that purpose. After that, the prepared immature tips and the main stems should be sent separately to the place where the outer layer is scraped.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Remove knots in a way that keeps damage to the bark to a minimum.",
+        "Use a knife set aside for this purpose.",
+        "Send the immature tips and the main stems separately to the scraping place."
+      ],
+      "quality_problems_to_avoid": [
+        "Damage to the bark during knot removal."
+      ],
+      "rag_keywords": [
+        "knot removal",
+        "bark damage",
+        "dedicated knife",
+        "immature tips",
+        "main stems",
+        "quill preparation"
+      ],
+      "verification_note": "The exact meaning of 'ගැට පෑහිම' (knot treatment or removal) and 'අගිස්' (tips) is taken from context. [Manual verification required]"
+    },
+    {
+      "id": "R06",
+      "source_page": 58,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "preparation",
+      "original_sinhala": "සුදුසු බංකුවක් මත සිට නිවැරදි ආකාරයට හිඳගෙන සුරන කොකැත්ත (සවුත්තුව) භාවිතයෙන් දුඹුරු පැහැ පිට පොත්ත (සුඹුල/කුරුට්ට) සීරීම කළයුතුවේ. මෙහිදී කොකැත්ත අවශ්‍ය පරිදි හොඳින් මුවහත් තිබීම වැදගත් වේ. තවද, ඇතුළු පොත්තට හානි නොවන ලෙස සම්පූර්ණ කඳේම කුරුට්ට හොඳින් සූරා ඉවත් කිරීම කළයුතුවේ. ඇතුලට පිරවීමට ගන්නා පොතුවල ද සම්පූර්ණ ලෙසම කුරුට්ට ඉවත් කළ යුතු වන අතර කොළ පැහැති කොටස් ද ඉවත්වී කහ පැහැ ඇතුල් පොත්ත පෙනෙන ලෙස සකස්කර ගත යුතුය.",
+      "corrected_english": "Sitting correctly on a suitable bench, the brown outer bark (subula or kurutta) should be scraped using the scraping knife (sauththuwa). It is important that the knife is well sharpened as required. The outer layer should be scraped off well from the whole stem without damaging the inner bark. The bark taken for filling the inside should also have the outer layer removed completely, and the green parts should also be removed, so that the yellow coloured inner bark is visible.",
+      "exact_requirements": [
+        "Outer layer: removed completely from the whole stem.",
+        "Bark used for filling: outer layer removed completely and green parts removed so that yellow coloured inner bark is visible."
+      ],
+      "practical_guidance": [
+        "Sharpen the scraping knife well.",
+        "Scrape the outer layer from the whole stem without damaging the inner bark.",
+        "Also remove the outer layer and green parts from the bark pieces used for filling."
+      ],
+      "quality_problems_to_avoid": [
+        "Damage to the inner bark during scraping.",
+        "Outer layer or green parts left on the bark used for filling."
+      ],
+      "rag_keywords": [
+        "scraping outer bark",
+        "kurutta",
+        "subula",
+        "inner bark",
+        "yellow inner bark",
+        "filling bark",
+        "sharp knife",
+        "quill preparation"
+      ],
+      "verification_note": "Spelling of the outer bark term varies in the page image (කුරුට්ට / කුරුවිට). [Manual verification required] for the exact spelling."
+    },
+    {
+      "id": "R07",
+      "source_page": 59,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "defects",
+      "original_sinhala": "කුරුට්ට නොසීරූ කුරුඳු පොතු, ''පොඩි'' ලෙස භාවිතා කිරීමෙන් කුරුඳු කූරු සෑදීම සහ වෙනත් අගය එකතුකළ නිෂ්පාදන සඳහා යොදාගැනීමෙන් එම නිෂ්පාදනවල ගුණාත්මකභාවය අඩු වේ. මෙහිදී, අප්‍රසන්න රසයක් ඇතිවීම, ආකර්ෂණීය නොවූ පැහැයක් ඇති වීම, සහ විවිධ කෘමි සතුන්ගෙන් දූෂණය වීමේ ඉඩකඩක් ද පවතී.",
+      "corrected_english": "Using cinnamon bark whose outer layer (kurutta) has not been scraped, as 'podi', to make cinnamon quills and for other value added products lowers the quality of those products. In this case there is also an unpleasant taste, an unattractive colour, and a possibility of contamination by various insects.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Scrape the outer layer from bark before it is used as 'podi' (small bark pieces or strips) in quill making."
+      ],
+      "quality_problems_to_avoid": [
+        "Using bark with the outer layer not scraped lowers quality.",
+        "Unpleasant taste.",
+        "Unattractive colour.",
+        "Possible contamination by insects."
+      ],
+      "rag_keywords": [
+        "unscraped bark",
+        "outer layer not removed",
+        "podi",
+        "lower quality",
+        "unattractive colour",
+        "insect contamination",
+        "unpleasant taste"
+      ],
+      "verification_note": "'පොඩි' (podi) is used in the handbook for small bark pieces or thin strips (see page 59 and page 60). The sentence structure is dense. [Manual verification required] for whether the passage refers to filling material only."
+    },
+    {
+      "id": "R08",
+      "source_page": 59,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "handling",
+      "original_sinhala": "සුඹුල ඉවත් කළ කුරුඳු කඳන්, අපද්‍රව්‍ය එකතු වීම අවම වන පරිදි පොතු ගලවන ස්ථානය වෙත නිවැරදිව යොමුකිරීම කළ යුතුවේ. කිසිවිටක සුබුල සීරූ කඳන් නැවත බිම තැබීම නොකළ යුතුවේ. හැකි සෑම විටම මේසයක් මත හෝ අවම වශයෙන් පිරිසිදු බිම් අතුරණයක් මත තැබීම කළයුතු වේ. මෙම ක්‍රියාවලිය පොළොව මට්ටමින් උසක සිදු කිරීම සහ කුරුඳු කඳන් හෝ ගැලවූ පොතු කිසිම විටක බිම තැබීමෙන් වැළකීම අතිශයින්ම වැදගත් වේ.",
+      "corrected_english": "Stems from which the outer layer has been removed should be directed correctly to the bark peeling place in a way that minimises the collection of waste or impurities. Scraped stems should never be placed on the ground again. Whenever possible they should be placed on a table, or at least on a clean floor covering. It is extremely important to carry out this process at a height above ground level, and to avoid ever placing cinnamon stems or removed bark on the ground.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Direct scraped stems correctly to the peeling place so that impurities collect as little as possible.",
+        "Place scraped stems on a table, or at least on a clean floor covering.",
+        "Carry out the process at a height above ground level."
+      ],
+      "quality_problems_to_avoid": [
+        "Placing scraped stems or removed bark on the ground."
+      ],
+      "rag_keywords": [
+        "no ground contact",
+        "table",
+        "clean floor covering",
+        "impurities",
+        "peeling place",
+        "contamination",
+        "quill handling"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R09",
+      "source_page": 59,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "preparation",
+      "original_sinhala": "අනතුරුව පොත්ත බුරුල් කිරීම සඳහා පොත්තෙන් යුෂ මතුවන තුරු පිත්තල දණ්ඩෙන් මැදීම කළයුතුයි. අභිමත ශ්‍රේණිය අනුව ගලවා ගන්නා පිට කොපුවල පළල නිර්ණය කර, තලන කොකැත්ත භාවිතයෙන් පිට කොපු ගලවා ගැනීම කළ යුතුයි. පිට කොපු (පිට ලෙලි) ලෙස පොතු ගලවා ගැනීමට නොහැකි අවස්ථාවල සිහින් තීරු (''පොඩි'') ලෙස පොතු ගලවා ගැනීම කළ හැකිවේ.",
+      "corrected_english": "Then, to loosen the bark, it should be rubbed with a brass rod until sap emerges from the bark. The width of the outer sheaths to be removed should be determined according to the desired grade, and the outer sheaths should be removed using the beating knife (thalana kokaththa). In situations where the bark cannot be removed as outer sheaths (outer peels), it can be removed as thin strips ('podi').",
+      "exact_requirements": [
+        "Width of the bark sheaths to be removed: determined according to the desired grade (the grade values are in the table on page 65)."
+      ],
+      "practical_guidance": [
+        "Rub with a brass rod to loosen the bark.",
+        "Decide the width of the bark sheaths to remove according to the target grade.",
+        "Where full sheaths cannot be removed, remove the bark as thin strips ('podi')."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "bark peeling",
+        "brass rod",
+        "beating knife",
+        "sheath width by grade",
+        "podi strips",
+        "loosen bark",
+        "target grade"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R10",
+      "source_page": 59,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "drying",
+      "original_sinhala": "වෙන්කරගත් කුරුඳු පොතු අවශ්‍ය ප්‍රමාණයට පවනේ වියළීම සහ කැබිලි හෙවත් 'පොඩි' පිරිසිදුව අධික ලෙස නොවියළෙන සේ තැන්පත් කිරීම කළයුතු වේ. එහිදී පිරිසිදු දැල් සහිත රාක්ක මත හෝ නයිලෝන් නූල් දැල් මත පවනේ වියළීම වඩා සුදුසු වේ.",
+      "corrected_english": "The separated cinnamon bark should be dried in the air (wind) to the required extent, and the pieces or 'podi' should be kept clean and stored so that they do not become excessively dry. Air drying on racks with clean mesh, or on nylon thread nets, is more suitable.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Air dry the separated bark to the required extent.",
+        "Keep the 'podi' pieces clean and store them so they do not dry excessively.",
+        "Use racks with clean mesh, or nylon thread nets, for air drying."
+      ],
+      "quality_problems_to_avoid": [
+        "Excessive drying of the 'podi' pieces."
+      ],
+      "rag_keywords": [
+        "air drying bark",
+        "clean mesh racks",
+        "nylon net",
+        "podi storage",
+        "avoid over drying",
+        "drying quills"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R11",
+      "source_page": 59,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "drying",
+      "original_sinhala": "පවතින පාරිසරික තත්ත්ව අනුව වියළා ගැනීමට ගතවන කාලය වෙනස් වේ. මේ නිසා කුරුඳු කූරු සැදීමට සුදුසු ප්‍රමාණයට ඇතුලට රෝල් වීම සිදුවන තෙක් පවනේ වියළීම කළයුතු වේ.",
+      "corrected_english": "The time taken to dry varies according to the prevailing environmental conditions. Therefore air drying should be carried out until the bark rolls inward to a size suitable for making cinnamon quills.",
+      "exact_requirements": [
+        "Drying end point for the bark: until it rolls inward to a size suitable for making quills (no fixed time is given)."
+      ],
+      "practical_guidance": [
+        "Judge the end of bark drying by how the bark rolls inward, not by a fixed time."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "bark rolling inward",
+        "drying time varies",
+        "air drying end point",
+        "suitable size for quill",
+        "drying quills"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R12",
+      "source_page": 59,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "drying",
+      "original_sinhala": "කිසි විටෙක කුරුඳු පොතු සෘජුවම සූර්යාලෝකයට නිරාවරණය කිරීම නොකළ යුතුවේ. එලෙසම වියළනයන් (Dryer) භාවිතා කරන්නේ නම් සෙල්සියස් අංශක 35 කට වැඩි උෂ්ණත්ව භාවිතා නොකළ යුතු වේ. ඉහල උෂ්ණත්ව යටතේ වියළීමේදී කුරුඳු පොත්තේ රසයට හා සුවඳට හේතුවන වාෂ්පශීලී රසායනික සංයෝග ඉවත්වීම සිදු වේ.",
+      "corrected_english": "Cinnamon bark should never be exposed directly to sunlight. Likewise, if dryers are used, temperatures above 35 degrees Celsius should not be used. When drying at high temperatures, the volatile chemical compounds that give cinnamon bark its flavour and aroma are lost.",
+      "exact_requirements": [
+        "Dryer temperature: not more than 35 degrees Celsius (temperatures above 35 degrees Celsius should not be used).",
+        "Direct sunlight: never expose bark directly."
+      ],
+      "practical_guidance": [
+        "Do not dry bark in direct sunlight.",
+        "If using a dryer, keep the temperature at or below 35 degrees Celsius."
+      ],
+      "quality_problems_to_avoid": [
+        "Direct sunlight exposure.",
+        "Dryer temperature above 35 degrees Celsius, which removes the volatile compounds responsible for flavour and aroma."
+      ],
+      "rag_keywords": [
+        "no direct sunlight",
+        "dryer 35 degrees Celsius",
+        "volatile compounds loss",
+        "flavour and aroma",
+        "high temperature drying",
+        "drying quills"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R13",
+      "source_page": 60,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "quill_structure",
+      "original_sinhala": "ගැලවූ පොතු අවශ්‍ය පමණ වියළාගත් පසු (අවශ්‍ය පමණ රෝල් වුණු පසුව) එකක් මත එකක් වනසේ සන්ධි කර පොතු කැබිලි (පොඩි) ඇතුළට පුරවා අඟල් 42 හෝ 21 ක් දිග කූරු සාදාගත හැක.",
+      "corrected_english": "After the removed bark has been dried to the required extent (after it has rolled to the required extent), quills 42 inches or 21 inches long can be made by joining the pieces one over another and filling the inside with bark pieces ('podi').",
+      "exact_requirements": [
+        "Quill length that can be made: 42 inches or 21 inches."
+      ],
+      "practical_guidance": [
+        "Join dried and rolled bark pieces one over another and fill the inside with bark pieces ('podi') to make the quill."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "joining bark",
+        "quill formation",
+        "42 inch quill",
+        "21 inch quill",
+        "filling with podi",
+        "quill construction"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R14",
+      "source_page": 60,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "drying",
+      "original_sinhala": "සාදන කුරුඳු කූරු වල දිග මැනීමට සහ කූරු එසවීමට 'පෙති කෝටුව' භාවිතා වේ. කූරු සාදා අවසන් වූ වහාම වියළීම ආරම්භ කළයුතු ය. මේ සදහා නූල් ඇද සකස් කරගත් රාක්ක මත පවනේ වියළීම කළ යුතුයි.",
+      "corrected_english": "The 'peti kottuwa' is used to measure the length of the cinnamon quills being made and to lift the quills. Drying should begin as soon as the quills are made. For this, air drying should be done on racks prepared with strung thread.",
+      "exact_requirements": [
+        "Start drying: immediately after the quills are made."
+      ],
+      "practical_guidance": [
+        "Use the 'peti kottuwa' to measure quill length.",
+        "Begin drying immediately after making the quills.",
+        "Air dry on racks prepared with strung thread."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "peti kottuwa",
+        "quill length measuring",
+        "drying immediately",
+        "thread racks",
+        "air drying quills"
+      ],
+      "verification_note": "[Manual verification required] for the word 'එසවීමට' (to lift or raise); the meaning is taken from context."
+    },
+    {
+      "id": "R15",
+      "source_page": 60,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "quill_structure",
+      "original_sinhala": "කූරු සාදාගත් දිනට පසු දින බඩ ඇඹරීම කළයුතුයි. බඩ ඇඹරීමේදී සිදු කරන්නේ කුරුඳු කූරේ මුල සිට අග දක්වා පිටතට පැමිණ ඇති 'පොඩි' ඇතුල්කරමින් පියැවුම් දාරය වැසෙන පරිදි රෝල් කිරීමයි. මෙහිදී ඒකාකාර ඝනකමක් ලැබෙන ලෙස කූරු සකස්කර ගැනීම වැදගත්වේ.",
+      "corrected_english": "On the day after the quills are made, 'bada ambireema' (rolling of the quill body) should be done. In 'bada ambireema', the quill is rolled from its base to its tip, pushing in the 'podi' that has come out, so that the overlapping edge (පියැවුම් දාරය) closes. Here it is important to prepare the quills so that a uniform thickness is obtained.",
+      "exact_requirements": [
+        "Timing: on the day after the quills are made.",
+        "Thickness: the quill should have a uniform thickness."
+      ],
+      "practical_guidance": [
+        "Roll the quill from base to tip the day after making it, pushing in protruding 'podi' and closing the overlapping edge.",
+        "Prepare the quills so the thickness is uniform."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "bada ambireema",
+        "rolling quills",
+        "uniform thickness",
+        "close overlapping edge",
+        "push in podi",
+        "day after making quills",
+        "quill structure"
+      ],
+      "verification_note": "[Manual verification required] for the technical terms 'බඩ ඇඹරීම' and 'පියැවුම් දාරය'. The English wording follows the context of the sentence."
+    },
+    {
+      "id": "R16",
+      "source_page": 60,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "moisture",
+      "original_sinhala": "ඉන් අනතුරුව නැවතත් තෙතමනය 14% ක් හෝ ඊට අඩුවන තෙක් දින කීපයක් (දින 4-7ක් පමණ) පවනේ දැල් මත වියළීම කළයුතු වේ.",
+      "corrected_english": "After that, the quills should again be air dried on mesh for several days (about 4 to 7 days) until the moisture is 14% or less.",
+      "exact_requirements": [
+        "Moisture target after drying: 14% or less.",
+        "Approximate drying duration: about 4 to 7 days."
+      ],
+      "practical_guidance": [
+        "Air dry quills on mesh until moisture is 14% or less (about 4 to 7 days)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "moisture 14 percent",
+        "dry quills 4 to 7 days",
+        "air dry on mesh",
+        "moisture target",
+        "final drying"
+      ],
+      "verification_note": "This is a drying target given as part of the production steps. It is a moisture check and is separate from the diameter based grade."
+    },
+    {
+      "id": "R17",
+      "source_page": 60,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "preparation",
+      "original_sinhala": "පෙති කෝටුව: අඟල් 42/21 දිගැති කුරුඳු කූරු සාදාගැනීම සඳහා. පිත්තල දණ්ඩ: ලීයෙන් පොත්ත වෙන්කර ගැනීම සඳහා කරන මැදීමේ ක්‍රියාවට සඳහා. තලන කොකැත්ත: ලීයෙන් පොත්ත වෙන්කර ගැනීමේදී සිරස් හා තිරස් කැපුම් සිරීම සහ පොත්ත එසවීම සඳහා. සුරන කොකැත්ත: කුරුවිට සීරීම සඳහා. දීදලය: තලන කොකැත්ත භාවිතයේ දී ඇඟිල්ල තුවාල වීමෙන් ආරක්ෂාව සඳහා.",
+      "corrected_english": "Tools used in making quills (from the tools table): the 'peti kottuwa' is for making cinnamon quills 42 or 21 inches long. The brass rod is for the rubbing action used to separate the bark from the wood. The beating knife (thalana kokaththa) is for making vertical and horizontal cuts and lifting the bark when separating it from the wood. The scraping knife (surana kokaththa) is for scraping the outer layer. The 'didalaya' protects the finger from injury when using the beating knife.",
+      "exact_requirements": [
+        "Quill length made with the peti kottuwa: 42 or 21 inches."
+      ],
+      "practical_guidance": [
+        "Use the listed tool for each step: peti kottuwa for quill making, brass rod for rubbing the bark, beating knife for cutting and lifting bark, scraping knife for the outer layer."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "peti kottuwa",
+        "brass rod",
+        "beating knife",
+        "scraping knife",
+        "quill making tools",
+        "tools table",
+        "quill preparation"
+      ],
+      "verification_note": "The table text is printed in a very small font. [Manual verification required] for the exact wording of each tool description. Only tools linked to quill making and bark separation are included. The scissors and the tree cutting knife are not included."
+    },
+    {
+      "id": "R18",
+      "source_page": 61,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "handling",
+      "original_sinhala": "මෙම සියලු ආයුධ හා උපකරණ අවශ්‍ය ප්‍රමාණයට මුවහත්ව තිබිය යුතු මෙන්ම සෝදා පිරිසිදු කරගත් ඒවා විය යුතුය. එසේම මෙම උපකරණ සැදීමට විශේෂිත ද්‍රව්‍ය යොදා ගැනේ. උදාහරණයක් ලෙස, තැලීමට ගන්නා දණ්ඩ පිත්තලවලින්ම සාදා තිබිය යුතු අතර, යකඩයෙන් සෑදූ දණ්ඩක් මේ සඳහා යොදා ගත හොත්, කුරුඳු පොත්ත සමග යකඩ ප්‍රතික්‍රියා කර, පොත්ත කළු පැහැ වනු ඇත.",
+      "corrected_english": "All these tools and equipment must be sufficiently sharp and must be washed and cleaned. Specific materials are also used to make these tools. For example, the rod used for beating should be made entirely of brass, and if a rod made of iron is used for this, the iron will react with the cinnamon bark and the bark will turn black.",
+      "exact_requirements": [
+        "Tools: sufficiently sharp, washed and cleaned.",
+        "Beating rod: made entirely of brass."
+      ],
+      "practical_guidance": [
+        "Keep tools sharp and clean.",
+        "Use a rod made entirely of brass for beating the bark."
+      ],
+      "quality_problems_to_avoid": [
+        "Using an iron rod, which reacts with the bark and turns it black."
+      ],
+      "rag_keywords": [
+        "brass rod not iron",
+        "bark turns black",
+        "iron reaction",
+        "sharp clean tools",
+        "bark colour",
+        "quill handling"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R19",
+      "source_page": 61,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "handling",
+      "original_sinhala": "කුරුඳු සැකසුම් අවස්ථාවන්ට සහභාගී වීමට ප්‍රථම විෂබීජනාශක දියරයක් භාවිතා කර අත් හොඳින් සෝදා ගත යුතුය. කුරුඳු සකස් කරන ප්‍රදේශයේ ආහාර ගැනීම, බුලත් විට සැපීම, චුයින්ගම් භාවිතය, තැන තැන කෙළ ගැසීම වැනි චර්යා රටා වලින් තොර විය යුතුයි. තුවාල, සමේ රෝග, දද, පාචනය වැනි රෝග සහ බෝ වන රෝග වැළඳී ඇති පුද්ගලයන් කුරුඳු සැකසීමේ නොයෙදිය යුතුවේ. සුදුසු සහ පිරිසිදු ඇඳුම් වලින් සැරසී, කුරුඳු සැකසීමේ ක්‍රියාවලියේ නිරත විය යුතුය. මෙම ඇඳුම් සහ ආවරණ, කුරුඳු සැකසීම පටන් ගැනීමට මොහොතකට පෙර භාවිත කොට, රාජකාරිය නිමා කරන විට නැවත පිරිසිදු කර තැබිය යුතුය. අනාරක්ෂිත ආභරණ පැළඳ කුරුඳු සැකසීමේ නොයෙදිය යුතුය. කුරුඳු සැකසීමට වෙන් කරන ලද ප්‍රදේශය ආහාර ගැනීම වැනි වෙනත් කාර්යයන් සඳහා යොදා නොගත යුතුයි.",
+      "corrected_english": "Before taking part in cinnamon processing, the hands should be washed well using a disinfectant liquid. Behaviours such as eating, chewing betel, using chewing gum and spitting here and there must be avoided in the cinnamon processing area. People with wounds, skin diseases, ringworm, diarrhoea and other communicable diseases should not be engaged in cinnamon processing. Workers should wear suitable and clean clothing. These clothes and covers, used just before starting cinnamon processing, should be cleaned again and kept when the duty is finished [Manual verification required]. Unsafe jewellery should not be worn during processing. The area set aside for cinnamon processing should not be used for other activities such as eating.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Wash hands well with a disinfectant liquid before processing.",
+        "Wear suitable, clean clothing.",
+        "Use the processing area only for cinnamon processing."
+      ],
+      "quality_problems_to_avoid": [
+        "Eating, chewing betel, chewing gum or spitting in the processing area.",
+        "Workers with wounds, skin diseases, diarrhoea or communicable diseases handling the cinnamon.",
+        "Wearing unsafe jewellery.",
+        "Using the processing area for other activities such as eating."
+      ],
+      "rag_keywords": [
+        "personal hygiene",
+        "hand washing",
+        "processing area",
+        "clean clothing",
+        "contamination prevention",
+        "worker health",
+        "quill handling"
+      ],
+      "verification_note": "The heading of this section links personal hygiene to the quality of the processed harvest. The translation of the sentence about clothes and covers is uncertain. [Manual verification required] for that sentence."
+    },
+    {
+      "id": "R20",
+      "source_page": 61,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "colour",
+      "original_sinhala": "වියළා අවසන් වූ හොඳින් සැකසූ කුරුඳු කූරක් ඒකාකාර ඝනකමින් සහ දුඹුරු පැහැයට හුරු කහ වර්ණයකින් යුක්ත විය යුතුය.",
+      "corrected_english": "A well prepared cinnamon quill that has finished drying should have a uniform thickness and a yellow colour tending towards brown.",
+      "exact_requirements": [
+        "Thickness: uniform.",
+        "Colour: yellow tending towards brown (දුඹුරු පැහැයට හුරු කහ)."
+      ],
+      "practical_guidance": [
+        "Prepare quills with uniform thickness and a yellow colour tending towards brown."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "good quill characteristics",
+        "uniform thickness",
+        "yellow brown colour",
+        "quill colour",
+        "finished quill",
+        "quill appearance"
+      ],
+      "verification_note": "This describes a good quill in general. It is not stated per grade and does not change the diameter based grade."
+    },
+    {
+      "id": "R21",
+      "source_page": 61,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "appearance",
+      "original_sinhala": "එක් කෙළවරක සිට අනෙක් කෙළවර දක්වා සෘජුව සිටින සේ සකසා තිබිය යුතුය.",
+      "corrected_english": "The quill should be prepared so that it stands straight from one end to the other.",
+      "exact_requirements": [
+        "Shape: straight from one end to the other."
+      ],
+      "practical_guidance": [
+        "Prepare quills so that they are straight along their whole length."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "straight quill",
+        "quill shape",
+        "good quill characteristics",
+        "quill appearance",
+        "end to end straight"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R22",
+      "source_page": 61,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "quill_structure",
+      "original_sinhala": "කුරුඳු කූරුවල කෙළවරවල් තදින් රෝල් කළ කඩදාසි රෝල් මෙන් දිස්විය යුතුය.",
+      "corrected_english": "The ends of the cinnamon quills should look like tightly rolled paper rolls.",
+      "exact_requirements": [
+        "Quill ends: should look like tightly rolled paper rolls."
+      ],
+      "practical_guidance": [
+        "Roll the quill ends tightly."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "quill ends",
+        "tightly rolled",
+        "paper roll appearance",
+        "good quill characteristics",
+        "quill structure"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R23",
+      "source_page": 61,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "filling",
+      "original_sinhala": "මහපට ඇඟිල්ලෙන් තදකර බැලූ විට සම්පූර්ණ ව්‍යුහයම තදට, ඝනට තිබිය යුතුය.",
+      "corrected_english": "When pressed firmly with the thumb, the whole structure should be firm and dense.",
+      "exact_requirements": [
+        "Firmness: the whole structure should be firm and dense when pressed firmly with the thumb."
+      ],
+      "practical_guidance": [
+        "Check firmness by pressing the quill firmly with the thumb."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "firm dense quill",
+        "thumb pressure test",
+        "quill structure",
+        "filling quality",
+        "good quill characteristics"
+      ],
+      "verification_note": "The handbook does not mention brittleness. This record describes firmness and density, which the source links to the whole structure of the quill."
+    },
+    {
+      "id": "R24",
+      "source_page": 61,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "අවශ්‍ය ප්‍රමාණයට වියළුනු පසුව කුරුඳු කූරු ශ්‍රේණි කිරීම කළ යුතුයි. ශ්‍රේණි කිරීමේදී වැදගත් නිර්ණායක තුනකි. එනම්, i. කුරුඳු කූරේ විෂ්කම්භය ii. කිලෝ ග්‍රෑම් එකක් සෑදීමට අවශ්‍ය එම විෂ්කම්භය ඇති කූරු ගණන iii. කූරු වල මතුපිට ඇති ලප කැළැල් ප්‍රතිශතය",
+      "corrected_english": "Cinnamon quills should be graded after they have dried to the required extent. There are three important criteria in grading: (i) the diameter of the cinnamon quill, (ii) the number of quills of that diameter needed to make one kilogram, and (iii) the percentage of spots and blemishes on the surface of the quills.",
+      "exact_requirements": [
+        "Grading criteria stated by the handbook: quill diameter; number of quills of that diameter per kilogram; percentage of surface spots and blemishes.",
+        "Grading is done after the quills have dried to the required extent."
+      ],
+      "practical_guidance": [
+        "Grade quills only after they have dried to the required extent."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "grading criteria",
+        "quill diameter",
+        "quills per kilogram",
+        "spots and blemishes percentage",
+        "grade quills after drying",
+        "three criteria"
+      ],
+      "verification_note": "Application rule (not handbook text): the system uses the measured quill diameter as the official grade. The other two criteria are treated as supplementary evidence. The handbook itself lists all three as important grading criteria and does not rank them."
+    },
+    {
+      "id": "R25",
+      "source_page": 62,
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2",
+        "General Quill Quality"
+      ],
+      "topic": "other_quill_quality",
+      "original_sinhala": "ඉහත නිර්ණායක අනුව කුරුඳු ශ්‍රේණි 13 ක් පමණ හඳුනාගත හැකි වුවත්, සාමාන්‍ය ව්‍යවහාරයේදී හීන් කුරුඳු හා ගොරෝසු කුරුඳු ලෙස කාණ්ඩ දෙකක් හඳුනාගත හැකිවේ. ඇල්බා සහ 'C' කාණ්ඩයේ කුරුඳු හීන් කුරුඳු ලෙසත්, 'M' සහ 'H' කාණ්ඩයේ කුරුඳු ගොරෝසු කුරුඳු ලෙසත් හැඳින්වේ. තැලුම්කරුවන් දැනුවත් විය යුත්තේ වැඩි ප්‍රතිශතයකින් හීන් කුරුඳු නිෂ්පාදනය කිරීමට වන අතර එමගින් ඔබගේ ආදායම ඉහළ නංවා ගත හැකි වේ.",
+      "corrected_english": "Although about 13 cinnamon grades can be identified according to the above criteria, in general usage two categories can be identified: fine cinnamon (heen) and coarse cinnamon (gorosu). Cinnamon of the Alba category and the 'C' category is called fine cinnamon, and cinnamon of the 'M' and 'H' categories is called coarse cinnamon. Cinnamon peelers (තැලුම්කරුවන්) should be aware that they should aim to produce a higher percentage of fine cinnamon, through which their income can be increased.",
+      "exact_requirements": [
+        "About 13 grades are identifiable by the criteria.",
+        "Fine cinnamon: Alba and the 'C' category.",
+        "Coarse cinnamon: the 'M' and 'H' categories."
+      ],
+      "practical_guidance": [
+        "Aim to produce a higher percentage of fine cinnamon (Alba and C grades), which the handbook says can raise income."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "fine cinnamon",
+        "coarse cinnamon",
+        "Alba C grades fine",
+        "M H grades coarse",
+        "13 grades",
+        "income",
+        "grade improvement"
+      ],
+      "verification_note": "The handbook does not say that a higher percentage of fine grades is guaranteed by any practice. It only says producers should aim for it."
+    },
+    {
+      "id": "R26",
+      "source_page": 62,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "defects",
+      "original_sinhala": "කුරුඳු කූරු තුළ වැඩි තෙතමනය, අපද්‍රව්‍ය (එම ශාකයේම වෙනත් කොටස්, වෙනත් ශාක කොටස්, වැලි, ගල් ආදිය), දිලීර සහ බැක්ටීරියා, ක්ෂේත්‍ර සහ ගබඩා පලිබෝධකයන්, මීයන් වැනි සත්ත්වයන්ගේ හා පක්ෂීන්ගේ මල ද්‍රව්‍ය, බැර ලෝහ, කෘමිනාශක හා රසායනික අවශේෂ තිබීම මගින් ගුණාත්මක භාවය අඩු කරයි.",
+      "corrected_english": "The quality of cinnamon quills is reduced by the presence of excess moisture, impurities (other parts of the same plant, parts of other plants, sand, stones, etc.), fungi and bacteria, field and storage pests, excreta of animals such as rats and of birds, heavy metals, and pesticide and chemical residues.",
+      "exact_requirements": [
+        "None stated."
+      ],
+      "practical_guidance": [
+        "Keep moisture within the limits and keep quills free of the listed contaminants (see the records on moisture, foreign matter, microbiological limits, pesticide residues and heavy metals)."
+      ],
+      "quality_problems_to_avoid": [
+        "Excess moisture in the quills.",
+        "Impurities: other parts of the same plant, parts of other plants, sand, stones.",
+        "Fungi and bacteria.",
+        "Field and storage pests.",
+        "Excreta of animals such as rats, and of birds.",
+        "Heavy metals.",
+        "Pesticide and chemical residues."
+      ],
+      "rag_keywords": [
+        "quality reduced",
+        "excess moisture",
+        "impurities",
+        "fungi bacteria",
+        "storage pests",
+        "rodent excreta",
+        "heavy metals",
+        "pesticide residues"
+      ],
+      "verification_note": "The handbook does not describe the mechanism by which excess moisture reduces quality. It only lists it as a factor that reduces quality."
+    },
+    {
+      "id": "R27",
+      "source_page": 62,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "export_quality",
+      "original_sinhala": "ශ්‍රී ලංකා ප්‍රමිතිකරණ ආයතනය මගින් ශ්‍රී ලංකා කුරුඳු සඳහා ප්‍රමිතියක් SLS 81:2021 ලෙස හඳුන්වා දී ඇත. මේ හා සමානව අන්තර්ජාතික ප්‍රමිතිකරණ ආයතනය (ISO) මගින් අවශ්‍යතා නිර්ණය කර ශ්‍රී ලංකා කුරුඳු සඳහා නව ප්‍රමිතිය ISO 6539 :2014 යටතේ හඳුන්වා දී ඇත. මීට අමතරව යුරෝපා කුළුබඩු සංගමය, එක්සත් ජනපද ආහාර හා ඖෂධ අධිකාරිය ආදී ආයතන මගින්ද ඒ රටවලදී අදාළ වන ප්‍රමිතීන් හඳුන්වා දී ඇත.",
+      "corrected_english": "The Sri Lanka Standards Institution has introduced a standard for Sri Lankan cinnamon as SLS 81:2021. Similarly, the International Organization for Standardization (ISO) has determined requirements and introduced a new standard for Sri Lankan cinnamon under ISO 6539:2014. In addition, institutions such as the European Spice Association and the United States Food and Drug Administration have introduced standards applicable in those countries.",
+      "exact_requirements": [
+        "Standards named: SLS 81:2021; ISO 6539:2014. Standards of the European Spice Association and the United States Food and Drug Administration apply in those countries."
+      ],
+      "practical_guidance": [
+        "None stated."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "SLS 81:2021",
+        "ISO 6539:2014",
+        "cinnamon standards",
+        "export quality",
+        "European Spice Association",
+        "FDA",
+        "Sri Lanka Standards Institution"
+      ],
+      "verification_note": "The handbook names the standards but does not reproduce their grade requirements."
+    },
+    {
+      "id": "R28",
+      "source_page": 63,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "moisture",
+      "original_sinhala": "කුරුඳු නිෂ්පාදන වල රසායනික නිර්ණායක පහත පරිදි විය යුතුය. නිර්ණායක / Characteristics: තෙතමන ප්‍රතිශතය (උපරිම) Moisture, percentage by mass (max.). අවශ්‍යතා / Requirement: Quills, Cut Quills, Quilling, Featherings, Chips: 14.",
+      "corrected_english": "The chemical criteria of cinnamon products should be as follows. Moisture, percentage by mass (max.): 14, in the column that covers Quills, Cut Quills, Quilling, Featherings and Chips.",
+      "exact_requirements": [
+        "Moisture limit: 14 (percentage by mass, maximum) for quills."
+      ],
+      "practical_guidance": [
+        "Dry quills until moisture is within the 14 maximum (see also the drying target on page 60)."
+      ],
+      "quality_problems_to_avoid": [
+        "Moisture above 14 percent by mass."
+      ],
+      "rag_keywords": [
+        "moisture limit 14 percent",
+        "maximum moisture quills",
+        "export quality moisture",
+        "chemical criteria",
+        "moisture compliance"
+      ],
+      "verification_note": "Moisture is a separate compliance check. The handbook does not state that moisture changes the diameter based grade."
+    },
+    {
+      "id": "R29",
+      "source_page": 63,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "export_quality",
+      "original_sinhala": "නිර්ණායක / Characteristics: මුළු අළු ප්‍රමාණය වියළි බර අනුව ප්‍රතිශතය (උපරිම) Total ash, percentage by mass (max.): 5.0. අම්ල අද්‍රාව්‍ය අළු ප්‍රමාණය වියළි බර අනුව ප්‍රතිශතය (උපරිම) Acid insoluble ash percentage by mass, max.: 1.0 (0.5 for chips). වාෂ්පශීලී තෙල් මි.ලි./ග්‍රෑම් 100ට වියළි බර අනුව (අවම) Volatile oil content, on dry basis, ml/100 g, (min.): 1.0. සල්ෆර් ප්‍රමාණය SO2 ලෙස mg/kg (උපරිම) Sulphur, as SO2 mg/kg (max.): 150. (Quills, Cut Quills, Quilling, Featherings, Chips column)",
+      "corrected_english": "Other chemical criteria in the column that covers Quills, Cut Quills, Quilling, Featherings and Chips: total ash, percentage by mass (maximum) 5.0; acid insoluble ash, percentage by mass (maximum) 1.0 (the table notes 0.5 for chips); volatile oil content, on dry basis, ml per 100 g (minimum) 1.0; sulphur as SO2, mg per kg (maximum) 150.",
+      "exact_requirements": [
+        "Total ash: maximum 5.0 (percentage by mass).",
+        "Acid insoluble ash: maximum 1.0 (percentage by mass).",
+        "Volatile oil content: minimum 1.0 ml per 100 g, on dry basis.",
+        "Sulphur as SO2: maximum 150 mg per kg."
+      ],
+      "practical_guidance": [
+        "Keep the product within these chemical limits."
+      ],
+      "quality_problems_to_avoid": [
+        "Total ash above 5.0.",
+        "Acid insoluble ash above 1.0.",
+        "Volatile oil below 1.0 ml per 100 g.",
+        "Sulphur above 150 mg per kg."
+      ],
+      "rag_keywords": [
+        "total ash 5.0",
+        "acid insoluble ash",
+        "volatile oil minimum",
+        "sulphur SO2 150",
+        "chemical requirements",
+        "export quality limits"
+      ],
+      "verification_note": "The Sinhala label says the ash values are on a dry weight basis, while the English label says percentage by mass. [Manual verification required] for the basis of the ash percentages."
+    },
+    {
+      "id": "R30",
+      "source_page": 63,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "colour",
+      "original_sinhala": "පැහැය: සාමාන්‍ය ලෙස සඳහන් කරන පරිදි, කුරුඳු නිෂ්පාදන වල පැහැය රන්වන් දුඹුරු පැහැයේ සිට දුඹුරු පැහැය දක්වා විය යුතුය. මෙය නිවැරදිව තහවුරු කරගැනීමට PANTON වර්ණ කේත භාවිතා කළයුතු වේ. PANTON වර්ණ කේත අනුව, CC4-CC10 දක්වා වූ පැහැයක් තිබිය හැකිය. මෙම පැහැය කුරුඳු නිෂ්පාදනය අනුව වෙනස් වේ.",
+      "corrected_english": "Colour: as generally stated, the colour of cinnamon products should be from golden brown to brown. PANTON colour codes should be used to confirm this accurately. According to the PANTON colour codes, a colour from CC4 to CC10 may be present. This colour varies according to the cinnamon product.",
+      "exact_requirements": [
+        "Colour of cinnamon products: from golden brown to brown.",
+        "PANTON colour code range: CC4 to CC10."
+      ],
+      "practical_guidance": [
+        "Use PANTON colour codes to confirm colour."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "golden brown to brown",
+        "PANTON colour codes",
+        "CC4 to CC10",
+        "quill colour requirement",
+        "colour varies by product",
+        "colour check"
+      ],
+      "verification_note": "The sentence about using colour codes to confirm the colour is partly unclear in the page image. [Manual verification required] for its exact wording. The colour requirement is given for cinnamon products in general, not per quill grade. The handbook spells the colour system as PANTON."
+    },
+    {
+      "id": "R31",
+      "source_page": 63,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "other_quill_quality",
+      "original_sinhala": "සුවඳ සහ රසය: කුරුඳු නිෂ්පාදන, ලාක්ෂණික ගන්ධයකින් සහ රසයකින් යුක්ත වීම සහ ආගන්තුක රසයන් හා ගන්ධයන්ගෙන් තොර විය යුතුයි.",
+      "corrected_english": "Aroma and taste: cinnamon products should have a characteristic odour and taste and be free from foreign tastes and odours.",
+      "exact_requirements": [
+        "Aroma and taste: characteristic odour and taste, free from foreign tastes and odours."
+      ],
+      "practical_guidance": [
+        "None stated."
+      ],
+      "quality_problems_to_avoid": [
+        "Foreign tastes and odours."
+      ],
+      "rag_keywords": [
+        "aroma",
+        "taste",
+        "characteristic odour",
+        "foreign odour",
+        "foreign taste",
+        "quality requirement"
+      ],
+      "verification_note": "Stated for cinnamon products in general, not only quills."
+    },
+    {
+      "id": "R32",
+      "source_page": 63,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "defects",
+      "original_sinhala": "දිලීර (පුස්), කෘමීන් සහ සත්ව මල ද්‍රව්‍ය: දිලීර වර්ධනය, ජීවී හෝ අජීවී කෘමීන් සහ කෘමී කොටස් සහ සත්ව මල ද්‍රව්‍ය වලින් තොරවිය යුතුය. තවද, ආගන්තුක සහ බාහිර අපද්‍රව්‍ය වලින් තොරවිය යුතුය.",
+      "corrected_english": "Fungi (mould), insects and animal excreta: the product should be free from fungal growth, living or dead insects, insect parts and animal excreta. It should also be free from foreign and extraneous matter.",
+      "exact_requirements": [
+        "Free from fungal growth, living or dead insects, insect parts, animal excreta, and foreign and extraneous matter."
+      ],
+      "practical_guidance": [
+        "None stated."
+      ],
+      "quality_problems_to_avoid": [
+        "Fungal growth (mould).",
+        "Living or dead insects and insect parts.",
+        "Animal excreta.",
+        "Foreign and extraneous matter."
+      ],
+      "rag_keywords": [
+        "mould",
+        "fungal growth",
+        "insects",
+        "animal excreta",
+        "foreign matter",
+        "extraneous matter",
+        "export quality"
+      ],
+      "verification_note": "Stated for cinnamon products in general, not only quills."
+    },
+    {
+      "id": "R33",
+      "source_page": 63,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "export_quality",
+      "original_sinhala": "ක්ෂුද්‍රජීවී නිර්ණායකයන්: සකස් කරන ලද කුරුඳු නිෂ්පාදන, විවිධ රෝගවලට හේතුවන රෝගකාරක බැක්ටීරියා වන සැල්මොනෙල්ලා (Salmonella spp.), ඊ-කෝලයි (Escherichia coli) වැනි අභිතකර ක්ෂුද්‍රජීවීන්ගෙන් තොරවිය යුතුයි.",
+      "corrected_english": "Microbiological criteria: processed cinnamon products should be free from harmful micro organisms such as the disease causing bacteria Salmonella spp. and Escherichia coli.",
+      "exact_requirements": [
+        "Free from harmful micro organisms such as Salmonella spp. and Escherichia coli."
+      ],
+      "practical_guidance": [
+        "None stated."
+      ],
+      "quality_problems_to_avoid": [
+        "Salmonella spp.",
+        "Escherichia coli",
+        "Harmful micro organisms."
+      ],
+      "rag_keywords": [
+        "Salmonella",
+        "E. coli",
+        "microbiological criteria",
+        "harmful micro organisms",
+        "food safety",
+        "export quality"
+      ],
+      "verification_note": "Stated for cinnamon products in general, not only quills."
+    },
+    {
+      "id": "R34",
+      "source_page": 63,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "export_quality",
+      "original_sinhala": "පලිබෝධනාශක අවශේෂ: සකසන ලද කුරුඳුවල පලිබෝධනාශක අවශේෂ නොතිබිය යුතුවේ. යහපත් කෘෂිකාර්මික පිළිවෙත් (GAP) හා යහපත් නිෂ්පාදන පිළිවෙත් (GMP) නිර්ණායකයන්වලට නැඹුරුවීම මගින් නිෂ්පාදනයේ පලිබෝධනාශක අඩංගු නොවන ලෙස නිෂ්පාදනය කළ හැකි වේ.",
+      "corrected_english": "Pesticide residues: processed cinnamon should not contain pesticide residues. By following the criteria of Good Agricultural Practices (GAP) and Good Manufacturing Practices (GMP), the product can be produced without pesticide content.",
+      "exact_requirements": [
+        "No pesticide residues in processed cinnamon."
+      ],
+      "practical_guidance": [
+        "Follow GAP and GMP criteria to produce cinnamon without pesticide content."
+      ],
+      "quality_problems_to_avoid": [
+        "Pesticide residues."
+      ],
+      "rag_keywords": [
+        "pesticide residues",
+        "GAP",
+        "GMP",
+        "export quality",
+        "chemical residues",
+        "residue free"
+      ],
+      "verification_note": "Stated for cinnamon products in general, not only quills."
+    },
+    {
+      "id": "R35",
+      "source_page": 63,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "export_quality",
+      "original_sinhala": "බැර ලෝහ: විස විය හැකි මූලද්‍රව්‍ය / Potentially Toxic Elements, සීමාව / Limit (mg/Kg): ආසනික් (Arsenic) (max.) 0.1. කැඩ්මියම් (Cadmium) (max.) 0.2. ඊයම් (Lead) (max.) 0.2.",
+      "corrected_english": "Heavy metals, potentially toxic elements and limits in mg per kg: arsenic (maximum) 0.1; cadmium (maximum) 0.2; lead (maximum) 0.2.",
+      "exact_requirements": [
+        "Arsenic: maximum 0.1 mg per kg.",
+        "Cadmium: maximum 0.2 mg per kg.",
+        "Lead: maximum 0.2 mg per kg."
+      ],
+      "practical_guidance": [
+        "None stated."
+      ],
+      "quality_problems_to_avoid": [
+        "Arsenic above 0.1 mg per kg.",
+        "Cadmium above 0.2 mg per kg.",
+        "Lead above 0.2 mg per kg."
+      ],
+      "rag_keywords": [
+        "heavy metals",
+        "arsenic 0.1",
+        "cadmium 0.2",
+        "lead 0.2",
+        "toxic elements limit",
+        "export quality"
+      ],
+      "verification_note": "Stated for cinnamon products in general, not only quills."
+    },
+    {
+      "id": "R36",
+      "source_page": 65,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "quill_structure",
+      "original_sinhala": "හොඳින් මෝරන ලද කුරුඳු වගාවකින් ලබාගත් කඳන්හි, පිටත සුඹුල සූරා ගලවා වෙන්කරගත් ඇතුළත පොත්ත එක මත එක තබා සන්ධි කරගත් කූරු වෙයි. කූරක දිග සෙ.මී. 105 (අඟල් 42) විය යුතුවේ. කුරුඳු කූරු පහත දැක්වෙන ආකාරයට ශ්‍රේණිවලට වෙන්කරනු ලැබේ.",
+      "corrected_english": "Quills are made from stems obtained from a well matured cinnamon plantation, by scraping off the outer layer, separating the inner bark, and placing the pieces one on top of another and joining them. The length of a quill should be 105 cm (42 inches). Cinnamon quills are separated into grades as shown below.",
+      "exact_requirements": [
+        "Quill length: 105 cm (42 inches).",
+        "Source stems: from a well matured cinnamon plantation."
+      ],
+      "practical_guidance": [
+        "Make quills from the inner bark of well matured stems, joining pieces one on top of another, to a length of 105 cm (42 inches)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "quill definition",
+        "quill length 105 cm",
+        "42 inch quill",
+        "inner bark pieces joined",
+        "mature stems",
+        "quill construction"
+      ],
+      "verification_note": null
+    },
+    {
+      "id": "R37",
+      "source_page": 65,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "filling",
+      "original_sinhala": "මේවායේ ඇතුළත කුහරය එම කුරුඳු වර්ගයේම කුඩා කැබිලිවලින් පුරවා පවනේ වේලාගෙන තිබිය යුතුය.",
+      "corrected_english": "The hollow inside of these quills should be filled with small pieces of the same cinnamon type and dried in the air.",
+      "exact_requirements": [
+        "Filling: small pieces of the same cinnamon type.",
+        "Filled quills are air dried."
+      ],
+      "practical_guidance": [
+        "Fill the inner hollow with small pieces of the same cinnamon type, then air dry."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "quill filling",
+        "inner hollow",
+        "small pieces same type",
+        "air dried",
+        "filled quill",
+        "quill construction"
+      ],
+      "verification_note": "Page 60 describes the filling pieces as bark pieces ('podi') and page 58 requires their outer layer and green parts to be removed."
+    },
+    {
+      "id": "G01",
+      "source_page": 65,
+      "relevant_grade": [
+        "Alba"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nඇල්බා | 22 | 6 | 45 | 10",
+      "corrected_english": "Grade table row for Alba (with no group heading). Width of the bark to be removed: 22 mm. Diameter: 6 mm. Number of 42 inch long quills in 1 kg: 45. Spot and blemish percentage: 10.",
+      "exact_requirements": [
+        "Width of the bark to be removed: 22 mm.",
+        "Diameter: 6 mm (the handbook gives one value and does not say whether it is a maximum, a minimum or a nominal value).",
+        "Number of 42 inch long quills in 1 kg: 45.",
+        "Spot and blemish percentage: 10 (the handbook gives one value and does not say whether it is a maximum)."
+      ],
+      "practical_guidance": [
+        "When removing the bark sheaths for this target grade, use the bark width the table gives for it (22 mm)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "Alba grade",
+        "Alba diameter 6 mm",
+        "Alba quills per kg",
+        "Alba blemish percentage",
+        "quill grade table",
+        "grade requirements"
+      ],
+      "verification_note": "Measured quill diameter determines the official grade in this system. The handbook table gives a single diameter value per grade and no boundaries between grades. [Manual verification required] for how values between two grades should be assigned. Colour, blemish percentage and moisture do not replace the diameter based grade."
+    },
+    {
+      "id": "G02",
+      "source_page": 65,
+      "relevant_grade": [
+        "C5 Special"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nකොන්ටිනෙන්ටල්\nC5 - විශේෂ | 35 | 10 | 30 | 10",
+      "corrected_english": "Grade table row for C5 Special (under the Continental group heading). Width of the bark to be removed: 35 mm. Diameter: 10 mm. Number of 42 inch long quills in 1 kg: 30. Spot and blemish percentage: 10.",
+      "exact_requirements": [
+        "Width of the bark to be removed: 35 mm.",
+        "Diameter: 10 mm (the handbook gives one value and does not say whether it is a maximum, a minimum or a nominal value).",
+        "Number of 42 inch long quills in 1 kg: 30.",
+        "Spot and blemish percentage: 10 (the handbook gives one value and does not say whether it is a maximum)."
+      ],
+      "practical_guidance": [
+        "When removing the bark sheaths for this target grade, use the bark width the table gives for it (35 mm)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "C5 Special grade",
+        "C5 Special diameter 10 mm",
+        "C5 Special quills per kg",
+        "C5 Special blemish percentage",
+        "quill grade table",
+        "grade requirements"
+      ],
+      "verification_note": "Measured quill diameter determines the official grade in this system. The handbook table gives a single diameter value per grade and no boundaries between grades. [Manual verification required] for how values between two grades should be assigned. Colour, blemish percentage and moisture do not replace the diameter based grade."
+    },
+    {
+      "id": "G03",
+      "source_page": 65,
+      "relevant_grade": [
+        "C5"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nකොන්ටිනෙන්ටල්\nC5 | 42 | 12 | 27 | 15",
+      "corrected_english": "Grade table row for C5 (under the Continental group heading). Width of the bark to be removed: 42 mm. Diameter: 12 mm. Number of 42 inch long quills in 1 kg: 27. Spot and blemish percentage: 15.",
+      "exact_requirements": [
+        "Width of the bark to be removed: 42 mm.",
+        "Diameter: 12 mm (the handbook gives one value and does not say whether it is a maximum, a minimum or a nominal value).",
+        "Number of 42 inch long quills in 1 kg: 27.",
+        "Spot and blemish percentage: 15 (the handbook gives one value and does not say whether it is a maximum)."
+      ],
+      "practical_guidance": [
+        "When removing the bark sheaths for this target grade, use the bark width the table gives for it (42 mm)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "C5 grade",
+        "C5 diameter 12 mm",
+        "C5 quills per kg",
+        "C5 blemish percentage",
+        "quill grade table",
+        "grade requirements"
+      ],
+      "verification_note": "Measured quill diameter determines the official grade in this system. The handbook table gives a single diameter value per grade and no boundaries between grades. [Manual verification required] for how values between two grades should be assigned. Colour, blemish percentage and moisture do not replace the diameter based grade."
+    },
+    {
+      "id": "G04",
+      "source_page": 65,
+      "relevant_grade": [
+        "C4"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nකොන්ටිනෙන්ටල්\nC4 | 54 | 16 | 22 | 15",
+      "corrected_english": "Grade table row for C4 (under the Continental group heading). Width of the bark to be removed: 54 mm. Diameter: 16 mm. Number of 42 inch long quills in 1 kg: 22. Spot and blemish percentage: 15.",
+      "exact_requirements": [
+        "Width of the bark to be removed: 54 mm.",
+        "Diameter: 16 mm (the handbook gives one value and does not say whether it is a maximum, a minimum or a nominal value).",
+        "Number of 42 inch long quills in 1 kg: 22.",
+        "Spot and blemish percentage: 15 (the handbook gives one value and does not say whether it is a maximum)."
+      ],
+      "practical_guidance": [
+        "When removing the bark sheaths for this target grade, use the bark width the table gives for it (54 mm)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "C4 grade",
+        "C4 diameter 16 mm",
+        "C4 quills per kg",
+        "C4 blemish percentage",
+        "quill grade table",
+        "grade requirements"
+      ],
+      "verification_note": "Measured quill diameter determines the official grade in this system. The handbook table gives a single diameter value per grade and no boundaries between grades. [Manual verification required] for how values between two grades should be assigned. Colour, blemish percentage and moisture do not replace the diameter based grade."
+    },
+    {
+      "id": "G05",
+      "source_page": 65,
+      "relevant_grade": [
+        "M5"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nමෙක්සිකන්\nM5 | 60 | 18 | 20 | 60",
+      "corrected_english": "Grade table row for M5 (under the Mexican group heading). Width of the bark to be removed: 60 mm. Diameter: 18 mm. Number of 42 inch long quills in 1 kg: 20. Spot and blemish percentage: 60.",
+      "exact_requirements": [
+        "Width of the bark to be removed: 60 mm.",
+        "Diameter: 18 mm (the handbook gives one value and does not say whether it is a maximum, a minimum or a nominal value).",
+        "Number of 42 inch long quills in 1 kg: 20.",
+        "Spot and blemish percentage: 60 (the handbook gives one value and does not say whether it is a maximum)."
+      ],
+      "practical_guidance": [
+        "When removing the bark sheaths for this target grade, use the bark width the table gives for it (60 mm)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "M5 grade",
+        "M5 diameter 18 mm",
+        "M5 quills per kg",
+        "M5 blemish percentage",
+        "quill grade table",
+        "grade requirements"
+      ],
+      "verification_note": "Measured quill diameter determines the official grade in this system. The handbook table gives a single diameter value per grade and no boundaries between grades. [Manual verification required] for how values between two grades should be assigned. Colour, blemish percentage and moisture do not replace the diameter based grade."
+    },
+    {
+      "id": "G06",
+      "source_page": 65,
+      "relevant_grade": [
+        "M4"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nමෙක්සිකන්\nM4 | 70 | 21 | 15 | 60",
+      "corrected_english": "Grade table row for M4 (under the Mexican group heading). Width of the bark to be removed: 70 mm. Diameter: 21 mm. Number of 42 inch long quills in 1 kg: 15. Spot and blemish percentage: 60.",
+      "exact_requirements": [
+        "Width of the bark to be removed: 70 mm.",
+        "Diameter: 21 mm (the handbook gives one value and does not say whether it is a maximum, a minimum or a nominal value).",
+        "Number of 42 inch long quills in 1 kg: 15.",
+        "Spot and blemish percentage: 60 (the handbook gives one value and does not say whether it is a maximum)."
+      ],
+      "practical_guidance": [
+        "When removing the bark sheaths for this target grade, use the bark width the table gives for it (70 mm)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "M4 grade",
+        "M4 diameter 21 mm",
+        "M4 quills per kg",
+        "M4 blemish percentage",
+        "quill grade table",
+        "grade requirements"
+      ],
+      "verification_note": "Measured quill diameter determines the official grade in this system. The handbook table gives a single diameter value per grade and no boundaries between grades. [Manual verification required] for how values between two grades should be assigned. Colour, blemish percentage and moisture do not replace the diameter based grade."
+    },
+    {
+      "id": "G07",
+      "source_page": 65,
+      "relevant_grade": [
+        "H1"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nහැම්බර්ග්\nH1 | 76 | 23 | 10 | 25",
+      "corrected_english": "Grade table row for H1 (under the Hamburg group heading). Width of the bark to be removed: 76 mm. Diameter: 23 mm. Number of 42 inch long quills in 1 kg: 10. Spot and blemish percentage: 25.",
+      "exact_requirements": [
+        "Width of the bark to be removed: 76 mm.",
+        "Diameter: 23 mm (the handbook gives one value and does not say whether it is a maximum, a minimum or a nominal value).",
+        "Number of 42 inch long quills in 1 kg: 10.",
+        "Spot and blemish percentage: 25 (the handbook gives one value and does not say whether it is a maximum)."
+      ],
+      "practical_guidance": [
+        "When removing the bark sheaths for this target grade, use the bark width the table gives for it (76 mm)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "H1 grade",
+        "H1 diameter 23 mm",
+        "H1 quills per kg",
+        "H1 blemish percentage",
+        "quill grade table",
+        "grade requirements"
+      ],
+      "verification_note": "Measured quill diameter determines the official grade in this system. The handbook table gives a single diameter value per grade and no boundaries between grades. [Manual verification required] for how values between two grades should be assigned. Colour, blemish percentage and moisture do not replace the diameter based grade."
+    },
+    {
+      "id": "G08",
+      "source_page": 65,
+      "relevant_grade": [
+        "H2"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nහැම්බර්ග්\nH2 | 105 | 32 | 07 | 55",
+      "corrected_english": "Grade table row for H2 (under the Hamburg group heading). Width of the bark to be removed: 105 mm. Diameter: 32 mm. Number of 42 inch long quills in 1 kg: 07. Spot and blemish percentage: 55.",
+      "exact_requirements": [
+        "Width of the bark to be removed: 105 mm.",
+        "Diameter: 32 mm (the handbook gives one value and does not say whether it is a maximum, a minimum or a nominal value).",
+        "Number of 42 inch long quills in 1 kg: 07.",
+        "Spot and blemish percentage: 55 (the handbook gives one value and does not say whether it is a maximum)."
+      ],
+      "practical_guidance": [
+        "When removing the bark sheaths for this target grade, use the bark width the table gives for it (105 mm)."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "H2 grade",
+        "H2 diameter 32 mm",
+        "H2 quills per kg",
+        "H2 blemish percentage",
+        "quill grade table",
+        "grade requirements"
+      ],
+      "verification_note": "Measured quill diameter determines the official grade in this system. The handbook table gives a single diameter value per grade and no boundaries between grades. [Manual verification required] for how values between two grades should be assigned. Colour, blemish percentage and moisture do not replace the diameter based grade."
+    },
+    {
+      "id": "T01",
+      "source_page": 65,
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2",
+        "General Quill Quality"
+      ],
+      "topic": "diameter",
+      "original_sinhala": "ශ්‍රේණිය | ගලවා ගත යුතු පොත්තේ පළල (මි.මී.) | විෂ්කම්භය (මි.මී.) | කි. ග්‍රෑම් 01 ක ඇති අඟල් 42 දිග කූරු ගණන | ලප කැළැල් ප්‍රතිශතය\nකොන්ටිනෙන්ටල් | මෙක්සිකන් | හැම්බර්ග්",
+      "corrected_english": "Structure of the quill grade table. Columns: Grade; width of the bark to be removed (mm); diameter (mm); number of 42 inch long quills in 1 kg; spot and blemish percentage. In the table the grades are grouped under the headings Continental (C grades), Mexican (M grades) and Hamburg (H grades). Alba appears first with no group heading.",
+      "exact_requirements": [
+        "Table columns: bark width to be removed (mm); diameter (mm); number of 42 inch quills per 1 kg; spot and blemish percentage.",
+        "Groups: Continental (C), Mexican (M), Hamburg (H); Alba listed first without a group heading."
+      ],
+      "practical_guidance": [
+        "None stated."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "grade table structure",
+        "Continental C grades",
+        "Mexican M grades",
+        "Hamburg H grades",
+        "Alba",
+        "table columns",
+        "quill grades"
+      ],
+      "verification_note": "The heading 'කි. ග්‍රෑම් 01 ක' is printed as a short form of kilogram. The table also lists grades that this system does not use. They were left out on purpose."
+    },
+    {
+      "id": "T02",
+      "source_page": 65,
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2"
+      ],
+      "topic": "blemishes",
+      "original_sinhala": "ලප කැළැල් ප්‍රතිශතය: ඇල්බා 10; C5 - විශේෂ 10; C5 15; C4 15; M5 60; M4 60; H1 25; H2 55",
+      "corrected_english": "Spot and blemish percentage column of the grade table: Alba 10; C5 Special 10; C5 15; C4 15; M5 60; M4 60; H1 25; H2 55.",
+      "exact_requirements": [
+        "Alba: 10.",
+        "C5 Special: 10.",
+        "C5: 15.",
+        "C4: 15.",
+        "M5: 60.",
+        "M4: 60.",
+        "H1: 25.",
+        "H2: 55."
+      ],
+      "practical_guidance": [
+        "None stated."
+      ],
+      "quality_problems_to_avoid": [
+        "None stated."
+      ],
+      "rag_keywords": [
+        "spots and blemishes",
+        "blemish percentage by grade",
+        "foxing",
+        "Alba 10",
+        "M5 M4 60",
+        "H1 25",
+        "H2 55",
+        "surface spots"
+      ],
+      "verification_note": "The handbook says 'ලප කැළැල් ප්‍රතිශතය' (spots and blemishes percentage). It does not use the word foxing, and it does not state how the percentage is measured or whether each value is a maximum. [Manual verification required]. Blemish percentage is supplementary evidence and does not override the diameter based grade."
+    },
+    {
+      "id": "S01",
+      "source_page": 67,
+      "relevant_grade": [
+        "General Quill Quality"
+      ],
+      "topic": "storage",
+      "original_sinhala": "කුරුඳු බේල් වශයෙන් ගබඩා කිරීමේදී ලී රාමුවක් (wooden pallet) මත තැබීම සුදුසු වේ. ඇසුරුම් සහ බිත්තිය අතර අඟල් 6 ක අවම පරතරයක් පවත්වා ගත යුතුයි. ගබඩාව මීයන්, කෘමීන් හා වෙනත් සතුන්ගෙන් තොරව පවත්වා ගත යුතුයි. වියළි සිසිල් ස්ථානයක ගබඩාව පවත්වා ගත යුතුය.",
+      "corrected_english": "When cinnamon is stored as bales, it is suitable to place the bales on a wooden pallet. A minimum gap of 6 inches should be kept between the packages and the wall. The store should be kept free from rats, insects and other animals. The store should be kept in a dry, cool place.",
+      "exact_requirements": [
+        "Gap between packages and wall: minimum 6 inches.",
+        "Placement: bales on a wooden pallet.",
+        "Store: free from rats, insects and other animals, in a dry, cool place."
+      ],
+      "practical_guidance": [
+        "Place bales on a wooden pallet.",
+        "Keep at least 6 inches between packages and the wall.",
+        "Keep the store dry and cool and free from rats, insects and other animals."
+      ],
+      "quality_problems_to_avoid": [
+        "Storage in a place open to rats, insects and other animals.",
+        "Storage in a damp or warm place (the handbook says the store should be dry and cool)."
+      ],
+      "rag_keywords": [
+        "storage of bales",
+        "wooden pallet",
+        "6 inch gap from wall",
+        "dry cool store",
+        "pest free store",
+        "quill storage"
+      ],
+      "verification_note": "This passage is under packaging and storage of cinnamon products in general. It does not mention quills by name. [Manual verification required] for applicability to quills."
+    }
+  ],
+  "merge_metadata": {
+    "schema_version": "1.0.0",
+    "title": "Merged Ceylon cinnamon quill assistant knowledge base",
+    "created_date": "2026-10-22",
+    "timezone": "Asia/Colombo",
+    "status": "complete_merge_with_inherited_handbook_verification_caveats",
+    "original_filename": "cinnamon_quill_kb(1).json",
+    "original_file_sha256": "bddd86475ff00f5fb4dd1d1bebab5c63ed9599d3c41267c739604620d42ed6a8",
+    "preservation": "Every original top-level key and value, including all 48 records, is unchanged. New material is appended in separate fields.",
+    "legacy_meta_note": "meta.record_count remains the original handbook count. Use record_counts for merged counts.",
+    "original_record_verification": "Preserved from uploaded JSON; handbook page images were not independently rechecked during this merge.",
+    "website_verification": "Selected claims and table rows checked against live official Department web pages on the stated date; not independent verification of standards or certification.",
+    "application_policy_verification": "Diameter ranges and manual boundaries supplied explicitly by the user in this chat; other policy choices recovered from the referenced chat and original system_rules."
+  },
+  "sources": {
+    "handbook_original": {
+      "source_type": "uploaded_handbook_knowledge_base",
+      "filename": "cinnamon_quill_kb(1).json",
+      "authority_as_described_in_original": "Department of Cinnamon Development",
+      "edition_as_described_in_original": "2025 second revised printing",
+      "verification_status": "inherited_not_independently_rechecked",
+      "page_number_convention": "PDF page index starting at 1; see original meta.scope_notes",
+      "sha256": "bddd86475ff00f5fb4dd1d1bebab5c63ed9599d3c41267c739604620d42ed6a8"
+    },
+    "department_post_harvest": {
+      "source_type": "official_department_website",
+      "authority": "Department of Cinnamon Development, Sri Lanka",
+      "title": "Post Harvest Technology",
+      "url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "accessed_date": "2026-10-22",
+      "language": "English",
+      "verification_status": "selected_claims_checked_against_live_page"
+    },
+    "department_analytical": {
+      "source_type": "official_department_website",
+      "authority": "Department of Cinnamon Development, Sri Lanka",
+      "title": "Analytical Services",
+      "url": "https://cinnamon.gov.lk/about/analytical-services/",
+      "accessed_date": "2026-10-22",
+      "language": "English and Sinhala",
+      "verification_status": "selected_claims_checked_against_live_page"
+    },
+    "application_policy": {
+      "source_type": "application_policy",
+      "authority": "Project owner / application design",
+      "conversation_id": "6aa83b41-81dc-83e9-9984-7e7b9b0698ac",
+      "diameter_policy_source": "User-provided JSON in current chat",
+      "confirmed_date": "2026-10-22",
+      "verification_status": "user_confirmed_configuration_not_official_standard"
+    }
+  },
+  "application_policy": {
+    "source_type": "application_policy",
+    "source_id": "application_policy",
+    "supported_grades": [
+      "Alba",
+      "C5 Special",
+      "C5",
+      "C4",
+      "M5",
+      "M4",
+      "H1",
+      "H2"
+    ],
+    "application_grading_policy": {
+      "Alba": {
+        "diameter_rule": "< 7 mm"
+      },
+      "C5 Special": {
+        "diameter_rule": ">= 7 mm and < 10 mm"
+      },
+      "C5": {
+        "diameter_rule": "> 10 mm and < 12 mm"
+      },
+      "C4": {
+        "diameter_rule": "> 12 mm and < 16 mm"
+      },
+      "M5": {
+        "diameter_rule": "> 16 mm and < 18 mm"
+      },
+      "M4": {
+        "diameter_rule": "> 18 mm and < 21 mm"
+      },
+      "H1": {
+        "diameter_rule": "> 21 mm and < 25 mm"
+      },
+      "H2": {
+        "diameter_rule": "> 25 mm and <= 32 mm"
+      }
+    },
+    "machine_readable_intervals": [
+      {
+        "grade": "Alba",
+        "lower_mm": null,
+        "upper_mm": 7,
+        "lower_inclusive": false,
+        "upper_inclusive": false
+      },
+      {
+        "grade": "C5 Special",
+        "lower_mm": 7,
+        "upper_mm": 10,
+        "lower_inclusive": true,
+        "upper_inclusive": false
+      },
+      {
+        "grade": "C5",
+        "lower_mm": 10,
+        "upper_mm": 12,
+        "lower_inclusive": false,
+        "upper_inclusive": false
+      },
+      {
+        "grade": "C4",
+        "lower_mm": 12,
+        "upper_mm": 16,
+        "lower_inclusive": false,
+        "upper_inclusive": false
+      },
+      {
+        "grade": "M5",
+        "lower_mm": 16,
+        "upper_mm": 18,
+        "lower_inclusive": false,
+        "upper_inclusive": false
+      },
+      {
+        "grade": "M4",
+        "lower_mm": 18,
+        "upper_mm": 21,
+        "lower_inclusive": false,
+        "upper_inclusive": false
+      },
+      {
+        "grade": "H1",
+        "lower_mm": 21,
+        "upper_mm": 25,
+        "lower_inclusive": false,
+        "upper_inclusive": false
+      },
+      {
+        "grade": "H2",
+        "lower_mm": 25,
+        "upper_mm": 32,
+        "lower_inclusive": false,
+        "upper_inclusive": true
+      }
+    ],
+    "manual_review_boundaries_mm": [
+      10,
+      12,
+      16,
+      18,
+      21,
+      25
+    ],
+    "special_rules": {
+      "7_mm": "C5 Special",
+      "10_mm": "Manual review",
+      "12_mm": "Manual review",
+      "16_mm": "Manual review",
+      "18_mm": "Manual review",
+      "21_mm": "Manual review",
+      "25_mm": "Manual review",
+      "greater_than_32_mm": "Manual review"
+    },
+    "input_validation": {
+      "unit": "mm",
+      "require_finite_numeric_value": true,
+      "require_strictly_positive_value": true,
+      "invalid_or_missing_measurement": "No grade; request a valid measured diameter.",
+      "measurement_uncertainty": "No tolerance or rounding rule supplied. Do not invent one; retain measured precision and request manual review if uncertainty prevents a boundary decision."
+    },
+    "decision_order": [
+      "Validate diameter input.",
+      "Apply explicit manual-review boundaries and greater-than-32 rule.",
+      "Apply the user-confirmed interval rules.",
+      "Report supplementary visual/RF evidence and moisture separately."
+    ],
+    "grade_basis": "Measured diameter determines the application grade.",
+    "rf_role": "Random Forest (RF) is supplementary evidence and does not override the diameter-based application grade.",
+    "visual_role": "Colour and visual quality are supplementary and do not override the diameter-based application grade.",
+    "moisture_policy": {
+      "separate_from_grade": true,
+      "quill_reference_max_percent": 14,
+      "reference_record_ids": [
+        "W02"
+      ],
+      "interpretation": "Report the 14% quill reference check separately. Meeting it alone does not establish full export compliance or certification."
+    },
+    "weighted_scoring": {
+      "enabled": false,
+      "rule": "Do not combine diameter, RF, colour and moisture into a weighted grade score."
+    },
+    "important_note": "These diameter ranges and boundary rules are application decisions. They are not directly stated as ranges in the Department of Cinnamon Development handbook, which provides single reference diameter values per grade.",
+    "official_grading_distinction": "The official website lists diameter, quills per kilogram and foxing as grading criteria. Report a diameter-only result as an application grade, not proof of official grade certification.",
+    "answer_constraints": [
+      "Do not invent missing source requirements.",
+      "Do not promise that processing guidance guarantees a grade.",
+      "Preserve source-specific values and caveats when answering.",
+      "Explain manual review instead of assigning a grade at excluded boundaries."
+    ]
+  },
+  "official_website_records": [
+    {
+      "id": "W01",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grading_criteria",
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2"
+      ],
+      "corrected_english": "After drying, grade using diameter, quill count per kilogram and surface foxing. Alba/C are fine; M/H are coarse."
+    },
+    {
+      "id": "W02",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Making Quills",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "drying_and_moisture",
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2"
+      ],
+      "corrected_english": "Shade-dry completed quills immediately on strings, racks or nets, approximately 4–7 days, to moisture of 14% or below.",
+      "structured_values": {
+        "moisture_max_percent": 14,
+        "approximate_drying_days": [
+          4,
+          7
+        ]
+      }
+    },
+    {
+      "id": "W03",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Knotting and Scraping; How to peel cinnamon bark",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "preparation",
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2"
+      ],
+      "corrected_english": "Scrape brown outer bark above ground to reduce contamination; rub stems with brass to loosen bark."
+    },
+    {
+      "id": "W04",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "foxing_terminology",
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2"
+      ],
+      "corrected_english": "The grade table names the surface-quality column Percentage of Foxing; it does not specify a measurement procedure or min/max interpretation."
+    },
+    {
+      "id": "W05",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grade_table",
+      "relevant_grade": [
+        "Alba"
+      ],
+      "corrected_english": "Alba: official table row.",
+      "structured_values": {
+        "bark_width_to_remove_mm": 22,
+        "diameter_of_quill_mm": 6,
+        "quills_42_inch_per_kg": 45,
+        "percentage_of_foxing": 10,
+        "diameter_value_semantics": "single_table_value_not_application_interval",
+        "foxing_limit_semantics": "not_explicitly_labelled_minimum_or_maximum"
+      }
+    },
+    {
+      "id": "W06",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grade_table",
+      "relevant_grade": [
+        "C5 Special"
+      ],
+      "corrected_english": "C5 Special: official table row.",
+      "structured_values": {
+        "bark_width_to_remove_mm": 35,
+        "diameter_of_quill_mm": 10,
+        "quills_42_inch_per_kg": 30,
+        "percentage_of_foxing": 10,
+        "diameter_value_semantics": "single_table_value_not_application_interval",
+        "foxing_limit_semantics": "not_explicitly_labelled_minimum_or_maximum"
+      }
+    },
+    {
+      "id": "W07",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grade_table",
+      "relevant_grade": [
+        "C5"
+      ],
+      "corrected_english": "C5: official table row.",
+      "structured_values": {
+        "bark_width_to_remove_mm": 42,
+        "diameter_of_quill_mm": 12,
+        "quills_42_inch_per_kg": 27,
+        "percentage_of_foxing": 15,
+        "diameter_value_semantics": "single_table_value_not_application_interval",
+        "foxing_limit_semantics": "not_explicitly_labelled_minimum_or_maximum"
+      }
+    },
+    {
+      "id": "W08",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grade_table",
+      "relevant_grade": [
+        "C4"
+      ],
+      "corrected_english": "C4: official table row.",
+      "structured_values": {
+        "bark_width_to_remove_mm": 54,
+        "diameter_of_quill_mm": 16,
+        "quills_42_inch_per_kg": 22,
+        "percentage_of_foxing": 15,
+        "diameter_value_semantics": "single_table_value_not_application_interval",
+        "foxing_limit_semantics": "not_explicitly_labelled_minimum_or_maximum"
+      }
+    },
+    {
+      "id": "W09",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grade_table",
+      "relevant_grade": [
+        "M5"
+      ],
+      "corrected_english": "M5: official table row.",
+      "structured_values": {
+        "bark_width_to_remove_mm": 60,
+        "diameter_of_quill_mm": 18,
+        "quills_42_inch_per_kg": 20,
+        "percentage_of_foxing": 60,
+        "diameter_value_semantics": "single_table_value_not_application_interval",
+        "foxing_limit_semantics": "not_explicitly_labelled_minimum_or_maximum"
+      }
+    },
+    {
+      "id": "W10",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grade_table",
+      "relevant_grade": [
+        "M4"
+      ],
+      "corrected_english": "M4: official table row.",
+      "structured_values": {
+        "bark_width_to_remove_mm": 70,
+        "diameter_of_quill_mm": 21,
+        "quills_42_inch_per_kg": 15,
+        "percentage_of_foxing": 60,
+        "diameter_value_semantics": "single_table_value_not_application_interval",
+        "foxing_limit_semantics": "not_explicitly_labelled_minimum_or_maximum"
+      }
+    },
+    {
+      "id": "W11",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grade_table",
+      "relevant_grade": [
+        "H1"
+      ],
+      "corrected_english": "H1: official table row.",
+      "structured_values": {
+        "bark_width_to_remove_mm": 76,
+        "diameter_of_quill_mm": 23,
+        "quills_42_inch_per_kg": 10,
+        "percentage_of_foxing": 25,
+        "diameter_value_semantics": "single_table_value_not_application_interval",
+        "foxing_limit_semantics": "not_explicitly_labelled_minimum_or_maximum"
+      }
+    },
+    {
+      "id": "W12",
+      "source_type": "official_department_website",
+      "source_id": "department_post_harvest",
+      "source_url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+      "source_section": "Table 1.1: Cinnamon Grades",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "grade_table",
+      "relevant_grade": [
+        "H2"
+      ],
+      "corrected_english": "H2: official table row.",
+      "structured_values": {
+        "bark_width_to_remove_mm": 105,
+        "diameter_of_quill_mm": 32,
+        "quills_42_inch_per_kg": 7,
+        "percentage_of_foxing": 55,
+        "diameter_value_semantics": "single_table_value_not_application_interval",
+        "foxing_limit_semantics": "not_explicitly_labelled_minimum_or_maximum"
+      }
+    },
+    {
+      "id": "W13",
+      "source_type": "official_department_website",
+      "source_id": "department_analytical",
+      "source_url": "https://cinnamon.gov.lk/about/analytical-services/",
+      "source_section": "Post-Harvest Technology (PHTL) testing parameters",
+      "verified_date": "2026-10-22",
+      "verification_status": "checked_against_live_official_page",
+      "topic": "analytical_quality_services",
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2"
+      ],
+      "corrected_english": "The Post-Harvest Technology laboratory lists moisture, water activity, sulfur, total ash, acid-insoluble ash and volatile-oil GCMS testing. This service list supplies no quill acceptance limits."
+    }
+  ],
+  "application_policy_records": [
+    {
+      "id": "P01",
+      "source_type": "application_policy",
+      "source_id": "application_policy",
+      "topic": "application_grading_decisions",
+      "relevant_grade": [
+        "Alba",
+        "C5 Special",
+        "C5",
+        "C4",
+        "M5",
+        "M4",
+        "H1",
+        "H2"
+      ],
+      "corrected_english": "Use the user-confirmed diameter intervals; 7 mm is C5 Special. Exact 10, 12, 16, 18, 21 and 25 mm, and diameters over 32 mm require manual review. RF and colour are supplementary; moisture is separate. No weighted score.",
+      "policy_json_pointer": "/application_policy",
+      "verification_status": "user_confirmed_application_configuration"
+    }
+  ],
+  "verification_metadata": {
+    "handbook_record_annotations": {
+      "R01": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R02": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R03": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R04": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R05": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R06": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R07": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R08": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R09": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R10": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R11": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R12": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R13": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R14": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R15": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R16": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R17": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R18": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R19": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R20": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R21": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R22": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R23": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R24": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R25": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R26": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R27": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R28": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R29": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R30": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R31": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R32": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R33": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R34": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R35": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R36": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "R37": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "G01": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "G02": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "G03": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "G04": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "G05": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "G06": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "G07": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "G08": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "T01": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "T02": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      },
+      "S01": {
+        "source_id": "handbook_original",
+        "verification_status": "inherited_not_independently_rechecked",
+        "original_verification_note_preserved": true
+      }
+    },
+    "grade_table_cross_check": {
+      "status": "all_eight_supported_rows_match_uploaded_grade_profiles",
+      "website_record_ids": [
+        "W05",
+        "W06",
+        "W07",
+        "W08",
+        "W09",
+        "W10",
+        "W11",
+        "W12"
+      ]
+    },
+    "knowledge_gap_updates": [
+      {
+        "original_gap": "Handbook does not use the word foxing.",
+        "update": "Official website provides English terminology; this does not alter the original Sinhala transcription or establish an image measurement method.",
+        "record_id": "W04"
+      },
+      {
+        "original_gap": "No application diameter boundaries in handbook.",
+        "update": "Resolved for application operation by user-confirmed policy; the handbook and website table values remain separate."
+      }
+    ],
+    "interpretation_cautions": [
+      "Original system_rules use the phrase official grade in this system. Interpret it as application grade; the website describes three grading criteria.",
+      "H1 website diameter is 23 mm; the application H1 interval extends above 21 and below 25 mm. Preserve both without replacing one with the other.",
+      "The original knowledge_gaps are retained as handbook-specific observations, not claims that the merged file contains no policy or foxing terminology.",
+      "Verification of a website statement is not verification of every handbook transcription or legal/export compliance limit."
+    ]
+  },
+  "retrieval_configuration": {
+    "record_collections": [
+      "records",
+      "official_website_records",
+      "application_policy_records"
+    ],
+    "full_record_retention": true,
+    "embedding_text_fields": [
+      "topic",
+      "relevant_grade",
+      "corrected_english",
+      "exact_requirements",
+      "practical_guidance",
+      "quality_problems_to_avoid",
+      "rag_keywords",
+      "structured_values"
+    ],
+    "retain_without_embedding_by_default": [
+      "original_sinhala",
+      "source_page",
+      "verification_note"
+    ],
+    "policy_application": "Load application_policy as structured configuration for grading; do not rely on semantic retrieval alone for numerical decisions.",
+    "citation_rule": "For handbook evidence cite record ID and PDF page. For website evidence cite record ID, URL and section. Label application rules explicitly.",
+    "language_note": "Sinhala is preserved. Select multilingual embeddings if Sinhala queries are required.",
+    "compatibility_note": "records retains the original 48 records. Index all record_collections to include new material."
+  },
+  "record_counts": {
+    "handbook": 48,
+    "official_website": 13,
+    "application_policy": 1,
+    "total": 62
+  }
+}

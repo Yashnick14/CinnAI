@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cinnamon_grading
+      POSTGRES_USER: cinnamon
+      POSTGRES_PASSWORD: cinnamon
+    ports:
+      - "5432:5432"
+    volumes:
+      - cinnamon_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cinnamon -d cinnamon_grading"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  cinnamon_postgres_data:

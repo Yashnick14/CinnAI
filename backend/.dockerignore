@@ -1,0 +1,31 @@
+.git
+.venv/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+.pytest-*/
+.env
+.env.*
+!.env.example
+*.log
+tests/
+experiments/
+audit-shadow/
+scripts/
+audit_shadow_replay.py
+visual_validation_results.json
+backend_handoff/FYP.ipynb
+backend_handoff/test_images/
+backend_handoff/realworld_v5_collection/
+backend_handoff/*_OLD_BACKUP.pt
+backend_handoff/*_V4.pt
+backend_handoff/*_V5.pt
+# Preserve data/ pending encoder and writable-storage provisioning.
+# Never bundle historical captures or legacy databases in the image.
+data/temporary-visual-uploads/
+data/grading-images/
+data/test/
+
+# Retained source scaffolding is not runtime code.
+legacy/
+app/ai_assistant/results/

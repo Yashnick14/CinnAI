@@ -1,0 +1,1218 @@
+--- backend/app/main.py
++++ backend/app/main.py
+@@ -7,7 +7,7 @@
+ from app.api.routes.diameter import router as diameter_router
+ from app.api.routes.sample import router as sample_router
+ from app.core.config import ALLOWED_ORIGINS
+-from app.services.model_service import VisualModelService
++from app.ml.visual.service import VisualModelService
+ from starlette.concurrency import run_in_threadpool
+ 
+ @asynccontextmanager
+--- backend/app/core/config.py
++++ backend/app/core/config.py
+@@ -5,10 +5,10 @@
+ 
+ PROJECT_ROOT = Path(__file__).resolve().parents[2]
+ load_dotenv(PROJECT_ROOT / ".env")
+-MODEL_DIRECTORY = Path(os.getenv("MODEL_DIRECTORY", str(PROJECT_ROOT / "backend_handoff")))
+-YOLO_MODEL_NAME = "FINAL_QUILL_DETECTOR_YOLO11N.pt"
+-RF_MODEL_NAME = "RF_VISION_8_CLASS.pkl"
+-SEGMENTATION_MODEL_NAME = "FINAL_QUILL_COIN_SEGMENTATION_YOLO11N.pt"
++MODEL_DIRECTORY = Path(os.getenv("MODEL_DIRECTORY", str(PROJECT_ROOT / "models")))
++YOLO_MODEL_NAME = "quill_detector_v5.pt"
++RF_MODEL_NAME = "rf_vision_8_class.pkl"
++SEGMENTATION_MODEL_NAME = "coin_quill_segmentation.pt"
+ SUPPORTED_GRADES = ("Alba", "C4", "C5", "C5 Special", "H1", "H2", "M4", "M5")
+ REFERENCE_COIN_DIAMETER_MM = 26.4
+ MOISTURE_LIMIT_PERCENT = 14.0
+--- backend/app/measurement/controlled.py
++++ backend/app/ml/measurement/controlled.py
+@@ -5,9 +5,9 @@
+ import numpy as np
+ from PIL import Image, ImageOps
+ from pydantic import BaseModel, ConfigDict, Field, model_validator
+-from app.measurement.config import COIN_DIAMETER_MM, diameter_grade
+-from app.measurement.coin_diagnostics import candidate_report, finish_contours
+-from app.measurement.quill_edges import refine_rows, edge_overlay
++from app.ml.measurement.config import COIN_DIAMETER_MM, diameter_grade
++from app.ml.measurement.coin_diagnostics import candidate_report, finish_contours
++from app.ml.measurement.quill_edges import refine_rows, edge_overlay
+ 
+ class Rect(BaseModel):
+     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+--- backend/app/measurement/segmentation_diameter.py
++++ backend/app/ml/measurement/segmentation_diameter.py
+@@ -6,8 +6,8 @@
+ import numpy as np
+ from PIL import Image, ImageOps
+ 
+-from app.measurement import config
+-from app.services.segmentation_model_service import get_segmentation_service
++from app.ml.measurement import config
++from app.ml.segmentation.service import get_segmentation_service
+ 
+ 
+ def original_size_mask(mask, width, height):
+--- backend/app/services/model_service.py
++++ backend/app/ml/visual/service.py
+@@ -8,7 +8,7 @@
+ import pandas as pd
+ 
+ from app.core.config import MODEL_DIRECTORY, RF_MODEL_NAME, SUPPORTED_GRADES, YOLO_MODEL_NAME
+-from app.services import feature_extraction as features
++from app.ml.visual import feature_extraction as features
+ 
+ FEATURE_COLUMNS = (
+     "hue_circular_mean", "sat_mean_mean", "value_mean_mean", "hue_median_mean",
+--- backend/app/services/sample_decision.py
++++ backend/app/services/sample_decision.py
+@@ -4,8 +4,8 @@
+ import json
+ import cv2
+ import numpy as np
+-from app.api.routes.diameter import process, DiagnosticFailure
+-from app.services.model_service import NoUsableQuillsError
++from app.services.diameter_service import process, DiagnosticFailure
++from app.ml.visual.service import NoUsableQuillsError
+ 
+ 
+ def detect_evidence(service, data):
+--- backend/app/api/routes/assistant.py
++++ backend/app/api/routes/assistant.py
+@@ -1,6 +1,6 @@
+ from fastapi import APIRouter, HTTPException
+-from ai_assistant.schemas import AssistantAnswer, AssistantQuestion
+-from ai_assistant.service import (
++from app.ai_assistant.schemas import AssistantAnswer, AssistantQuestion
++from app.ai_assistant.service import (
+     AssistantGenerationError, AssistantUnavailable, get_assistant_service,
+ )
+ 
+--- backend/app/api/routes/diameter.py
++++ backend/app/api/routes/diameter.py
+@@ -1,6 +1,3 @@
+-import logging
+-import json
+-import cv2
+ from typing import Annotated
+ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+ from fastapi.responses import JSONResponse
+@@ -8,64 +5,10 @@
+ from starlette.concurrency import run_in_threadpool
+ from app.core.config import MAX_IMAGE_BYTES
+ from app.services.image_validation import validate_image
+-from app.services.temporary_uploads import save_temporary_visual_upload
+-from app.measurement.controlled import Geometry
+-from app.measurement.segmentation_diameter import measure
+-from app.services.segmentation_model_service import SegmentationUnavailableError, SegmentationDetectionError
+ 
+ router=APIRouter(tags=["diameter"])
+ 
+-class DiagnosticFailure(ValueError):
+-    def __init__(self, message, diagnostics, status_code=422):
+-        super().__init__(message)
+-        self.diagnostics=diagnostics
+-        self.status_code=status_code
+-
+-
+-def process(data, raw_geometry, measurement=None):
+-    path=save_temporary_visual_upload(data)
+-    path.with_suffix(".geometry.json").write_text(raw_geometry,encoding="utf-8")
+-    logging.getLogger("uvicorn.error").info("Diameter capture and geometry: %s",path)
+-    diagnostics={"report":{"stage":"geometry_validation","mapping_status":"not_validated","coin_roi_image_px":None,"candidates":[],"selected_contour_id":None,"selected_enclosing_circle":None},"images":{}}
+-    report=diagnostics["report"]
+-    try:
+-        geometry=Geometry.model_validate_json(raw_geometry)
+-        result,png=(measurement or measure)(data,geometry,diagnostics)
+-        path.with_suffix(".overlay.png").write_bytes(png)
+-        report["status"]="success"
+-    except SegmentationUnavailableError as error:
+-        report.update(status="failed",error=str(error))
+-        logging.getLogger("uvicorn.error").warning("Diameter segmentation unavailable: %s", error, exc_info=True)
+-        raise DiagnosticFailure(str(error),report,status_code=503) from error
+-    except ValueError as error:
+-        if isinstance(error, SegmentationDetectionError):
+-            report["segmentation"] = error.evidence
+-        report["status"]="failed"
+-        report["error"]=str(error)
+-        stage=report["stage"]
+-        if stage in ("geometry_validation","roi_mapping"):
+-            report["coin_failure_categories"]=["incorrect_roi_mapping"]
+-        elif stage=="coin_foreground":
+-            report["coin_failure_categories"]=["no_foreground_separation"]
+-        elif stage=="quill_measurement":
+-            report["coin_failure_categories"]=[]
+-            report["note"]="Coin was accepted; measurement failed later in the quill stage."
+-        raise DiagnosticFailure(str(error),report) from error
+-    finally:
+-        artifacts={"original":str(path),"geometry":str(path.with_suffix(".geometry.json"))}
+-        for name,image in diagnostics["images"].items():
+-            destination=path.with_suffix(f".{name}.png")
+-            ok,encoded=cv2.imencode(".png",image)
+-            if not ok:
+-                raise OSError("Could not encode coin diagnostic image")
+-            destination.write_bytes(encoded.tobytes())
+-            artifacts[name]=str(destination)
+-        report["artifacts"]=artifacts
+-        report_path=path.with_suffix(".coin-diagnostics.json")
+-        report_path.write_text(json.dumps(report,indent=2,allow_nan=False),encoding="utf-8")
+-        logging.getLogger("uvicorn.error").info("Coin diagnostics (%s): %s",report.get("status","error"),report_path)
+-    result["coin_diagnostics"]=report
+-    return result
++from app.services.diameter_service import process, DiagnosticFailure
+ 
+ @router.post("/measure-diameter")
+ async def measure_diameter(image: Annotated[UploadFile,File()],capture_geometry: Annotated[str,Form(max_length=8192)]):
+--- backend/app/api/routes/sample.py
++++ backend/app/api/routes/sample.py
+@@ -7,7 +7,7 @@
+ from app.api.routes.visual import get_visual_service
+ from app.core.config import MAX_IMAGE_BYTES
+ from app.services.image_validation import validate_image
+-from app.services.model_service import VisualModelService
++from app.ml.visual.service import VisualModelService
+ from app.services.sample_decision import validate_sample
+ from app.services.v5_capture_log import begin_capture, finish_capture
+ 
+--- backend/app/api/routes/visual.py
++++ backend/app/api/routes/visual.py
+@@ -6,7 +6,7 @@
+ from app.schemas.visual import VisualPrediction
+ from app.services.image_validation import validate_image
+ from app.services.temporary_uploads import save_temporary_visual_upload
+-from app.services.model_service import InvalidImageError, ModelContractError, NoUsableQuillsError, VisualModelService
++from app.ml.visual.service import InvalidImageError, ModelContractError, NoUsableQuillsError, VisualModelService
+ 
+ router = APIRouter(tags=["visual"])
+ logger = logging.getLogger(__name__)
+--- backend/ai_assistant/cinnamon_assistant_final.py
++++ backend/app/ai_assistant/cinnamon_assistant_final.py
+@@ -48,8 +48,8 @@
+ # EXTRACT DIAMETER
+ # ============================================================
+ 
+-from ai_assistant.measurement_intent import extract_diameter_mm
+-from app.measurement.config import diameter_grade
++from app.ai_assistant.measurement_intent import extract_diameter_mm
++from app.ml.measurement.config import diameter_grade
+ 
+ 
+ def classify_diameter(d):
+--- backend/ai_assistant/retrieval.py
++++ backend/app/ai_assistant/retrieval.py
+@@ -3,7 +3,7 @@
+ from pathlib import Path
+ import numpy as np
+ from sklearn.metrics.pairwise import cosine_similarity
+-from ai_assistant.cinnamon_assistant_final import detect_grade
++from app.ai_assistant.cinnamon_assistant_final import detect_grade
+ 
+ ARTIFACT_ROOT = Path(__file__).resolve().parent
+ 
+--- backend/ai_assistant/service.py
++++ backend/app/ai_assistant/service.py
+@@ -5,8 +5,9 @@
+ from pathlib import Path
+ from threading import Lock
+ 
+-from ai_assistant.cinnamon_assistant_final import ask_cinnamon_assistant
+-from ai_assistant.schemas import AssistantAnswer
++from app.ai_assistant.cinnamon_assistant_final import ask_cinnamon_assistant
++from app.ai_assistant.schemas import AssistantAnswer
++from app.core.config import PROJECT_ROOT
+ 
+ logger = logging.getLogger(__name__)
+ 
+@@ -40,8 +41,8 @@
+             from sentence_transformers import SentenceTransformer
+             from google import genai
+             from google.genai import types
+-            from ai_assistant.retrieval import Retriever
+-            cache = Path(__file__).resolve().parents[1] / "data" / "assistant-encoder"
++            from app.ai_assistant.retrieval import Retriever
++            cache = PROJECT_ROOT / "data" / "assistant-encoder"
+             retriever = Retriever(SentenceTransformer(
+                 "sentence-transformers/all-MiniLM-L6-v2", cache_folder=str(cache)
+             ))
+--- backend/tests/test_api.py
++++ backend/tests/test_api.py
+@@ -8,7 +8,7 @@
+ from app.main import app
+ from app.api.routes import visual
+ from app.core.config import SUPPORTED_GRADES
+-from app.services.model_service import NoUsableQuillsError
++from app.ml.visual.service import NoUsableQuillsError
+ from app.services.temporary_uploads import save_temporary_visual_upload
+ 
+ def image_file():
+--- backend/tests/test_assistant.py
++++ backend/tests/test_assistant.py
+@@ -3,10 +3,10 @@
+ from types import SimpleNamespace
+ import pytest
+ from fastapi.testclient import TestClient
+-from ai_assistant.measurement_intent import extract_diameter_mm
+-from ai_assistant.cinnamon_assistant_final import classify_diameter
+-from ai_assistant.retrieval import Retriever
+-from ai_assistant.service import AssistantService, AssistantGenerationError, AssistantUnavailable
++from app.ai_assistant.measurement_intent import extract_diameter_mm
++from app.ai_assistant.cinnamon_assistant_final import classify_diameter
++from app.ai_assistant.retrieval import Retriever
++from app.ai_assistant.service import AssistantService, AssistantGenerationError, AssistantUnavailable
+ from app.api.routes import assistant
+ from app.main import app
+ 
+@@ -76,14 +76,14 @@
+ 
+ @pytest.mark.parametrize('value', [6.9,7,9.9,10,10.1,11.9,12,12.1,15.9,16,16.1,17.9,18,18.1,20.9,21,21.1,24,24.9,25,25.1,32,32.1])
+ def test_reuses_existing_grading(value):
+-    from app.measurement.config import diameter_grade
++    from app.ml.measurement.config import diameter_grade
+     assert classify_diameter(value) == diameter_grade(value).replace('Manual review','Manual Review')
+ 
+ def test_exact_colab_ranking_parity(service):
+     # Execute original supplied implementation, removing only eager model construction.
+     # Independent expected algorithm verifies all weights and ordering below.
+     from sklearn.metrics.pairwise import cosine_similarity
+-    from ai_assistant.cinnamon_assistant_final import detect_grade
++    from app.ai_assistant.cinnamon_assistant_final import detect_grade
+     r = service.retriever
+     for q in ['produce alba', 'requirements for alba', 'dry quills', 'moisture', 'improve preparation', 'M4 grade']:
+         base = cosine_similarity(Encoder().encode([q], True), r.embeddings)[0]
+@@ -114,7 +114,7 @@
+     with pytest.raises(AssistantUnavailable,match='GEMINI_API_KEY'): AssistantService.load()
+ 
+ def test_lazy_once(monkeypatch, service):
+-    import ai_assistant.service as module
++    import app.ai_assistant.service as module
+     monkeypatch.setattr(module,'_service',None)
+     calls=[]
+     monkeypatch.setattr(module.AssistantService,'load',lambda: calls.append(1) or service)
+--- backend/tests/test_diameter.py
++++ backend/tests/test_diameter.py
+@@ -1,17 +1,18 @@
++from app.services import diameter_service
+ from io import BytesIO
+ import base64
+ import cv2
+ import numpy as np
+ import pytest
+ from PIL import Image
+-from app.measurement.controlled import Geometry, measure
+-from app.measurement.config import diameter_grade
++from app.ml.measurement.controlled import Geometry, measure
++from app.ml.measurement.config import diameter_grade
+ 
+ @pytest.fixture(autouse=True)
+ def legacy_measurement_for_comparison(monkeypatch):
+     # Retain all existing OpenCV diagnostics/measurement tests as a separate comparison path.
+     from app.api.routes import diameter
+-    monkeypatch.setattr(diameter, "measure", measure)
++    monkeypatch.setattr(diameter_service, "measure", measure)
+ 
+ def scene(coin=True,quill=True):
+     image=np.full((1600,1200,3),245,np.uint8)
+@@ -108,7 +109,7 @@
+     from fastapi.testclient import TestClient
+     from app.api.routes import diameter
+     from app.services.temporary_uploads import save_temporary_visual_upload
+-    monkeypatch.setattr(diameter,"save_temporary_visual_upload",lambda data:save_temporary_visual_upload(data,tmp_path))
++    monkeypatch.setattr(diameter_service,"save_temporary_visual_upload",lambda data:save_temporary_visual_upload(data,tmp_path))
+     app=FastAPI()
+     app.include_router(diameter.router)
+     with TestClient(app) as api:
+@@ -146,7 +147,7 @@
+     import json
+     from app.api.routes import diameter
+     from app.services.temporary_uploads import save_temporary_visual_upload
+-    monkeypatch.setattr(diameter,"save_temporary_visual_upload",lambda data:save_temporary_visual_upload(data,tmp_path))
++    monkeypatch.setattr(diameter_service,"save_temporary_visual_upload",lambda data:save_temporary_visual_upload(data,tmp_path))
+     image=cv2.imdecode(np.frombuffer(scene(),np.uint8),cv2.IMREAD_COLOR)
+     g=geometry()
+     if kind=="mapping":
+--- backend/tests/test_model_service.py
++++ backend/tests/test_model_service.py
+@@ -3,8 +3,8 @@
+ import numpy as np
+ import pytest
+ from app.core.config import SUPPORTED_GRADES
+-from app.services import model_service as module
+-from app.services.model_service import FEATURE_COLUMNS, ModelContractError, NoUsableQuillsError, VisualModelService
++from app.ml.visual import service as module
++from app.ml.visual.service import FEATURE_COLUMNS, ModelContractError, NoUsableQuillsError, VisualModelService
+ 
+ def setup(boxes):
+     detector = Mock()
+--- backend/tests/test_quill_edges.py
++++ backend/tests/test_quill_edges.py
+@@ -1,6 +1,6 @@
+ import numpy as np
+ import pytest
+-from app.measurement.quill_edges import edge_position, refine_rows
++from app.ml.measurement.quill_edges import edge_position, refine_rows
+ 
+ 
+ def test_refines_shadow_mask_to_image_edges_without_fixed_subtraction():
+--- backend/tests/test_segmentation_diameter.py
++++ backend/tests/test_segmentation_diameter.py
+@@ -1,3 +1,4 @@
++from app.services import diameter_service
+ from types import SimpleNamespace
+ from unittest.mock import Mock
+ 
+@@ -7,9 +8,9 @@
+ from fastapi import FastAPI
+ from fastapi.testclient import TestClient
+ 
+-from app.measurement import config, segmentation_diameter as measurement
+-from app.measurement.controlled import Geometry
+-from app.services import segmentation_model_service as models
++from app.ml.measurement import config, segmentation_diameter as measurement
++from app.ml.measurement.controlled import Geometry
++from app.ml.segmentation import service as models
+ 
+ 
+ class Tensor:
+@@ -164,7 +165,7 @@
+     service.predict.return_value = models.SegmentationPrediction(coin, quill, .9, .8)
+     service.predict.side_effect = failure
+     monkeypatch.setattr(measurement, "get_segmentation_service", lambda: service)
+-    monkeypatch.setattr(diameter, "save_temporary_visual_upload",
++    monkeypatch.setattr(diameter_service, "save_temporary_visual_upload",
+                         lambda content: save_temporary_visual_upload(content, tmp_path))
+     app = FastAPI()
+     app.include_router(diameter.router)
+--- backend/tests/test_visual_features.py
++++ backend/tests/test_visual_features.py
+@@ -5,8 +5,8 @@
+ import cv2
+ import numpy as np
+ import pytest
+-from app.services import feature_extraction as deployed
+-from app.services.model_service import FEATURE_COLUMNS
++from app.ml.visual import feature_extraction as deployed
++from app.ml.visual.service import FEATURE_COLUMNS
+ 
+ NOTEBOOK = Path(__file__).resolve().parents[1] / "backend_handoff" / "FYP.ipynb"
+ 
+--- backend/scripts/validate_quill_refinement.py
++++ backend/scripts/validate_quill_refinement.py
+@@ -8,7 +8,7 @@
+ 
+ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+ from app.api.routes.diameter import process, DiagnosticFailure
+-from app.measurement.controlled import measure as legacy_measure
++from app.ml.measurement.controlled import measure as legacy_measure
+ 
+ parser=argparse.ArgumentParser()
+ parser.add_argument("image",type=Path)
+--- backend/scripts/verify_visual.py
++++ backend/scripts/verify_visual.py
+@@ -22,7 +22,8 @@
+ import pandas as pd
+ 
+ from app.main import app
+-from app.services.model_service import FEATURE_COLUMNS
++from app.ml.visual.service import FEATURE_COLUMNS
++from app.core.config import MODEL_DIRECTORY, YOLO_MODEL_NAME, RF_MODEL_NAME
+ 
+ HANDOFF = ROOT / "backend_handoff"
+ notebook = json.loads((HANDOFF / "FYP.ipynb").read_text(encoding="utf-8"))
+@@ -76,8 +77,8 @@
+     baselines = notebook_baselines()
+     ns = training_definitions()
+     report = {"preprocessing": "training-era cells 91–95; no later area/aspect filter or IoU override", "artifacts": {}, "images": []}
+-    for name in ("FINAL_QUILL_DETECTOR_YOLO11N.pt", "RF_VISION_8_CLASS.pkl"):
+-        report["artifacts"][name] = hashlib.sha256((HANDOFF / name).read_bytes()).hexdigest()
++    for name in (YOLO_MODEL_NAME, RF_MODEL_NAME):
++        report["artifacts"][name] = hashlib.sha256((MODEL_DIRECTORY / name).read_bytes()).hexdigest()
+     with TestClient(app) as client:
+         assert client.get("/health").json() == {"status": "ok"}
+         service = app.state.visual_service
+@@ -101,7 +102,7 @@
+                     for grade in service.classes}
+             report["images"].append(entry)
+     for name, before in report["artifacts"].items():
+-        assert hashlib.sha256((HANDOFF / name).read_bytes()).hexdigest() == before, "Model artifact changed"
++        assert hashlib.sha256((MODEL_DIRECTORY / name).read_bytes()).hexdigest() == before, "Model artifact changed"
+     out = ROOT / "visual_validation_results.json"
+     out.write_text(json.dumps(report, indent=2, allow_nan=False), encoding="utf-8")
+     print(json.dumps(report, indent=2, allow_nan=False))
+--- backend/experiments/shadow_v5/shadow_replay.py
++++ backend/experiments/shadow_v5/shadow_replay.py
+@@ -3,7 +3,7 @@
+ import cv2,numpy as np
+ ROOT=Path(__file__).resolve().parents[2]
+ sys.path.insert(0,str(ROOT))
+-from app.measurement.segmentation_diameter import refine_quill_mask,central_widths
++from app.ml.measurement.segmentation_diameter import refine_quill_mask,central_widths
+ from shadow_candidate import correct_shadow
+ 
+ def main():
+--- frontend/src/components/HomeNavbar.tsx
++++ frontend/src/components/HomeNavbar.tsx
+@@ -1,4 +1,4 @@
+-import { useAuth } from "../hooks/useAuth";
++import { useAuth } from "../context/AuthContext";
+ import { useState } from "react";
+ import {
+   Modal,
+--- frontend/src/navigation/AppNavigator.tsx
++++ frontend/src/navigation/AppNavigator.tsx
+@@ -1,9 +1,9 @@
+-import { useAuth } from "../hooks/useAuth";
+-import { AuthScreen } from "../screens/AuthScreen";
+-import { AccountScreen } from "../screens/AccountScreen";
+-import { ManualReviewScreen } from "../screens/ManualReviewScreen";
++import { useAuth } from "../context/AuthContext";
++import { AuthScreen } from "../screens/Auth/AuthScreen";
++import { AccountScreen } from "../screens/Auth/AccountScreen";
++import { ManualReviewScreen } from "../screens/Results/ManualReviewScreen";
+ import { AssistantLauncher } from "../components/AssistantLauncher";
+-import { AssistantScreen } from "../screens/AssistantScreen";
++import { AssistantScreen } from "../screens/Assistant/AssistantScreen";
+ import { useState } from "react";
+ import { ActivityIndicator, View } from "react-native";
+ import { WorkspaceFrame } from "./WorkspaceFrame";
+@@ -16,17 +16,17 @@
+ import { theme } from "../config/theme";
+ import type { RootStackParamList } from "../types/navigation";
+ import { BottomNavigation, type TabName } from "./BottomNavigation";
+-import { SplashScreen } from "../screens/SplashScreen";
+-import { HomeScreen } from "../screens/HomeScreen";
+-import { PreparationScreen } from "../screens/PreparationScreen";
+-import { CameraScreen } from "../screens/CameraScreen";
+-import { ImageReviewScreen } from "../screens/ImageReviewScreen";
+-import { AnalysingScreen } from "../screens/AnalysingScreen";
+-import { ResultScreen } from "../screens/ResultScreen";
+-import { HistoryScreen } from "../screens/HistoryScreen";
+-import { HistoryDetailScreen } from "../screens/HistoryDetailScreen";
+-import { SensorScreen } from "../screens/SensorScreen";
+-import { SettingsScreen } from "../screens/SettingsScreen";
++import { SplashScreen } from "../screens/Home/SplashScreen";
++import { HomeScreen } from "../screens/Home/HomeScreen";
++import { PreparationScreen } from "../screens/Analyze/PreparationScreen";
++import { CameraScreen } from "../screens/Analyze/CameraScreen";
++import { ImageReviewScreen } from "../screens/Analyze/ImageReviewScreen";
++import { AnalysingScreen } from "../screens/Analyze/AnalysingScreen";
++import { ResultScreen } from "../screens/Results/ResultScreen";
++import { HistoryScreen } from "../screens/History/HistoryScreen";
++import { HistoryDetailScreen } from "../screens/History/HistoryDetailScreen";
++import { SensorScreen } from "../screens/Sensor/SensorScreen";
++import { SettingsScreen } from "../screens/Settings/SettingsScreen";
+ const Stack = createNativeStackNavigator<RootStackParamList>();
+ const navigation = createNavigationContainerRef<RootStackParamList>();
+ export function AppNavigator() {
+--- frontend/src/screens/AccountScreen.tsx
++++ frontend/src/screens/Auth/AccountScreen.tsx
+@@ -1,11 +1,11 @@
+-import { useDesktopLayout } from "../hooks/useDesktopLayout";
++import { useDesktopLayout } from "../../hooks/useDesktopLayout";
+ import { useCallback, useEffect, useRef, useState } from "react";
+ import { View, TextInput } from "react-native";
+ import { useFocusEffect } from "@react-navigation/native";
+ import { signOut } from "firebase/auth";
+-import { useAuth } from "../hooks/useAuth";
+-import { firebaseAuth } from "../services/firebaseAuth";
+-import { authError } from "../services/authValidation";
++import { useAuth } from "../../context/AuthContext";
++import { firebaseAuth } from "../../services/firebaseAuth";
++import { authError } from "../../services/authValidation";
+ import {
+   Body,
+   Button,
+@@ -15,12 +15,12 @@
+   Page,
+   Row,
+   WarningMessage,
+-} from "../components/ui";
+-import { Text } from "../components/AppText";
+-import { theme } from "../config/theme";
+-import { history } from "../storage/history";
+-import { accountSummary } from "../utils/accountSummary";
+-import type { GradingResult } from "../types/grading";
++} from "../../components/ui";
++import { Text } from "../../components/AppText";
++import { theme } from "../../config/theme";
++import { history } from "../../storage/history";
++import { accountSummary } from "../../utils/accountSummary";
++import type { GradingResult } from "../../types/grading";
+ export function AccountScreen() {
+   const desktop = useDesktopLayout();
+   const { user, updateUsername } = useAuth();
+--- frontend/src/screens/AnalysingScreen.tsx
++++ frontend/src/screens/Analyze/AnalysingScreen.tsx
+@@ -1,16 +1,16 @@
+ import { useEffect, useState } from "react";
+ import { ActivityIndicator, StyleSheet, View } from "react-native";
+-import { Text } from "../components/AppText";
+-import { validateSample } from "../services/sampleApi";
+-import type { SampleResult } from "../types/decision";
+-import type { ScreenProps } from "../types/navigation";
+-import { Button, Card, Heading, Page, WarningMessage } from "../components/ui";
+-import { CapturedPhoto } from "../components/CapturedPhoto";
+-import { DetectorComparison } from "../components/DetectorComparison";
+-import { SessionMoistureCard } from "../components/SessionMoistureCard";
+-import { theme } from "../config/theme";
+-import { errorMessage } from "../utils/format";
+-import type { ValidationProgress } from "../services/validationStream";
++import { Text } from "../../components/AppText";
++import { validateSample } from "../../services/sampleApi";
++import type { SampleResult } from "../../types/decision";
++import type { ScreenProps } from "../../types/navigation";
++import { Button, Card, Heading, Page, WarningMessage } from "../../components/ui";
++import { CapturedPhoto } from "../../components/CapturedPhoto";
++import { DetectorComparison } from "../../components/DetectorComparison";
++import { SessionMoistureCard } from "../../components/SessionMoistureCard";
++import { theme } from "../../config/theme";
++import { errorMessage } from "../../utils/format";
++import type { ValidationProgress } from "../../services/validationStream";
+ 
+ export function AnalysingScreen({
+   navigation,
+--- frontend/src/screens/AssistantScreen.tsx
++++ frontend/src/screens/Assistant/AssistantScreen.tsx
+@@ -11,9 +11,9 @@
+ } from "react-native";
+ import { useHeaderHeight } from "@react-navigation/elements";
+ import { SafeAreaView } from "react-native-safe-area-context";
+-import { Text } from "../components/AppText";
+-import { theme } from "../config/theme";
+-import { createAssistantConversation } from "../services/assistantConversation";
++import { Text } from "../../components/AppText";
++import { theme } from "../../config/theme";
++import { createAssistantConversation } from "../../services/assistantConversation";
+ const suggestions = [
+   "How can I produce Alba quality quills?",
+   "What is the moisture requirement for cinnamon quills?",
+--- frontend/src/screens/AuthScreen.tsx
++++ frontend/src/screens/Auth/AuthScreen.tsx
+@@ -16,18 +16,18 @@
+   signInWithEmailAndPassword,
+   updateProfile,
+ } from "firebase/auth";
+-import { BrandLogo } from "../components/BrandLogo";
+-import { HeroPhoto } from "../components/HeroPhoto";
+-import { GoogleIcon } from "../components/GoogleIcon";
+-import { Text } from "../components/AppText";
+-import { theme } from "../config/theme";
+-import { firebaseConfigured } from "../config/firebase";
+-import { firebaseAuth } from "../services/firebaseAuth";
+-import { googleUnavailableReason, signInGoogle } from "../services/googleAuth";
+-import { authError, validateCredentials } from "../services/authValidation";
+-import { requestPasswordReset } from "../services/passwordReset";
+-import { useAuth } from "../hooks/useAuth";
+-import type { ScreenProps } from "../types/navigation";
++import { BrandLogo } from "../../components/BrandLogo";
++import { HeroPhoto } from "../../components/HeroPhoto";
++import { GoogleIcon } from "../../components/GoogleIcon";
++import { Text } from "../../components/AppText";
++import { theme } from "../../config/theme";
++import { firebaseConfigured } from "../../config/firebase";
++import { firebaseAuth } from "../../services/firebaseAuth";
++import { googleUnavailableReason, signInGoogle } from "../../services/googleAuth";
++import { authError, validateCredentials } from "../../services/authValidation";
++import { requestPasswordReset } from "../../services/passwordReset";
++import { useAuth } from "../../context/AuthContext";
++import type { ScreenProps } from "../../types/navigation";
+ export function AuthScreen({
+   navigation,
+   route,
+--- frontend/src/screens/CameraScreen.tsx
++++ frontend/src/screens/Analyze/CameraScreen.tsx
+@@ -6,20 +6,20 @@
+   View,
+   Platform,
+ } from "react-native";
+-import { Text } from "../components/AppText";
++import { Text } from "../../components/AppText";
+ import { CameraView } from "expo-camera";
+-import { useDeviceCamera } from "../hooks/useDeviceCamera";
+-import type { ScreenProps } from "../types/navigation";
++import { useDeviceCamera } from "../../hooks/useDeviceCamera";
++import type { ScreenProps } from "../../types/navigation";
+ import {
+   Button,
+   Heading,
+   Page,
+   StatusBadge,
+   WarningMessage,
+-} from "../components/ui";
+-import { Icon } from "../components/Icon";
+-import { theme } from "../config/theme";
+-import { captureGuides } from "../config/captureGuides";
++} from "../../components/ui";
++import { Icon } from "../../components/Icon";
++import { theme } from "../../config/theme";
++import { captureGuides } from "../../config/captureGuides";
+ export function CameraScreen({ navigation }: ScreenProps<"Camera">) {
+   const device = useDeviceCamera((photo) =>
+     navigation.navigate("ImageReview", photo),
+--- frontend/src/screens/HistoryDetailScreen.tsx
++++ frontend/src/screens/History/HistoryDetailScreen.tsx
+@@ -1,6 +1,6 @@
+ import { useEffect, useState } from "react";
+ import { ActivityIndicator, Share, View } from "react-native";
+-import { Text } from "../components/AppText";
++import { Text } from "../../components/AppText";
+ import {
+   Body,
+   Button,
+@@ -11,14 +11,14 @@
+   Row,
+   StatusBadge,
+   WarningMessage,
+-} from "../components/ui";
+-import { history } from "../storage/history";
+-import type { GradingResult } from "../types/grading";
+-import type { ScreenProps } from "../types/navigation";
+-import { errorMessage, measurement, percent } from "../utils/format";
+-import { recordLabel } from "../utils/historySummary";
+-import { theme } from "../config/theme";
+-import { CapturedPhoto } from "../components/CapturedPhoto";
++} from "../../components/ui";
++import { history } from "../../storage/history";
++import type { GradingResult } from "../../types/grading";
++import type { ScreenProps } from "../../types/navigation";
++import { errorMessage, measurement, percent } from "../../utils/format";
++import { recordLabel } from "../../utils/historySummary";
++import { theme } from "../../config/theme";
++import { CapturedPhoto } from "../../components/CapturedPhoto";
+ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
+   const [result, setResult] = useState<GradingResult>();
+   const [error, setError] = useState("");
+--- frontend/src/screens/HistoryScreen.tsx
++++ frontend/src/screens/History/HistoryScreen.tsx
+@@ -6,11 +6,11 @@
+   TextInput,
+   View,
+ } from "react-native";
+-import { Text } from "../components/AppText";
++import { Text } from "../../components/AppText";
+ import { useFocusEffect } from "@react-navigation/native";
+-import { history } from "../storage/history";
+-import type { GradingResult } from "../types/grading";
+-import type { ScreenProps } from "../types/navigation";
++import { history } from "../../storage/history";
++import type { GradingResult } from "../../types/grading";
++import type { ScreenProps } from "../../types/navigation";
+ import {
+   Body,
+   Button,
+@@ -19,13 +19,13 @@
+   Label,
+   Page,
+   WarningMessage,
+-} from "../components/ui";
+-import { Icon } from "../components/Icon";
+-import { HistoryRow } from "../components/HistoryRow";
+-import { errorMessage, percent } from "../utils/format";
+-import { filterHistory, summarize } from "../utils/historySummary";
+-import { SUPPORTED_GRADES } from "../config/grading";
+-import { theme } from "../config/theme";
++} from "../../components/ui";
++import { Icon } from "../../components/Icon";
++import { HistoryRow } from "../../components/HistoryRow";
++import { errorMessage, percent } from "../../utils/format";
++import { filterHistory, summarize } from "../../utils/historySummary";
++import { SUPPORTED_GRADES } from "../../config/grading";
++import { theme } from "../../config/theme";
+ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
+   const [deleting, setDeleting] = useState<string | null>(null);
+   const [busy, setBusy] = useState(false);
+--- frontend/src/screens/HomeScreen.tsx
++++ frontend/src/screens/Home/HomeScreen.tsx
+@@ -1,4 +1,4 @@
+-import { HomeNavbar } from "../components/HomeNavbar";
++import { HomeNavbar } from "../../components/HomeNavbar";
+ import { useCallback, useRef, useEffect, useState } from "react";
+ import {
+   useWindowDimensions,
+@@ -9,13 +9,13 @@
+   StyleSheet,
+   View,
+ } from "react-native";
+-import { Text } from "../components/AppText";
++import { Text } from "../../components/AppText";
+ import { SafeAreaView } from "react-native-safe-area-context";
+ import { useFocusEffect } from "@react-navigation/native";
+-import type { GradingResult } from "../types/grading";
+-import type { ScreenProps } from "../types/navigation";
+-import { history } from "../storage/history";
+-import { useSensor } from "../hooks/useSensor";
++import type { GradingResult } from "../../types/grading";
++import type { ScreenProps } from "../../types/navigation";
++import { history } from "../../storage/history";
++import { useSensor } from "../../hooks/useSensor";
+ import {
+   Body,
+   Button,
+@@ -24,14 +24,14 @@
+   Label,
+   StatusBadge,
+   WarningMessage,
+-} from "../components/ui";
+-import { Icon } from "../components/Icon";
+-import { HistoryRow } from "../components/HistoryRow";
+-import { HeroVideo } from "../components/HeroVideo";
+-import { BrandLogo } from "../components/BrandLogo";
+-import { errorMessage, percent } from "../utils/format";
+-import { isToday, summarize } from "../utils/historySummary";
+-import { theme } from "../config/theme";
++} from "../../components/ui";
++import { Icon } from "../../components/Icon";
++import { HistoryRow } from "../../components/HistoryRow";
++import { HeroVideo } from "../../components/HeroVideo";
++import { BrandLogo } from "../../components/BrandLogo";
++import { errorMessage, percent } from "../../utils/format";
++import { isToday, summarize } from "../../utils/historySummary";
++import { theme } from "../../config/theme";
+ 
+ /* ─── Animated Metric Card ──────────────────────────────────────────── */
+ 
+--- frontend/src/screens/ImageReviewScreen.tsx
++++ frontend/src/screens/Analyze/ImageReviewScreen.tsx
+@@ -1,5 +1,5 @@
+ import { useEffect, useRef, useState } from "react";
+-import type { ScreenProps } from "../types/navigation";
++import type { ScreenProps } from "../../types/navigation";
+ import {
+   Body,
+   Card,
+@@ -8,24 +8,24 @@
+   Heading,
+   Page,
+   WarningMessage,
+-} from "../components/ui";
+-import { CapturedPhoto } from "../components/CapturedPhoto";
+-import { validatePhoto } from "../storage/photos";
+-import { errorMessage } from "../utils/format";
++} from "../../components/ui";
++import { CapturedPhoto } from "../../components/CapturedPhoto";
++import { validatePhoto } from "../../storage/photos";
++import { errorMessage } from "../../utils/format";
+ import { randomUUID } from "expo-crypto";
+-import { sensorService } from "../services/ble";
++import { sensorService } from "../../services/ble";
+ import {
+   snapshotMoisture,
+   type SessionMoisture,
+-} from "../services/sessionMoisture";
+-import { useSensor } from "../hooks/useSensor";
++} from "../../services/sessionMoisture";
++import { useSensor } from "../../hooks/useSensor";
+ import {
+   advanceMoistureCapture,
+   beginMoistureCapture,
+   usableCapture,
+   moistureQuality,
+-} from "../services/moistureCapture";
+-import { MOISTURE_CAPTURE } from "../config/moistureCapture";
++} from "../../services/moistureCapture";
++import { MOISTURE_CAPTURE } from "../../config/moistureCapture";
+ export function ImageReviewScreen({
+   navigation,
+   route,
+--- frontend/src/screens/ManualReviewScreen.tsx
++++ frontend/src/screens/Results/ManualReviewScreen.tsx
+@@ -1,7 +1,7 @@
+ import { useRef, useState } from "react";
+ import { Pressable, TextInput, View } from "react-native";
+ import { randomUUID } from "expo-crypto";
+-import { Text } from "../components/AppText";
++import { Text } from "../../components/AppText";
+ import {
+   Body,
+   Button,
+@@ -10,14 +10,14 @@
+   Label,
+   Page,
+   WarningMessage,
+-} from "../components/ui";
+-import { CapturedPhoto } from "../components/CapturedPhoto";
+-import { theme } from "../config/theme";
+-import { SUPPORTED_GRADES } from "../config/grading";
+-import type { ScreenProps } from "../types/navigation";
+-import type { Grade } from "../types/grading";
+-import { reviewedRecord } from "../services/manualReview";
+-import { history } from "../storage/history";
++} from "../../components/ui";
++import { CapturedPhoto } from "../../components/CapturedPhoto";
++import { theme } from "../../config/theme";
++import { SUPPORTED_GRADES } from "../../config/grading";
++import type { ScreenProps } from "../../types/navigation";
++import type { Grade } from "../../types/grading";
++import { reviewedRecord } from "../../services/manualReview";
++import { history } from "../../storage/history";
+ 
+ const reasons = [
+   "Boundary measurement requires review",
+--- frontend/src/screens/PreparationScreen.tsx
++++ frontend/src/screens/Analyze/PreparationScreen.tsx
+@@ -1,7 +1,7 @@
+-import { useDesktopLayout } from "../hooks/useDesktopLayout";
++import { useDesktopLayout } from "../../hooks/useDesktopLayout";
+ import { View } from "react-native";
+-import { Text } from "../components/AppText";
+-import type { ScreenProps } from "../types/navigation";
++import { Text } from "../../components/AppText";
++import type { ScreenProps } from "../../types/navigation";
+ import {
+   Button,
+   Card,
+@@ -9,8 +9,8 @@
+   Label,
+   Page,
+   StatusBadge,
+-} from "../components/ui";
+-import { theme } from "../config/theme";
++} from "../../components/ui";
++import { theme } from "../../config/theme";
+ 
+ const steps = [
+   "Place the sample on a white, flat surface.",
+--- frontend/src/screens/ResultScreen.tsx
++++ frontend/src/screens/Results/ResultScreen.tsx
+@@ -1,6 +1,6 @@
+-import { SaveAssessment } from "../components/SaveAssessment";
++import { SaveAssessment } from "../../components/SaveAssessment";
+ import { Image } from "react-native";
+-import { Text } from "../components/AppText";
++import { Text } from "../../components/AppText";
+ import {
+   Body,
+   Card,
+@@ -9,12 +9,12 @@
+   Heading,
+   Page,
+   WarningMessage,
+-} from "../components/ui";
+-import { CapturedPhoto } from "../components/CapturedPhoto";
+-import { displayedGrade } from "../types/decision";
+-import type { ScreenProps } from "../types/navigation";
+-import { finalSummary } from "../services/finalSummary";
+-import { moistureQuality } from "../services/moistureCapture";
++} from "../../components/ui";
++import { CapturedPhoto } from "../../components/CapturedPhoto";
++import { displayedGrade } from "../../types/decision";
++import type { ScreenProps } from "../../types/navigation";
++import { finalSummary } from "../../services/finalSummary";
++import { moistureQuality } from "../../services/moistureCapture";
+ export function ResultScreen({ navigation, route }: ScreenProps<"Result">) {
+   const result = route.params.result;
+   const grade = displayedGrade(result);
+--- frontend/src/screens/SensorScreen.tsx
++++ frontend/src/screens/Sensor/SensorScreen.tsx
+@@ -1,7 +1,7 @@
+-import { useDesktopLayout } from "../hooks/useDesktopLayout";
++import { useDesktopLayout } from "../../hooks/useDesktopLayout";
+ import { useState } from "react";
+ import { ActivityIndicator, Pressable, View } from "react-native";
+-import { Text } from "../components/AppText";
++import { Text } from "../../components/AppText";
+ import {
+   Body,
+   Button,
+@@ -13,15 +13,15 @@
+   Row,
+   StatusBadge,
+   WarningMessage,
+-} from "../components/ui";
+-import { ConfidenceRing } from "../components/ConfidenceRing";
+-import { Icon } from "../components/Icon";
+-import { useSensor } from "../hooks/useSensor";
+-import { MockSensorService, sensorService } from "../services/ble";
+-import { dateTime, errorMessage } from "../utils/format";
+-import { theme } from "../config/theme";
+-import { ADC_THRESHOLD, BLE } from "../config/ble";
+-import { provisionalLabel } from "../services/sensorReading";
++} from "../../components/ui";
++import { ConfidenceRing } from "../../components/ConfidenceRing";
++import { Icon } from "../../components/Icon";
++import { useSensor } from "../../hooks/useSensor";
++import { MockSensorService, sensorService } from "../../services/ble";
++import { dateTime, errorMessage } from "../../utils/format";
++import { theme } from "../../config/theme";
++import { ADC_THRESHOLD, BLE } from "../../config/ble";
++import { provisionalLabel } from "../../services/sensorReading";
+ export function SensorScreen() {
+   const desktop = useDesktopLayout();
+   const sensor = useSensor();
+--- frontend/src/screens/SettingsScreen.tsx
++++ frontend/src/screens/Settings/SettingsScreen.tsx
+@@ -1,10 +1,10 @@
+-import { APP } from "../config/app";
+-import { API } from "../config/api";
+-import { BLE } from "../config/ble";
++import { APP } from "../../config/app";
++import { API } from "../../config/api";
++import { BLE } from "../../config/ble";
+ import {
+   REFERENCE_COIN_DIAMETER_MM,
+   SUPPORTED_GRADES,
+-} from "../config/grading";
++} from "../../config/grading";
+ import {
+   Body,
+   Card,
+@@ -13,7 +13,7 @@
+   Page,
+   Row,
+   WarningMessage,
+-} from "../components/ui";
++} from "../../components/ui";
+ export function SettingsScreen() {
+   return (
+     <Page>
+--- frontend/src/screens/SplashScreen.tsx
++++ frontend/src/screens/Home/SplashScreen.tsx
+@@ -7,13 +7,13 @@
+   View,
+   useWindowDimensions,
+ } from "react-native";
+-import { Text } from "../components/AppText";
++import { Text } from "../../components/AppText";
+ import { SafeAreaView } from "react-native-safe-area-context";
+-import { theme } from "../config/theme";
+-import type { ScreenProps } from "../types/navigation";
+-import { HeroPhoto } from "../components/HeroPhoto";
+-import { BrandLogo } from "../components/BrandLogo";
+-import { Icon } from "../components/Icon";
++import { theme } from "../../config/theme";
++import type { ScreenProps } from "../../types/navigation";
++import { HeroPhoto } from "../../components/HeroPhoto";
++import { BrandLogo } from "../../components/BrandLogo";
++import { Icon } from "../../components/Icon";
+ 
+ export function SplashScreen({ navigation }: ScreenProps<"Splash">) {
+   const { height } = useWindowDimensions();
+--- frontend/tests/authNavigation.test.ts
++++ frontend/tests/authNavigation.test.ts
+@@ -8,7 +8,7 @@
+   loading: false,
+   error: null,
+ }));
+-vi.mock("../src/hooks/useAuth", () => ({ useAuth: () => session }));
++vi.mock("../src/context/AuthContext", () => ({ useAuth: () => session }));
+ vi.mock("react-native", () => ({
+   View: ({ children }: any) => React.createElement("div", null, children),
+   ActivityIndicator: () => React.createElement("span", null, "loading"),
+@@ -40,33 +40,33 @@
+   AssistantLauncher: () =>
+     React.createElement("span", null, "assistant-launcher"),
+ }));
+-vi.mock("../src/screens/AuthScreen", () => ({ AuthScreen: () => null }));
+-vi.mock("../src/screens/AccountScreen", () => ({ AccountScreen: () => null }));
+-vi.mock("../src/screens/ManualReviewScreen", () => ({
++vi.mock("../src/screens/Auth/AuthScreen", () => ({ AuthScreen: () => null }));
++vi.mock("../src/screens/Auth/AccountScreen", () => ({ AccountScreen: () => null }));
++vi.mock("../src/screens/Results/ManualReviewScreen", () => ({
+   ManualReviewScreen: () => null,
+ }));
+-vi.mock("../src/screens/AssistantScreen", () => ({
++vi.mock("../src/screens/Assistant/AssistantScreen", () => ({
+   AssistantScreen: () => null,
+ }));
+-vi.mock("../src/screens/SplashScreen", () => ({ SplashScreen: () => null }));
+-vi.mock("../src/screens/HomeScreen", () => ({ HomeScreen: () => null }));
+-vi.mock("../src/screens/PreparationScreen", () => ({
++vi.mock("../src/screens/Home/SplashScreen", () => ({ SplashScreen: () => null }));
++vi.mock("../src/screens/Home/HomeScreen", () => ({ HomeScreen: () => null }));
++vi.mock("../src/screens/Analyze/PreparationScreen", () => ({
+   PreparationScreen: () => null,
+ }));
+-vi.mock("../src/screens/CameraScreen", () => ({ CameraScreen: () => null }));
+-vi.mock("../src/screens/ImageReviewScreen", () => ({
++vi.mock("../src/screens/Analyze/CameraScreen", () => ({ CameraScreen: () => null }));
++vi.mock("../src/screens/Analyze/ImageReviewScreen", () => ({
+   ImageReviewScreen: () => null,
+ }));
+-vi.mock("../src/screens/AnalysingScreen", () => ({
++vi.mock("../src/screens/Analyze/AnalysingScreen", () => ({
+   AnalysingScreen: () => null,
+ }));
+-vi.mock("../src/screens/ResultScreen", () => ({ ResultScreen: () => null }));
+-vi.mock("../src/screens/HistoryScreen", () => ({ HistoryScreen: () => null }));
+-vi.mock("../src/screens/HistoryDetailScreen", () => ({
++vi.mock("../src/screens/Results/ResultScreen", () => ({ ResultScreen: () => null }));
++vi.mock("../src/screens/History/HistoryScreen", () => ({ HistoryScreen: () => null }));
++vi.mock("../src/screens/History/HistoryDetailScreen", () => ({
+   HistoryDetailScreen: () => null,
+ }));
+-vi.mock("../src/screens/SensorScreen", () => ({ SensorScreen: () => null }));
+-vi.mock("../src/screens/SettingsScreen", () => ({
++vi.mock("../src/screens/Sensor/SensorScreen", () => ({ SensorScreen: () => null }));
++vi.mock("../src/screens/Settings/SettingsScreen", () => ({
+   SettingsScreen: () => null,
+ }));
+ import { AppNavigator } from "../src/navigation/AppNavigator";
+--- README.md
++++ README.md
+@@ -1,53 +1,68 @@
+-# Cinnamon Hybrid Grading
++# CinnAI — Cinnamon Hybrid Grading
+ 
+-Application foundation for **Intelligent Hybrid Grading System for Ceylon Cinnamon**.
++FastAPI inference, Expo/React Native presentation, and independent ESP32 firmware.
++The official application grade comes from **calibrated diameter**: `max(raw_mm - 1.5, 0)`.
++The offset is preliminary empirical calibration from six samples, not universal validation.
++Raw diameter is retained; RF supplies visual evidence and moisture remains a separate quality check.
+ 
+-**Current phase: DEMO ONLY.** A modular Expo/React Native TypeScript application and FastAPI
+-mock backend. No trained models or measurement logic are implemented.
++## Structure
+ 
+-## Included
++- `backend/app/api/routes/`: HTTP validation and response contracts.
++- `backend/app/services/`: sample decisions, diameter orchestration, upload/diagnostic storage.
++- `backend/app/ml/visual/`: V5 detection plus unchanged training-era 21-feature RF inference.
++- `backend/app/ml/segmentation/`: independent lazy Coin/Quill model.
++- `backend/app/ml/measurement/`: active segmentation diameter and retained comparison implementation.
++- `backend/app/ai_assistant/`: assistant service, retrieval, knowledge and embeddings.
++- `backend/app/core/`: configuration. Existing database scaffolding is inactive.
++- `backend/models/`: the three active model artifacts (see its README).
++- `backend/tests/`: regression suite; keep in Git, exclude from runtime images.
++- `backend/legacy/`: inactive ML scaffolding. See `docs/architecture.md` for retained legacy modules.
++- `frontend/src/screens/`: Home, Analyze, Results, History, Assistant, Auth, Sensor and Settings.
++- `frontend/src/context/`: authentication provider; hooks/services/storage retain existing behavior.
++- `firmware/`: ESP32 BLE/Wi-Fi firmware; keep real credentials private.
++- `infrastructure/terraform/`: future deployment planning only.
+ 
+-- All 11 screens with typed React Navigation.
+-- Real camera capture, durable photo storage, retake/review, explicit mock grading and detailed results.
+-- Five labelled demo outcomes: standard, moisture failure, conflict, measurement error, no quill.
+-- Separate mock sensor service with scan/connect/disconnect/reconnect and error simulations.
+-- Local history with persistent native image copies and duplicate-save protection.
+-- Validated REST response mapping, timeout, cancellation and useful network errors.
+-- FastAPI upload and record APIs with explicitly mocked grading responses.
+-- PostgreSQL grading-record persistence plus durable backend image storage.
+-- Central configuration and TODO-only model/measurement integration modules.
+-- Tests, Windows helper scripts and iOS EAS development-build configuration.
++## Run locally (PowerShell)
+ 
+-## Layout
++From `backend`, after installing `requirements.txt` into `.venv` and configuring `.env`:
+ 
+-```text
+-CinnamonHybridGrading/
+-├── frontend/  # Expo SDK 57 + React Navigation + TypeScript
+-├── backend/   # FastAPI API, mock service and future pipeline boundaries
+-├── hardware/  # ESP32 integration requirements
+-├── data/      # Data-handling notes
+-├── docs/      # Setup, architecture and testing
+-├── scripts/   # Windows startup helpers
+-├── .gitignore
+-└── README.md
++```powershell
++.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+ ```
+ 
+-Start with the exact [physical iPhone setup](docs/IPHONE_SETUP.md), then see the broader [Windows setup](docs/SETUP.md).
+-See [architecture](docs/ARCHITECTURE.md) and [testing](docs/TESTING.md).
+-See [validation results and remaining device checks](docs/VALIDATION.md).
+-See [mockup-inspired design changes and preview instructions](docs/DESIGN.md).
++From `frontend`, install with `npm ci`, configure `.env`, then:
+ 
+-The current mobile workflow always uses an explicit local mock result and runs without a backend.
+-For free physical-iPhone testing, use the App Store version of **Expo Go** and `npm run go`.
+-An EAS development build remains available later when Apple Developer membership is available.
++```powershell
++npm run go
++```
+ 
+-## Later inputs
++Use `npm run web` for web. Wi-Fi sensor mode works in Expo Go; native BLE/Google sign-in require a development build.
++The iPhone API URL must use the laptop LAN IP; keep phone and laptop on the same network.
+ 
+-Supply FINAL_QUILL_DETECTOR_YOLO11N.pt, RF_VISION_8_CLASS.pkl, original foreground/feature extraction
+-and aggregation code, physical diameter code, trained-model dependency versions, ESP32 BLE UUIDs
+-and payload format. Real model integration must preserve the supplied methodology.
++## Configuration
+ 
+-Supported grades: Alba, C4, C5, C5 Special, H1, H2, M4 and M5.
+-C3 and H3 are unavailable because labelled samples were not available.
+-Dataset imbalance and minority-grade limitations remain. This is an academic prototype.
++Copy each `.env.example` to `.env` only if `.env` does not already exist.
++Backend: `MODEL_DIRECTORY` optionally overrides `backend/models`; `ALLOWED_ORIGINS`, `MAX_IMAGE_BYTES`,
++`TEMP_VISUAL_UPLOAD_DIRECTORY`, and `GEMINI_API_KEY` configure existing behavior.
++The assistant encoder cache remains `backend/data/assistant-encoder`.
++Frontend: `EXPO_PUBLIC_API_URL`, grading/sensor mode, sensor Wi-Fi URL, Firebase and Google client configuration.
++Do not put server credentials in Expo public variables. Database settings are legacy; PostgreSQL is not required by active inference.
+ 
++Active endpoints: `GET /health`, `POST /predict-visual`, `POST /measure-diameter`,
++`POST /validate-sample` (streaming via `?live=true`), `POST /assistant/ask`.
++Authentication uses Firebase on the frontend; history uses existing frontend storage. There are no active backend auth/history routes.
++
++## Verification
++
++```powershell
++# backend
++.\.venv\Scripts\python.exe -m pytest
++# frontend
++npm run typecheck
++npm test
++npm run export:web
++```
++
++Tests and reproducibility scripts stay in Git. Models, secrets, encoder cache, historical captures,
++build outputs and FYP evidence need separate provisioning/storage. See `docs/refactor-report.md`.
++No Azure resources have been deployed.
+--- backend/.dockerignore
++++ backend/.dockerignore
+@@ -25,3 +25,7 @@
+ data/temporary-visual-uploads/
+ data/grading-images/
+ data/test/
++
++# Retained source scaffolding is not runtime code.
++legacy/
++app/ai_assistant/results/
+--- backend/.env.example
++++ backend/.env.example
+@@ -6,4 +6,4 @@
+ TEMP_VISUAL_UPLOAD_DIRECTORY=./data/temporary-visual-uploads
+ 
+ # Cinnamon assistant (never commit a real key).
+-GEMINI_API_KEY=[REDACTED]
++GEMINI_API_KEY=
+--- backend/scripts/verify_visual.py
++++ backend/scripts/verify_visual.py
+@@ -22,7 +22,8 @@
+ import pandas as pd
+ 
+ from app.main import app
+-from app.services.model_service import FEATURE_COLUMNS
++from app.ml.visual.service import FEATURE_COLUMNS
++from app.core.config import MODEL_DIRECTORY, YOLO_MODEL_NAME, RF_MODEL_NAME
+ 
+ HANDOFF = ROOT / "backend_handoff"
+ notebook = json.loads((HANDOFF / "FYP.ipynb").read_text(encoding="utf-8"))
+@@ -76,8 +77,8 @@
+     baselines = notebook_baselines()
+     ns = training_definitions()
+     report = {"preprocessing": "training-era cells 91–95; no later area/aspect filter or IoU override", "artifacts": {}, "images": []}
+-    for name in ("FINAL_QUILL_DETECTOR_YOLO11N.pt", "RF_VISION_8_CLASS.pkl"):
+-        report["artifacts"][name] = hashlib.sha256((HANDOFF / name).read_bytes()).hexdigest()
++    for name in (YOLO_MODEL_NAME, RF_MODEL_NAME):
++        report["artifacts"][name] = hashlib.sha256((MODEL_DIRECTORY / name).read_bytes()).hexdigest()
+     with TestClient(app) as client:
+         assert client.get("/health").json() == {"status": "ok"}
+         service = app.state.visual_service
+@@ -101,7 +102,7 @@
+                     for grade in service.classes}
+             report["images"].append(entry)
+     for name, before in report["artifacts"].items():
+-        assert hashlib.sha256((HANDOFF / name).read_bytes()).hexdigest() == before, "Model artifact changed"
++        assert hashlib.sha256((MODEL_DIRECTORY / name).read_bytes()).hexdigest() == before, "Model artifact changed"
+     out = ROOT / "visual_validation_results.json"
+     out.write_text(json.dumps(report, indent=2, allow_nan=False), encoding="utf-8")
+     print(json.dumps(report, indent=2, allow_nan=False))
+--- frontend/App.tsx
++++ frontend/App.tsx
+@@ -1,4 +1,4 @@
+-import { AuthProvider } from "./src/hooks/useAuth";
++import { AuthProvider } from "./src/context/AuthContext";
+ import { StatusBar } from "expo-status-bar";
+ import { SafeAreaProvider } from "react-native-safe-area-context";
+ import { AppNavigator } from "./src/navigation/AppNavigator";
