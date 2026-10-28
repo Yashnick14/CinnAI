@@ -1,0 +1,6 @@
+subscription_id = "REPLACE-SUBSCRIPTION-UUID"
+location = "centralindia"
+name_suffix = "abc123"
+allowed_locations = []
+subscription_reviewed = false
+state_operator_object_id = "REPLACE-ENTRA-OBJECT-UUID"

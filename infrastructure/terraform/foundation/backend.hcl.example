@@ -1,0 +1,5 @@
+resource_group_name = "cinnai-state-abc123"
+storage_account_name = "cinnaitfabc123"
+container_name = "tfstate"
+key = "foundation.tfstate"
+use_azuread_auth = true

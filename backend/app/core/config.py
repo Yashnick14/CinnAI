@@ -45,3 +45,12 @@ DIAMETER_RULES = {
 MIN_ABSOLUTE_CANDIDATE_PROBABILITY = 0.10
 MIN_NORMALIZED_CANDIDATE_CONFIDENCE = 0.50
 
+
+# Container storage overrides; local development defaults are unchanged.
+ASSISTANT_ENCODER_PATH = os.getenv("ASSISTANT_ENCODER_PATH", "sentence-transformers/all-MiniLM-L6-v2")
+ASSISTANT_ENCODER_CACHE = Path(os.getenv("ASSISTANT_ENCODER_CACHE", str(PROJECT_ROOT / "data" / "assistant-encoder")))
+V5_COLLECTION_DIRECTORY = Path(os.getenv("V5_COLLECTION_DIRECTORY", str(PROJECT_ROOT / "backend_handoff" / "realworld_v5_collection")))
+if not ASSISTANT_ENCODER_CACHE.is_absolute():
+    ASSISTANT_ENCODER_CACHE = PROJECT_ROOT / ASSISTANT_ENCODER_CACHE
+if not V5_COLLECTION_DIRECTORY.is_absolute():
+    V5_COLLECTION_DIRECTORY = PROJECT_ROOT / V5_COLLECTION_DIRECTORY

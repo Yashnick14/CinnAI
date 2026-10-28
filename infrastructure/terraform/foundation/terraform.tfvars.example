@@ -1,0 +1,12 @@
+subscription_id = "REPLACE-SUBSCRIPTION-UUID"
+location = "centralindia"
+name_suffix = "abc123"
+allowed_locations = []
+subscription_reviewed = false
+enable_acr = true
+acr_sku = "Standard"
+acr_student_benefit_confirmed = true
+enable_postgres = false
+postgres_free_offer_confirmed = true
+budget_emails = ["REPLACE@example.com"]
+budget_start_date = "2026-10-01T00:00:00Z"

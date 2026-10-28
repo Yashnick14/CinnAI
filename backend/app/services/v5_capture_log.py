@@ -10,9 +10,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
 from uuid import uuid4
-from app.core.config import PROJECT_ROOT
+from app.core.config import V5_COLLECTION_DIRECTORY
 
-COLLECTION_DIRECTORY = PROJECT_ROOT / "backend_handoff" / "realworld_v5_collection"
+COLLECTION_DIRECTORY = V5_COLLECTION_DIRECTORY
 FIELDS = ["filename", "timestamp", "v5_detection_count", "v5_max_confidence",
           "coin_detected", "coin_confidence", "quill_detected", "quill_confidence",
           "quill_mask_available", "diameter_success", "diameter_mm",

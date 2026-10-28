@@ -1,0 +1,10 @@
+# Preserve core inference versions; validate Linux wheels before release.
+-r requirements.txt
+numpy==2.5.4
+pandas==3.0.6
+scipy==1.18.1
+torchvision==0.26.0
+sentence-transformers==5.7.0
+transformers==5.20.2
+huggingface-hub==2.2.0
+google-genai==1.75.0

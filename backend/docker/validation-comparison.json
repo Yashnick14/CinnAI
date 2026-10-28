@@ -1,0 +1,383 @@
+{
+  "status": "PASS",
+  "linux": {
+    "requests": [
+      {
+        "image": "diameter_test_01.jpg",
+        "endpoint": "/predict-visual",
+        "http_status": 422,
+        "seconds": 0.288776936999966,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": null,
+        "detail": "No quill detected in the uploaded image.",
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_01.jpg",
+        "endpoint": "/measure-diameter",
+        "http_status": 200,
+        "seconds": 1.2505035059999727,
+        "diameter_mm": 29.35775537771715,
+        "raw_diameter_mm": 30.85775537771715,
+        "calibrated_diameter_mm": 29.35775537771715,
+        "diameter_grade": "H2",
+        "status": null,
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_01.jpg",
+        "endpoint": "/validate-sample",
+        "http_status": 200,
+        "seconds": 1.2315261989999726,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": "INVALID",
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_02.jpg",
+        "endpoint": "/predict-visual",
+        "http_status": 422,
+        "seconds": 0.16460877099996196,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": null,
+        "detail": "No quill detected in the uploaded image.",
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_02.jpg",
+        "endpoint": "/measure-diameter",
+        "http_status": 200,
+        "seconds": 1.1187507570000434,
+        "diameter_mm": 21.293277205308495,
+        "raw_diameter_mm": 22.793277205308495,
+        "calibrated_diameter_mm": 21.293277205308495,
+        "diameter_grade": "H1",
+        "status": null,
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_02.jpg",
+        "endpoint": "/validate-sample",
+        "http_status": 200,
+        "seconds": 1.0728344430000334,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": "INVALID",
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_03.jpg",
+        "endpoint": "/predict-visual",
+        "http_status": 422,
+        "seconds": 0.20983583899999303,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": null,
+        "detail": "No quill detected in the uploaded image.",
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_03.jpg",
+        "endpoint": "/measure-diameter",
+        "http_status": 200,
+        "seconds": 0.5837327250000044,
+        "diameter_mm": 18.628395070665274,
+        "raw_diameter_mm": 20.128395070665274,
+        "calibrated_diameter_mm": 18.628395070665274,
+        "diameter_grade": "M4",
+        "status": null,
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_03.jpg",
+        "endpoint": "/validate-sample",
+        "http_status": 200,
+        "seconds": 1.1744152070000382,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": "INVALID",
+        "detail": null,
+        "visual_prediction": null
+      }
+    ],
+    "detector": [
+      {
+        "image": "diameter_test_01.jpg",
+        "image_sha256": "e135b490a340c9cb0fa21e6050382480c404a3c8856302d112c0820b5b229b09",
+        "decoded_sha256": "9aabac0d4b18b7c96ecfdf8334f1d4c3f1d7e44e51ccef532582763f7ef161e4",
+        "decoded_shape": [
+          1600,
+          1200,
+          3
+        ],
+        "boxes": [],
+        "confidences": [],
+        "iou": 0.7
+      },
+      {
+        "image": "diameter_test_02.jpg",
+        "image_sha256": "8689bd2d0d00f7728a6dfebd8820ce628ff4e7ffd7eff048c912db2d7ea05635",
+        "decoded_sha256": "b640b30f0915a0d45dc4c9cbe4bcbaf31908c7a3bc5adbdd951fe914fb183abd",
+        "decoded_shape": [
+          1600,
+          1256,
+          3
+        ],
+        "boxes": [],
+        "confidences": [],
+        "iou": 0.7
+      },
+      {
+        "image": "diameter_test_03.jpg",
+        "image_sha256": "c91ffb64f0ca513840301894b8b974a25d3db8ea940a1630663457931661808d",
+        "decoded_sha256": "6dff2c1ca4ba6d2539217c10967c26a492e2d170919dea6805eee4e16afa4904",
+        "decoded_shape": [
+          1600,
+          1122,
+          3
+        ],
+        "boxes": [],
+        "confidences": [],
+        "iou": 0.7
+      }
+    ],
+    "platform": "Linux",
+    "model_sha256": {
+      "quill_detector_v5.pt": "78a09c742380691bbc53a60e866656aa3b529a171f5aad459125d7adf4c80f1f",
+      "coin_quill_segmentation.pt": "4ce2b6106517a7b8168a507fe50aad3c74a576e1546f534eb18544cae06ad9f9",
+      "rf_vision_8_class.pkl": "7f87c62c025d332965c20d2f0075673471810dd5fef9a4c37efd7c2558d9f245"
+    },
+    "inference": {
+      "imgsz": 640,
+      "conf": 0.25,
+      "device": "cpu",
+      "iou": "Ultralytics default",
+      "preprocessing": "Original bytes decoded to BGR by OpenCV"
+    },
+    "startup_seconds": 0.602077238999982,
+    "rf_classes": [
+      "Alba",
+      "C4",
+      "C5",
+      "C5 Special",
+      "H1",
+      "H2",
+      "M4",
+      "M5"
+    ],
+    "encoder_init_seconds": 0.2564489379999486,
+    "process_peak_rss_mib": 954.6640625,
+    "cgroup_peak_bytes": 859598848,
+    "status": "PASS"
+  },
+  "windows": {
+    "requests": [
+      {
+        "image": "diameter_test_01.jpg",
+        "endpoint": "/predict-visual",
+        "http_status": 422,
+        "seconds": 0.1582104999999956,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": null,
+        "detail": "No quill detected in the uploaded image.",
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_01.jpg",
+        "endpoint": "/measure-diameter",
+        "http_status": 200,
+        "seconds": 0.5963810999999168,
+        "diameter_mm": 29.35775537771715,
+        "raw_diameter_mm": 30.85775537771715,
+        "calibrated_diameter_mm": 29.35775537771715,
+        "diameter_grade": "H2",
+        "status": null,
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_01.jpg",
+        "endpoint": "/validate-sample",
+        "http_status": 200,
+        "seconds": 0.4801864999999452,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": "INVALID",
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_02.jpg",
+        "endpoint": "/predict-visual",
+        "http_status": 422,
+        "seconds": 0.0790309999999863,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": null,
+        "detail": "No quill detected in the uploaded image.",
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_02.jpg",
+        "endpoint": "/measure-diameter",
+        "http_status": 200,
+        "seconds": 0.4317324999999528,
+        "diameter_mm": 21.293277205308495,
+        "raw_diameter_mm": 22.793277205308495,
+        "calibrated_diameter_mm": 21.293277205308495,
+        "diameter_grade": "H1",
+        "status": null,
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_02.jpg",
+        "endpoint": "/validate-sample",
+        "http_status": 200,
+        "seconds": 0.5927833000000646,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": "INVALID",
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_03.jpg",
+        "endpoint": "/predict-visual",
+        "http_status": 422,
+        "seconds": 0.07363210000016807,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": null,
+        "detail": "No quill detected in the uploaded image.",
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_03.jpg",
+        "endpoint": "/measure-diameter",
+        "http_status": 200,
+        "seconds": 0.38905930000009903,
+        "diameter_mm": 18.628395070665274,
+        "raw_diameter_mm": 20.128395070665274,
+        "calibrated_diameter_mm": 18.628395070665274,
+        "diameter_grade": "M4",
+        "status": null,
+        "detail": null,
+        "visual_prediction": null
+      },
+      {
+        "image": "diameter_test_03.jpg",
+        "endpoint": "/validate-sample",
+        "http_status": 200,
+        "seconds": 0.5711736000000656,
+        "diameter_mm": null,
+        "raw_diameter_mm": null,
+        "calibrated_diameter_mm": null,
+        "diameter_grade": null,
+        "status": "INVALID",
+        "detail": null,
+        "visual_prediction": null
+      }
+    ],
+    "detector": [
+      {
+        "image": "diameter_test_01.jpg",
+        "image_sha256": "e135b490a340c9cb0fa21e6050382480c404a3c8856302d112c0820b5b229b09",
+        "decoded_sha256": "9aabac0d4b18b7c96ecfdf8334f1d4c3f1d7e44e51ccef532582763f7ef161e4",
+        "decoded_shape": [
+          1600,
+          1200,
+          3
+        ],
+        "boxes": [],
+        "confidences": [],
+        "iou": 0.7
+      },
+      {
+        "image": "diameter_test_02.jpg",
+        "image_sha256": "8689bd2d0d00f7728a6dfebd8820ce628ff4e7ffd7eff048c912db2d7ea05635",
+        "decoded_sha256": "b640b30f0915a0d45dc4c9cbe4bcbaf31908c7a3bc5adbdd951fe914fb183abd",
+        "decoded_shape": [
+          1600,
+          1256,
+          3
+        ],
+        "boxes": [],
+        "confidences": [],
+        "iou": 0.7
+      },
+      {
+        "image": "diameter_test_03.jpg",
+        "image_sha256": "c91ffb64f0ca513840301894b8b974a25d3db8ea940a1630663457931661808d",
+        "decoded_sha256": "6dff2c1ca4ba6d2539217c10967c26a492e2d170919dea6805eee4e16afa4904",
+        "decoded_shape": [
+          1600,
+          1122,
+          3
+        ],
+        "boxes": [],
+        "confidences": [],
+        "iou": 0.7
+      }
+    ],
+    "platform": "Windows",
+    "model_sha256": {
+      "quill_detector_v5.pt": "78a09c742380691bbc53a60e866656aa3b529a171f5aad459125d7adf4c80f1f",
+      "coin_quill_segmentation.pt": "4ce2b6106517a7b8168a507fe50aad3c74a576e1546f534eb18544cae06ad9f9",
+      "rf_vision_8_class.pkl": "7f87c62c025d332965c20d2f0075673471810dd5fef9a4c37efd7c2558d9f245"
+    },
+    "inference": {
+      "imgsz": 640,
+      "conf": 0.25,
+      "device": "cpu",
+      "iou": "Ultralytics default",
+      "preprocessing": "Original bytes decoded to BGR by OpenCV"
+    },
+    "startup_seconds": 1.2281166000000212,
+    "rf_classes": [
+      "Alba",
+      "C4",
+      "C5",
+      "C5 Special",
+      "H1",
+      "H2",
+      "M4",
+      "M5"
+    ],
+    "encoder_init_seconds": 1.130657200000087,
+    "process_peak_rss_mib": null,
+    "cgroup_peak_bytes": null,
+    "status": "PASS"
+  }
+}

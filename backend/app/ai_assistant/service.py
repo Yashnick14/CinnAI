@@ -7,7 +7,7 @@ from threading import Lock
 
 from app.ai_assistant.cinnamon_assistant_final import ask_cinnamon_assistant
 from app.ai_assistant.schemas import AssistantAnswer
-from app.core.config import PROJECT_ROOT
+from app.core.config import ASSISTANT_ENCODER_PATH, ASSISTANT_ENCODER_CACHE
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +42,9 @@ class AssistantService:
             from google import genai
             from google.genai import types
             from app.ai_assistant.retrieval import Retriever
-            cache = PROJECT_ROOT / "data" / "assistant-encoder"
+            cache = ASSISTANT_ENCODER_CACHE
             retriever = Retriever(SentenceTransformer(
-                "sentence-transformers/all-MiniLM-L6-v2", cache_folder=str(cache)
+                ASSISTANT_ENCODER_PATH, cache_folder=str(cache)
             ))
             client = genai.Client(api_key=key, http_options=types.HttpOptions(timeout=60000))
             return cls(retriever, client)

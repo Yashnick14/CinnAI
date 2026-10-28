@@ -53,3 +53,21 @@ frontend/test-results/
 
 # Original Colab notebook contains private output; keep local until sanitized.
 /backend/backend_handoff/FYP.ipynb
+
+# Terraform local state, plans and credentials
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+*.backend.hcl
+crash.log
+
+# Private CI deployment metadata
+.ci-image.txt
+release-plan.sha256
+.ci-tested-image.txt
+
+# Private rendered Terraform plans
+*-plan.txt
