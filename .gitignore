@@ -71,3 +71,8 @@ release-plan.sha256
 
 # Private rendered Terraform plans
 *-plan.txt
+
+# Cloud credentials and local test workspace
+**/cloud_credentials.h
+**/device-credentials*.json
+.test-tmp/

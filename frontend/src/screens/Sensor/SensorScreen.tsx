@@ -1,6 +1,7 @@
+import { CloudSensorService } from "../../services/cloudSensor";
 import { useDesktopLayout } from "../../hooks/useDesktopLayout";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { ActivityIndicator, Pressable, TextInput, View } from "react-native";
 import { Text } from "../../components/AppText";
 import {
   Body,
@@ -28,7 +29,9 @@ export function SensorScreen() {
   const [error, setError] = useState("");
   const [showChecks, setShowChecks] = useState(false);
   const busy = sensor.state === "scanning" || sensor.state === "connecting";
-  const wifi = BLE.mode === "wifi";
+  const cloud = BLE.mode === "cloud";
+  const [pairCode, setPairCode] = useState("");
+  const wifi = BLE.mode === "wifi" || cloud;
   async function action(operation: () => Promise<void>) {
     setError("");
     try {
@@ -118,6 +121,24 @@ export function SensorScreen() {
               <Row label="Connection method" value="Local Wi-Fi · Expo Go" />
             </Card>
           )}
+          {cloud && <Card>
+            <Label>Pair moisture device</Label>
+            <Body>Connect ESP32 by USB, enter PAIR in Serial Monitor, then paste its temporary code here.</Body>
+            <TextInput accessibilityLabel="Device pairing code" value={pairCode} onChangeText={setPairCode}
+              autoCapitalize="none" autoCorrect={false} maxLength={32}
+              style={{ borderWidth: 1, borderColor: theme.line, borderRadius: 10, padding: 12, color: theme.ink }} />
+            <Button title="Pair Device" disabled={busy || pairCode.trim().length !== 32} onPress={() => void action(async () => {
+              if (sensorService instanceof CloudSensorService) { await sensorService.pair(pairCode); setPairCode(""); }
+            })} />
+            {sensor.device && <>
+              <Button title="Unpair Device" secondary onPress={() => void action(async () => {
+                if (sensorService instanceof CloudSensorService) await sensorService.unpair();
+              })} />
+              <Button title="Revoke Device Credential" secondary onPress={() => void action(async () => {
+                if (sensorService instanceof CloudSensorService) await sensorService.revoke();
+              })} />
+            </>}
+          </Card>}
           {(sensor.error || error) && (
             <WarningMessage text={sensor.error ?? error} error />
           )}

@@ -154,8 +154,9 @@ export function AnalysingScreen({
       </View>
       {waiting && (
         <Text style={s.detail}>
-          Each check updates as the backend completes it. Coin segmentation and
-          diameter run together.
+          {elapsed >= 8 && Object.keys(progress).length === 0
+            ? "Connecting to the grading service. It may take a little longer to wake up."
+            : "Each check updates as it completes. Coin segmentation and diameter run together."}
         </Text>
       )}
       {error && <WarningMessage text={error} error />}

@@ -2,7 +2,9 @@
 export const ADC_THRESHOLD = 2842;
 export const BLE = {
   mode:
-    process.env.EXPO_PUBLIC_SENSOR_MODE === "wifi"
+    process.env.EXPO_PUBLIC_SENSOR_MODE === "cloud"
+      ? "cloud"
+      : process.env.EXPO_PUBLIC_SENSOR_MODE === "wifi"
       ? "wifi"
       : process.env.EXPO_PUBLIC_SENSOR_MODE === "real"
         ? "real"

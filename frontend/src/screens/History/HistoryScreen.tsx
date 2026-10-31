@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { CLOUD_ENABLED } from "../../services/cloudApi";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -8,7 +9,7 @@ import {
 } from "react-native";
 import { Text } from "../../components/AppText";
 import { useFocusEffect } from "@react-navigation/native";
-import { history } from "../../storage/history";
+import { history, cloudHistory } from "../../storage/history";
 import type { GradingResult } from "../../types/grading";
 import type { ScreenProps } from "../../types/navigation";
 import {
@@ -27,6 +28,7 @@ import { filterHistory, summarize } from "../../utils/historySummary";
 import { SUPPORTED_GRADES } from "../../config/grading";
 import { theme } from "../../config/theme";
 export function HistoryScreen({ navigation }: ScreenProps<"History">) {
+  const syncStatus = useSyncExternalStore(cloudHistory.subscribe, cloudHistory.getSyncStatus, cloudHistory.getSyncStatus);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   async function removeRecord(id: string) {
@@ -78,8 +80,16 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
     <Page topInset>
       <Heading
         title="Grading History"
-        subtitle="Your local sample and assessment register"
+        subtitle={CLOUD_ENABLED ? "Your cloud and local assessments" : "Your local sample and assessment register"}
       />
+      {CLOUD_ENABLED && <Card>
+        <Body>{syncStatus}</Body>
+        <Button title="Sync this device's history" disabled={busy} onPress={() => {
+          setBusy(true);
+          void cloudHistory.syncLocal().then(() => setRetry(v => v + 1))
+            .catch(e => setError(errorMessage(e))).finally(() => setBusy(false));
+        }} />
+      </Card>}
       <View
         style={{
           flexDirection: "row",

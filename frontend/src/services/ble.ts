@@ -1,3 +1,6 @@
+import { CloudSensorService } from "./cloudSensor";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth } from "./firebaseAuth";
 import { BLE } from "../config/ble";
 import { APP } from "../config/app";
 import { RealBleService } from "./bleAdapter";
@@ -130,7 +133,9 @@ export class MockSensorService implements SensorService {
 }
 
 export const sensorService: SensorService =
-  BLE.mode === "wifi"
+  BLE.mode === "cloud"
+    ? new CloudSensorService()
+    : BLE.mode === "wifi"
     ? new WifiSensorService()
     : BLE.mode === "mock"
       ? new MockSensorService()
@@ -144,4 +149,8 @@ export function freshMoisture(
   return age >= 0 && age <= APP.sensorFreshnessMs
     ? snapshot.moisturePercent
     : null;
+}
+
+if (BLE.mode === "cloud") {
+  onAuthStateChanged(firebaseAuth(), () => sensorService.disconnect());
 }

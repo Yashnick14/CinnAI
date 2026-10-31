@@ -33,6 +33,14 @@ resource "azurerm_container_app" "api" {
     key_vault_secret_id = "${local.foundation.key_vault_uri}secrets/${var.gemini_secret_name}"
 
   }
+  dynamic "secret" {
+    for_each = var.enable_cloud_storage ? [1] : []
+    content {
+      name                = "cloud-database-url"
+      identity            = local.foundation.identity_id
+      key_vault_secret_id = "${local.foundation.key_vault_uri}secrets/${var.cloud_database_secret_name}"
+    }
+  }
   ingress {
     external_enabled           = true
     target_port                = 8000
@@ -90,6 +98,23 @@ resource "azurerm_container_app" "api" {
           value = env.value
         }
 
+      }
+      dynamic "env" {
+        for_each = var.enable_cloud_storage ? {
+          CLOUD_STORAGE_ENABLED = "true"
+          FIREBASE_PROJECT_ID   = var.firebase_project_id
+        } : {}
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
+      dynamic "env" {
+        for_each = var.enable_cloud_storage ? [1] : []
+        content {
+          name        = "CLOUD_DATABASE_URL"
+          secret_name = "cloud-database-url"
+        }
       }
       startup_probe {
         transport               = "HTTP"

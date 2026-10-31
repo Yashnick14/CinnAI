@@ -69,10 +69,6 @@ variable "postgres_admin_type" {
   type    = string
   default = "User"
 }
-variable "postgres_allowed_ipv4" {
-  type    = set(string)
-  default = []
-}
 variable "enable_budget" {
   type    = bool
   default = true
@@ -86,3 +82,31 @@ variable "budget_emails" {
   default = []
 }
 variable "budget_start_date" { type = string }
+
+variable "postgres_admin_password" {
+  type        = string
+  sensitive   = true
+  default     = null
+  description = "Supply through a secure TF_VAR from Key Vault; sensitive value is stored in protected Terraform state. Never use tfvars/Git."
+}
+
+variable "postgres_allowed_ipv4" {
+  type    = set(string)
+  default = []
+  validation {
+    condition     = alltrue([for ip in var.postgres_allowed_ipv4 : can(cidrnetmask("${ip}/32")) && ip != "0.0.0.0" && ip != "255.255.255.255"])
+    error_message = "Exact IPv4 addresses only; all-Azure exception 0.0.0.0 is forbidden."
+  }
+}
+
+variable "postgres_location" {
+  type        = string
+  default     = null
+  description = "Database-only region override; existing application resources retain location."
+}
+
+variable "postgres_server_name" {
+  type        = string
+  default     = null
+  description = "Optional PostgreSQL-only name override; existing application names are unchanged."
+}

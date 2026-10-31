@@ -46,16 +46,16 @@ export async function validateSample(
       });
     } catch {
       throw new Error(
-        "Cannot complete sample validation. Check the backend and Wi-Fi, then retry. No grade has been assigned.",
+        "Cannot complete sample validation. Check your internet connection and retry. The service may be starting. No grade has been assigned.",
       );
     }
     if (!response.ok)
       throw new Error(
-        `Sample validation unavailable (HTTP ${response.status}). No grade has been assigned.`,
+        "Sample validation is temporarily unavailable. Please retry. No grade has been assigned.",
       );
     if (!response.body)
       throw new Error(
-        "Live validation is unavailable. Restart the backend and retry.",
+        "Live validation is temporarily unavailable. Please retry.",
       );
     const parsed = DecisionSchema.safeParse(
       await readValidationStream(response.body.getReader(), onProgress),

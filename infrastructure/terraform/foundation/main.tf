@@ -96,10 +96,12 @@ resource "azurerm_role_assignment" "secret_reader" {
 # approved Key Vault operation. The app consumes a URI, never a plan/state plaintext.
 resource "azurerm_postgresql_flexible_server" "optional" {
   count                         = var.enable_postgres ? 1 : 0
-  name                          = "${local.prefix}-pg"
-  location                      = var.location
+  name                          = coalesce(var.postgres_server_name, "${local.prefix}-pg")
+  location                      = coalesce(var.postgres_location, var.location)
   resource_group_name           = azurerm_resource_group.app.name
   version                       = "16"
+  administrator_login           = "cinnaiadmin"
+  administrator_password        = var.postgres_admin_password
   sku_name                      = "B_Standard_B1ms"
   storage_mb                    = 32768
   auto_grow_enabled             = false
@@ -108,15 +110,15 @@ resource "azurerm_postgresql_flexible_server" "optional" {
   public_network_access_enabled = true
   authentication {
     active_directory_auth_enabled = true
-    password_auth_enabled         = false
+    password_auth_enabled         = true
     tenant_id                     = data.azurerm_client_config.current.tenant_id
 
   }
   tags = local.tags
   lifecycle {
     precondition {
-      condition     = var.postgres_free_offer_confirmed && var.postgres_admin_object_id != null && var.postgres_admin_name != null
-      error_message = "PostgreSQL is unused by current backend. Confirm 12-month offer and Entra admin before enabling."
+      condition     = contains(var.allowed_locations, coalesce(var.postgres_location, var.location)) && var.postgres_free_offer_confirmed && var.postgres_admin_object_id != null && var.postgres_admin_name != null && var.postgres_admin_password != null && length(var.postgres_allowed_ipv4) > 0
+      error_message = "Confirm offer, credentials and reviewed exact outbound IPv4 allowlist before enabling PostgreSQL."
 
     }
 
@@ -130,13 +132,6 @@ resource "azurerm_postgresql_flexible_server_active_directory_administrator" "op
   object_id           = var.postgres_admin_object_id
   principal_name      = var.postgres_admin_name
   principal_type      = var.postgres_admin_type
-}
-resource "azurerm_postgresql_flexible_server_firewall_rule" "optional" {
-  for_each         = var.enable_postgres ? var.postgres_allowed_ipv4 : toset([])
-  name             = "client-${replace(each.value, ".", "-")}"
-  server_id        = azurerm_postgresql_flexible_server.optional[0].id
-  start_ip_address = each.value
-  end_ip_address   = each.value
 }
 resource "azurerm_consumption_budget_subscription" "student" {
   count           = var.enable_budget ? 1 : 0
@@ -164,4 +159,12 @@ resource "azurerm_consumption_budget_subscription" "student" {
     }
 
   }
+}
+
+resource "azurerm_postgresql_flexible_server_firewall_rule" "optional" {
+  for_each         = var.enable_postgres ? var.postgres_allowed_ipv4 : toset([])
+  name             = "client-${replace(each.value, ".", "-")}"
+  server_id        = azurerm_postgresql_flexible_server.optional[0].id
+  start_ip_address = each.value
+  end_ip_address   = each.value
 }

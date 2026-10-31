@@ -28,6 +28,8 @@ RUN groupadd --gid 10001 cinnai && useradd --uid 10001 --gid 10001 --no-create-h
     && mkdir -p /var/lib/cinnai && chown 10001:10001 /var/lib/cinnai
 COPY --from=encoder /opt/minilm /opt/minilm
 COPY app/ ./app/
+COPY alembic.ini ./alembic.ini
+COPY migrations/ ./migrations/
 COPY models/quill_detector_v5.pt models/coin_quill_segmentation.pt models/rf_vision_8_class.pkl ./models/
 COPY docker/ ./docker/
 RUN python docker/verify_models.py

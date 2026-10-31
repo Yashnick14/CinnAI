@@ -16,3 +16,8 @@ app/ai_assistant/results/
 !docker/
 !docker/*.py
 !docker/model-sha256.json
+
+!alembic.ini
+!migrations/
+!migrations/**
+migrations/**/__pycache__/

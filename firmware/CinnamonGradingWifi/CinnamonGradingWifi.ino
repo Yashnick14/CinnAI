@@ -2,6 +2,7 @@
 #include <WiFiMulti.h>
 #include <WebServer.h>
 #include "wifi_credentials.h"
+#include "cloud_transport.h"
 
 // Wi-Fi is the transport for Expo Go. Enable only if you also want BLE available.
 #define ENABLE_BLE 0
@@ -133,6 +134,7 @@ void setup() {
   wifiMulti.addAP(WIFI_SSID_1, WIFI_PASSWORD_1);
   wifiMulti.addAP(WIFI_SSID_2, WIFI_PASSWORD_2);
   server.on("/sensor", HTTP_GET, sendSensorReading);
+  startCloud();
   lastWifiAttempt = millis() - 10000;
 #if ENABLE_BLE
   startBle();
@@ -141,6 +143,7 @@ void setup() {
 
 void loop() {
   maintainWifi();
+  handleCloudSerial();
   medianADC = readMedianADC();
   sampleUpdatedAt = millis();
   sampleSequence++;
@@ -154,5 +157,6 @@ void loop() {
   moistureCharacteristic->setValue(value.c_str());
   if (deviceConnected) moistureCharacteristic->notify();
 #endif
+  sendCloudReading(medianADC, sampleSequence);
   responsiveDelay(2000);
 }

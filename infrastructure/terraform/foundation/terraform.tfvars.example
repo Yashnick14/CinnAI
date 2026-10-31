@@ -10,3 +10,10 @@ enable_postgres = false
 postgres_free_offer_confirmed = true
 budget_emails = ["REPLACE@example.com"]
 budget_start_date = "2026-10-01T00:00:00Z"
+
+# Cloud persistence: enable ONLY after a reviewed plan, free-offer and egress check.
+# enable_postgres = true
+# postgres_free_offer_confirmed = true
+# Admin password: TF_VAR_postgres_admin_password from Key Vault, never this file.
+# PostgreSQL uses public networking with exact current app outbound IPv4 rules.
+# postgres_allowed_ipv4 = [] # populate from reviewed Azure outboundIpAddresses

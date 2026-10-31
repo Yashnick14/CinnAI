@@ -10,7 +10,7 @@ export interface SessionMoisture {
   connection_state: SensorState;
   read_status:
     "fresh" | "stale" | "missing" | "disconnected" | "invalid" | "demo";
-  source: "ble" | "wifi" | "mock";
+  source: "ble" | "wifi" | "cloud" | "mock";
   device_id: string | null;
 }
 
@@ -70,7 +70,7 @@ export function snapshotMoisture(
     attached_at: new Date(now).toISOString(),
     connection_state: sensor.state,
     read_status,
-    source: sensor.isMock ? "mock" : BLE.mode === "wifi" ? "wifi" : "ble",
+    source: sensor.isMock ? "mock" : BLE.mode === "cloud" ? "cloud" : BLE.mode === "wifi" ? "wifi" : "ble",
     device_id: sensor.device?.id ?? null,
   };
 }

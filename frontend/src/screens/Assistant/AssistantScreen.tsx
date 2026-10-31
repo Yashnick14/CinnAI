@@ -123,7 +123,7 @@ export function AssistantScreen() {
             {state.pending && (
               <View style={s.loading} accessibilityLiveRegion="polite">
                 <ActivityIndicator color={theme.primary} />
-                <Text style={s.helper}>Preparing your answer…</Text>
+                <Text style={[s.helper, { flex: 1 }]}>Preparing your answer… The first request may take a little longer.</Text>
               </View>
             )}
             {!!state.error && (

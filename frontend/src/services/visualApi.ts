@@ -33,7 +33,7 @@ export function visualEndpoint() {
   } catch {
     throw new VisualApiError(
       "configuration",
-      "Set EXPO_PUBLIC_API_URL to your laptop's LAN address, then restart Expo.",
+      "Configure the backend base URL, then restart Expo.",
     );
   }
   const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
@@ -51,7 +51,7 @@ export function visualEndpoint() {
   )
     throw new VisualApiError(
       "configuration",
-      "Use the backend's LAN base URL, for example http://192.168.1.250:8000. Localhost cannot reach your laptop from an iPhone.",
+      "Use an HTTPS backend base URL or a laptop LAN address. Localhost cannot be used from an iPhone.",
     );
   return `${url.origin}/predict-visual`;
 }
@@ -102,7 +102,7 @@ export async function predictVisual(
     } catch {
       throw new VisualApiError(
         "backend_unavailable",
-        "Cannot reach the visual backend. Keep FastAPI running and check your laptop's LAN IP and that both devices use the same Wi-Fi.",
+        "Cannot reach the grading service. Check your internet connection and retry. The service may be starting.",
       );
     }
     let raw: unknown;
@@ -133,14 +133,12 @@ export async function predictVisual(
       )
         throw new VisualApiError(
           "unusable_features",
-          "YOLO found quill detections, but the foreground extraction could not produce usable visual features. Backend detail: " +
-            detail,
+          "The image could not provide usable visual features. Please retake in even lighting.",
         );
       if (response.status === 422 && /no quill/i.test(detail))
         throw new VisualApiError(
           "no_quill",
-          "YOLO did not return a quill detection at the validated confidence threshold. Backend detail: " +
-            detail,
+          "No quill was detected. Please retake with one quill clearly visible.",
         );
       if (response.status === 404 || response.status >= 500)
         throw new VisualApiError(
@@ -151,8 +149,7 @@ export async function predictVisual(
         );
       throw new VisualApiError(
         "request_failed",
-        detail ||
-          `The image request was rejected (HTTP ${response.status}). Take another photo and retry.`,
+        "The image request was rejected. Take another photo and retry.",
       );
     }
     const parsed = VisualResponseSchema.safeParse(raw);

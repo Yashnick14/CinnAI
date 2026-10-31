@@ -54,3 +54,16 @@ variable "gemini_secret_name" {
   type    = string
   default = "gemini-api-key"
 }
+
+variable "enable_cloud_storage" {
+  type    = bool
+  default = false
+}
+variable "cloud_database_secret_name" {
+  type    = string
+  default = "cloud-database-url"
+}
+variable "firebase_project_id" {
+  type    = string
+  default = "cinnai-7f4af"
+}

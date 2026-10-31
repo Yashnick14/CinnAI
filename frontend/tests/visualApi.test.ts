@@ -110,7 +110,7 @@ it.each([
     );
     await expect(
       predictVisual(request, new AbortController().signal),
-    ).rejects.toMatchObject({ kind, message: expect.stringContaining(detail) });
+    ).rejects.toMatchObject({ kind, message: expect.not.stringContaining(detail) });
   },
 );
 it.each([404, 500, 503])("handles backend HTTP %d", async (status) => {
@@ -209,4 +209,11 @@ it("reports an unreadable photo without contacting the backend", async () => {
     predictVisual(request, new AbortController().signal),
   ).rejects.toMatchObject({ kind: "invalid_photo" });
   expect(fetcher).not.toHaveBeenCalled();
+});
+
+it("routes uploaded images to a configured Azure HTTPS backend", async () => {
+  config.baseUrl = "https://cinnai.wittymushroom-238da769.centralindia.azurecontainerapps.io";
+  await predictVisual(request, new AbortController().signal);
+  expect(fetcher.mock.calls[0]![0]).toBe(`${config.baseUrl}/predict-visual`);
+  expect(fetcher.mock.calls[0]![1].body.get("image")).toBeInstanceOf(Blob);
 });

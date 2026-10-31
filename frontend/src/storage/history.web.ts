@@ -1,8 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createHistoryRepository } from "./historyRepository";
+import { createUserHistory } from "./userHistory";
+import { createCloudHistory } from "./cloudHistory";
+import { CLOUD_ENABLED } from "../services/cloudApi";
+import { firebaseAuth } from "../services/firebaseAuth";
 
 // Browser preview only. Native history uses the application's documents directory.
-export const history = createHistoryRepository(AsyncStorage, {
+const localHistory = createUserHistory(AsyncStorage, {
   async persist(uri) {
     if (uri.startsWith("data:")) return uri;
     const blob = await (await fetch(uri)).blob();
@@ -14,4 +17,7 @@ export const history = createHistoryRepository(AsyncStorage, {
       reader.readAsDataURL(blob);
     });
   },
-});
+}, () => firebaseAuth().currentUser?.uid ?? null);
+
+export const cloudHistory = createCloudHistory(localHistory);
+export const history = CLOUD_ENABLED ? cloudHistory : localHistory;

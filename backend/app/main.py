@@ -39,3 +39,10 @@ app.include_router(sample_router)
 
 
 app.include_router(assistant_router)
+
+from app.cloud.database import enabled as cloud_enabled
+if cloud_enabled():
+    from app.cloud.limits import CloudBodyLimit
+    app.add_middleware(CloudBodyLimit)
+    from app.cloud.routes import router as cloud_router
+    app.include_router(cloud_router)
