@@ -1,0 +1,51 @@
+// Configure a SEPARATE protected multibranch job discovering ONLY main.
+// Production credentials must exist only in that job's parent folder.
+def azureSteps(Closure body) {
+  withCredentials([
+    gitUsernamePassword(credentialsId: 'cinnai-github-read', gitToolName: 'Default'),
+    string(credentialsId: 'cinnai-azure-client-id', variable: 'ARM_CLIENT_ID'),
+    string(credentialsId: 'cinnai-azure-client-secret', variable: 'ARM_CLIENT_SECRET'),
+    string(credentialsId: 'cinnai-azure-tenant-id', variable: 'ARM_TENANT_ID'),
+    string(credentialsId: 'cinnai-azure-subscription-id', variable: 'ARM_SUBSCRIPTION_ID'),
+    file(credentialsId: "cinnai-${params.STACK}-backend", variable: 'TF_BACKEND_FILE'),
+    file(credentialsId: "cinnai-${params.STACK}-vars", variable: 'TF_VARS_FILE')
+  ]) { body() }
+}
+pipeline {
+  agent { label 'cinnai-infrastructure-linux' }
+  options {
+    skipDefaultCheckout(true)
+    disableConcurrentBuilds()
+    skipStagesAfterUnstable()
+    disableRestartFromStage()
+    timeout(time: 180, unit: 'MINUTES')
+  }
+  parameters {
+    booleanParam(name: 'RELEASE', defaultValue: false, description: 'Prepare an approved main release; never automatically applies.')
+    choice(name: 'STACK', choices: ['foundation'], description: 'One shared Azure environment. Bootstrap is never applied by Jenkins.')
+  }
+  stages {
+    stage('Checkout main only') {
+      steps {
+        script {
+          if (env.BRANCH_NAME != 'main' || env.CHANGE_ID || env.TAG_NAME) { error('Only exact main branch builds may enter release job') }
+        }
+        checkout scm
+        script { env.VALIDATED_COMMIT = pwsh(returnStdout: true, script: 'git rev-parse HEAD').trim() }
+      }
+    }
+    stage('Reviewable Terraform plan') {
+      when { expression { params.RELEASE && env.BRANCH_NAME == 'main' && !env.CHANGE_ID && !env.TAG_NAME } }
+      steps {
+        script { azureSteps { pwsh '& ./infrastructure/jenkins/release.ps1 -Stack $env:STACK -Action Plan' } }
+      }
+    }
+    stage('Approve and apply exact plan') {
+      when { expression { params.RELEASE && env.BRANCH_NAME == 'main' && !env.CHANGE_ID && !env.TAG_NAME } }
+      steps {
+        input message: 'Review the complete Terraform plan above. Apply this exact saved plan to the single CinnAI environment?', submitter: 'cinnai-admin'
+        script { azureSteps { pwsh '& ./infrastructure/jenkins/release.ps1 -Stack $env:STACK -Action Apply' } }
+      }
+    }
+  }
+}

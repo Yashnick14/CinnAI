@@ -1,0 +1,21 @@
+jenkins:
+  numExecutors: 0
+  mode: EXCLUSIVE
+  slaveAgentPort: -1
+  disableRememberMe: true
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: cinnai-admin
+          password: "${CINNAI_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    globalMatrix:
+      entries:
+        - user:
+            name: cinnai-admin
+            permissions:
+              - Overall/Administer
+unclassified:
+  location:
+    url: http://localhost:8080/

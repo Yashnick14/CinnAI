@@ -1,0 +1,79 @@
+name: cinnai-ci
+services:
+  init-work:
+    image: alpine:3.22
+    user: root
+    command: ["sh", "-c", "mkdir -p /work/release && chown 1000:1000 /work /work/release && chmod 700 /work/release"]
+    volumes: ["agent_work:/work"]
+    network_mode: none
+  controller:
+    build:
+      context: .
+      dockerfile: Controller.Dockerfile
+    restart: unless-stopped
+    ports: ["127.0.0.1:8080:8080"]
+    environment:
+      CASC_JENKINS_CONFIG: /usr/share/jenkins/ref/jenkins.yaml
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+    volumes: ["jenkins_home:/var/jenkins_home"]
+    secrets: [CINNAI_ADMIN_PASSWORD]
+    networks: [control]
+    mem_limit: 2g
+  docker:
+    image: docker:28.5.2-dind
+    privileged: true
+    restart: unless-stopped
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    volumes:
+      - docker_data:/var/lib/docker
+      - docker_certs:/certs
+      - docker_client:/certs/client
+      - agent_work:/home/jenkins/agent:ro
+    networks: [build]
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    mem_limit: 8g
+  agent:
+    profiles: [agent]
+    build:
+      context: .
+      dockerfile: Agent.Dockerfile
+    init: true
+    restart: unless-stopped
+    depends_on:
+      docker: {condition: service_healthy}
+      controller: {condition: service_started}
+      init-work: {condition: service_completed_successfully}
+    entrypoint: ["java", "-jar", "/usr/share/jenkins/agent.jar"]
+    command: ["-url", "http://controller:8080/", "-secret", "@/run/secrets/agent_secret", "-name", "cinnai-local", "-webSocket", "-workDir", "/home/jenkins/agent"]
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: /certs/client
+      CINNAI_RELEASE_LEDGER: /home/jenkins/agent/release/ledger.json
+    secrets: [agent_secret]
+    volumes:
+      - agent_work:/home/jenkins/agent
+      - docker_client:/certs/client:ro
+      - ../../../backend/models:/opt/cinnai-inputs/models:ro
+      - ../../../backend/backend_handoff:/opt/cinnai-inputs/fixtures:ro
+    networks: [control, build]
+    mem_limit: 4g
+networks:
+  control:
+  build:
+volumes:
+  jenkins_home:
+  docker_data:
+  docker_certs:
+  docker_client:
+  agent_work:
+secrets:
+  CINNAI_ADMIN_PASSWORD:
+    file: ./secrets/admin-password
+  agent_secret:
+    file: ./secrets/agent-secret

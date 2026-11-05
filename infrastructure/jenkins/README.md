@@ -1,36 +1,7 @@
-# Jenkins branch and deployment policy
+# CinnAI Jenkins
 
-There is ONE Azure CinnAI environment. These files configure future Jenkins jobs; they do not configure a running Jenkins controller automatically. No jobs, credentials, GitHub rules, Azure resources or deployments were created by this change. Changes remain on Development for review and manual merge.
+Use the [local Docker Desktop setup](local/README.md) for the controller, Linux build agent, credentials, main-only deployment, rollback and protected infrastructure commands.
 
-## Jobs and hard access boundary
-1. Validation multibranch job: Jenkinsfile, allow development, current Development spelling, main and trusted PRs. Use cinnai-validation-windows agent. It runs frontend tests/TypeScript, backend Linux tests/inference/Docker validation, Terraform fmt/validate and mocked plan tests. It has NO push/apply/deploy code and NO Azure write or ACR credentials. No live Terraform plan is claimed by these offline checks.
-2. Protected release multibranch job in a separate Jenkins folder: discover exact main ONLY, disable tag/PR discovery, Script Path Jenkinsfile.release. Use cinnai-release-windows agent. RELEASE defaults false. Exact branch/PR/tag guard runs before credentials; release script also verifies checked-out commit is the tested commit AND still remote main before publication, plan and apply. A failed/unstable test stops later stages. Stage restart is disabled.
+See [validation results](local/VALIDATION.md) for the completed checks and remaining activation steps.
 
-Do not share production credentials globally or with the validation folder. A branch conditional alone is NOT a security boundary against a modified Jenkinsfile. Use Jenkins folder RBAC, restrict release job Configure/Replay/credential administration, enforce main-only SCM discovery in controller settings, and protect main with reviewed PRs and required validation status checks. Do not allow branches to select release nodes: configure job/agent access restrictions or isolated controllers/accounts. Jenkins administrators can override input restrictions and must be trusted. Keep development code off the release Windows user profile, Azure CLI cache and Docker credentials. The interactive laptop Owner login must not be usable by validation workers. No automatic merge or branch rename is implemented.
-
-Use separate Windows service accounts with restricted filesystem/cache access; do not expose a privileged shared Docker daemon to untrusted builds. On a single laptop, run only trusted repository code unless strong worker isolation is configured. Cross-job lock cinnai-local-docker-validation prevents accidental fixed-image-tag races, not malicious access. Install Lockable Resources, Pipeline, Git, Credentials Binding, Input Step and Multibranch support.
-
-## Gates and artifact identity
-The release job reruns all tests rather than trusting a caller-supplied success flag. Production image is built and tested by existing Docker validator; exact local image ID is retained. Publish requires human approval by cinnai-release-approvers. Tags use full Git SHA; deployment uses registry @sha256 digest, never latest. Foundation mode never pushes an image. Configure ACR_NAME as a protected release-job environment value after reviewed foundation provisioning.
-
-Both application and foundation changes use a saved Terraform plan, displayed for review. A separate restricted human input is required before apply. The saved plan hash is checked before applying it; no replan occurs after approval. Remote state locking remains enabled. Concurrent releases are disabled. Bootstrap is excluded from Jenkins apply entirely. Foundation must exist, its secret must be populated and the one environment approved before application release. A bounded /health check follows application apply; failure reports deployment failure, not automatic rollback.
-
-## Credentials and existing single environment
-Protected release-folder credentials:
-- cinnai-azure-client-id / cinnai-azure-client-secret / cinnai-azure-tenant-id / cinnai-azure-subscription-id: secret text for a dedicated Jenkins service principal, not the laptop Owner account.
-- cinnai-foundation-backend / cinnai-application-backend: secret files containing existing state account cinnaitf666a84, private container tfstate, separate foundation.tfstate/application.tfstate keys, use_azuread_auth=true, subscription 666a8489-014b-456e-8d3a-3b531503b1b3.
-- cinnai-foundation-vars / cinnai-application-vars: reviewed secret-file tfvars. Reuse the one foundation/environment; application name cinnai. No branch-derived resource names, no alternate development state/environment.
-- Create Jenkins group cinnai-release-approvers and grant only intended reviewers approval/build rights.
-
-Scope release principal permissions to intended app resource group, storage state container and AcrPush; foundation RBAC changes need separately reviewed role-assignment authority. Do not grant subscription Owner. Configure private AZURE_CONFIG_DIR and DOCKER_CONFIG on release agent outside browsable workspace. Protect/expire cached credentials and plan files. Configure authenticated Git CLI access for ls-remote via a secure credential helper; never embed Git secrets in URLs. Never archive tfplan/state or private configs. This job currently uses one protected release principal; separating foundation/application identities further is recommended when configuring Jenkins.
-
-Models and sanitized notebook/image fixtures are Git-ignored and must be securely provisioned in each workspace before tests; model hashes are checked by existing Docker build. Fail missing artifacts rather than skip tests. Do not expose private historical notebook output. Windows agent needs Node/npm, Docker Linux engine, Terraform 1.13.5 and Azure CLI on PATH. Docker validator still validates at 2 CPU/4 GiB: 1 CPU/2 GiB Azure load validation remains a deployment prerequisite, not implied by CI success.
-
-Development performs offline Terraform plan tests without Azure credentials. For a real development plan, configure a separate read-only plan identity (Azure Reader plus state Blob Data Reader) and use existing initialized state with -lock=false and -input=false; never reuse the release identity. This optional live-plan job is NOT enabled yet. Read access to state is sensitive and must be restricted to trusted contributors.
-
-## Verification and limits
-Local PowerShell parser checks and branch guard tests cover main success, development/Development/Main rejection, PR/tag/missing branch rejection, feature branch, missing validation and commit mismatch. Jenkins/Groovy/controller execution was not available locally, so perform Jenkins declarative validation and a non-release dry run after installation. No tests/build/deployment were executed against Azure by this configuration change.
-
-Review and merge these changes into main manually before enabling the main release job. Install/configure jobs, isolated credentials, approval group and GitHub branch protections separately; repository files do not enforce those server-side permissions by themselves. Jenkins is the only CI/CD platform; no Actions workflow added.
-
-Optional live plan is implemented in Jenkinsfile/plan-readonly.ps1, default LIVE_PLAN=false. Configure the six cinnai-plan-* credential IDs listed in Jenkinsfile with the separate Reader/Blob Data Reader identity; do not substitute release credentials. Only main/development/Development branches can select it; PRs/tags cannot. Application plan needs existing foundation outputs and a reviewed current image digest in its vars file. It is advisory without a state lock, cannot be promoted to apply, and may fail if Azure/provider data reads require missing permissions; do not grant write permissions to make a plan succeed. No live plan was run for this change.
+The superseded remote-hosting scaffold and old instructions were moved to `delete/infrastructure/jenkins/` for manual review. They are not used by the current pipelines.

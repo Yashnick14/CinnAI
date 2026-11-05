@@ -1,70 +1,53 @@
-// Configure a SEPARATE protected multibranch job discovering ONLY main.
-// Production credentials must exist only in that job's parent folder.
-def azureSteps(Closure body) {
-  withCredentials([
-    string(credentialsId: 'cinnai-azure-client-id', variable: 'ARM_CLIENT_ID'),
-    string(credentialsId: 'cinnai-azure-client-secret', variable: 'ARM_CLIENT_SECRET'),
-    string(credentialsId: 'cinnai-azure-tenant-id', variable: 'ARM_TENANT_ID'),
-    string(credentialsId: 'cinnai-azure-subscription-id', variable: 'ARM_SUBSCRIPTION_ID'),
-    file(credentialsId: "cinnai-${params.STACK}-backend", variable: 'TF_BACKEND_FILE'),
-    file(credentialsId: "cinnai-${params.STACK}-vars", variable: 'TF_VARS_FILE')
-  ]) { body() }
-}
+// Protected main-only Pipeline job. No SCM/timer triggers.
 pipeline {
-  agent { label 'cinnai-release-windows' }
-  options {
-    skipDefaultCheckout(true)
-    disableConcurrentBuilds()
-    skipStagesAfterUnstable()
-    disableRestartFromStage()
-    timeout(time: 180, unit: 'MINUTES')
+ agent { label 'cinnai-release-linux' }
+ options { skipDefaultCheckout(true); disableConcurrentBuilds(); buildDiscarder(logRotator(numToKeepStr:'10', artifactNumToKeepStr:'5'));  disableRestartFromStage(); timeout(time:180, unit:'MINUTES') }
+ parameters {
+  string(name:'COMMIT_SHA', defaultValue:'', description:'Exact pushed main commit')
+  choice(name:'ACTION', choices:['deploy','rollback'], description:'Manual release action')
+ }
+ stages {
+  stage('Main checkout') {
+   steps {
+    script {
+     if (!currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')) { error('Authenticated manual trigger required') }
+     if (!(params.COMMIT_SHA ==~ /[0-9a-f]{40}/)) { error('Full SHA required') }
+    }
+    deleteDir()
+    checkout scm
+    sh 'rm -f release-result.json .ci-tested-image.txt'
+    withCredentials([gitUsernamePassword(credentialsId:'cinnai-github-read', gitToolName:'Default')]) {
+     sh 'test "$(git rev-parse HEAD)" = "$COMMIT_SHA" && test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$COMMIT_SHA"'
+    }
+    script { env.BRANCH_NAME='main'; env.VALIDATED_COMMIT=params.COMMIT_SHA }
+   }
   }
-  parameters {
-    booleanParam(name: 'RELEASE', defaultValue: false, description: 'Prepare an approved main release; never automatically applies.')
-    choice(name: 'STACK', choices: ['application','foundation'], description: 'One shared Azure environment. Bootstrap is never applied by Jenkins.')
+  stage('Required validation') {
+   when { expression { params.ACTION == 'deploy' } }
+   steps { lock(resource:'cinnai-local-docker-validation') { pwsh '& ./infrastructure/jenkins/validate.ps1' } }
   }
-  stages {
-    stage('Checkout main only') {
-      steps {
-        script {
-          if (env.BRANCH_NAME != 'main' || env.CHANGE_ID || env.TAG_NAME) { error('Only exact main branch builds may enter release job') }
-        }
-        checkout scm
-      }
+  stage('Image release') {
+   steps {
+    lock(resource:'cinnai-production') {
+     withCredentials([
+      gitUsernamePassword(credentialsId:'cinnai-github-read', gitToolName:'Default'),
+      string(credentialsId:'cinnai-release-client-id', variable:'AZURE_CLIENT_ID'),
+      string(credentialsId:'cinnai-release-tenant-id', variable:'AZURE_TENANT_ID'),
+      file(credentialsId:'cinnai-release-certificate', variable:'AZURE_CERTIFICATE')
+     ]) {
+      sh '''
+       set +x
+       export AZURE_CONFIG_DIR="$(mktemp -d)"
+       export DOCKER_CONFIG="$(mktemp -d)"
+       trap 'rm -rf "$AZURE_CONFIG_DIR" "$DOCKER_CONFIG"' EXIT
+       az login --service-principal --username "$AZURE_CLIENT_ID" --certificate "$AZURE_CERTIFICATE" --tenant "$AZURE_TENANT_ID" --output none
+       az account set --subscription 666a8489-014b-456e-8d3a-3b531503b1b3
+       pwsh -NoProfile -File infrastructure/jenkins/image-release.ps1 -Action "$ACTION"
+      '''
+     }
     }
-    stage('Required tests and validated image') {
-      steps {
-        lock(resource: 'cinnai-local-docker-validation') {
-          powershell '& ./infrastructure/jenkins/validate.ps1'
-        }
-        script { env.VALIDATED_COMMIT = powershell(returnStdout: true, script: 'git rev-parse HEAD').trim() }
-      }
-    }
-    stage('Approve publishing tested image') {
-      when { expression { params.RELEASE && params.STACK == 'application' && env.BRANCH_NAME == 'main' && !env.CHANGE_ID && !env.TAG_NAME } }
-      steps {
-        input message: 'Publish the tested main commit to the production ACR?', submitter: 'cinnai-release-approvers'
-        script { azureSteps { powershell '& ./infrastructure/jenkins/release.ps1 -Stack application -Action Publish' } }
-      }
-    }
-    stage('Reviewable Terraform plan') {
-      when { expression { params.RELEASE && env.BRANCH_NAME == 'main' && !env.CHANGE_ID && !env.TAG_NAME } }
-      steps {
-        script { azureSteps { powershell '& ./infrastructure/jenkins/release.ps1 -Stack $env:STACK -Action Plan' } }
-      }
-    }
-    stage('Approve and apply exact plan') {
-      when { expression { params.RELEASE && env.BRANCH_NAME == 'main' && !env.CHANGE_ID && !env.TAG_NAME } }
-      steps {
-        input message: 'Review the complete Terraform plan above. Apply this exact saved plan to the single CinnAI environment?', submitter: 'cinnai-release-approvers'
-        script { azureSteps { powershell '& ./infrastructure/jenkins/release.ps1 -Stack $env:STACK -Action Apply' } }
-      }
-    }
-    stage('Deployment health') {
-      when { expression { params.RELEASE && params.STACK == 'application' && env.BRANCH_NAME == 'main' && !env.CHANGE_ID && !env.TAG_NAME } }
-      steps {
-        script { azureSteps { powershell '& ./infrastructure/jenkins/release.ps1 -Stack application -Action Health' } }
-      }
-    }
+   }
   }
+ }
+ post { always { archiveArtifacts artifacts:'release-result.json,.ci-reports/**', allowEmptyArchive:true; pwsh '& ./infrastructure/jenkins/cleanup-cache.ps1' } }
 }

@@ -14,7 +14,8 @@
     "styles:build": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/generated.css --minify",
     "styles:watch": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/generated.css --watch",
     "preweb": "npm run styles:build",
-    "export:web": "npm run styles:build && expo export --platform web"
+    "export:web": "npm run styles:build && expo export --platform web",
+    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@expo-google-fonts/poppins": "^0.4.1",
@@ -48,9 +49,11 @@
     "@tailwindcss/cli": "^4.3.3",
     "@types/base-64": "^1.0.2",
     "@types/react": "~19.2.10",
+    "eslint": "^10.14.0",
     "prettier": "^3.9.10",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
     "vitest": "^3.2.7"
   }
 }

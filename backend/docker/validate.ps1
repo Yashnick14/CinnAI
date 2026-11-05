@@ -1,4 +1,4 @@
-param([string]$OutputDirectory = (Join-Path $env:TEMP ("cinnai-docker-" + (Get-Date -Format 'yyyyMMdd-HHmmss'))))
+param([string]$OutputDirectory = (Join-Path ([IO.Path]::GetTempPath()) ("cinnai-docker-" + (Get-Date -Format 'yyyyMMdd-HHmmss'))))
 $ErrorActionPreference = 'Stop'
 $backend = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null

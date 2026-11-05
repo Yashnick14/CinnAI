@@ -12,7 +12,7 @@ from alembic.operations import Operations
 from app.cloud import auth
 from app.cloud.routes import router
 from app.cloud.database import get_session, Base
-from app.cloud.models import Device, Reading, Ownership, now
+from app.cloud.models import Device, Reading, Ownership, User, History, now
 
 @pytest.fixture
 def cloud(monkeypatch):
@@ -162,6 +162,21 @@ def test_real_postgresql_migration_crud_if_configured(monkeypatch):
                 s.add(d); s.flush()
                 s.add(Reading(id=str(uuid4()),device_id=d.id,event_id="1",adc=2842,received_at=now()));s.commit()
                 assert s.scalar(select(Reading.adc)) == 2842
+                # Exercise PostgreSQL JSON, composite owner keys and persisted updates.
+                s.add_all([User(uid="pg-alice"), User(uid="pg-bob")]); s.flush()
+                record_id = str(uuid4())
+                s.add(History(user_uid="pg-alice", id=record_id, payload={"finalGrade":"M4"}))
+                s.add(History(user_uid="pg-bob", id=record_id, payload={"finalGrade":"H1"}))
+                s.commit(); s.expire_all()
+                alice = s.get(History, ("pg-alice", record_id))
+                assert alice.payload["finalGrade"] == "M4"
+                assert s.get(History, ("pg-bob", record_id)).payload["finalGrade"] == "H1"
+                alice.deleted = True; s.commit(); s.expire_all()
+                assert s.get(History, ("pg-alice", record_id)).deleted
+                assert not s.get(History, ("pg-bob", record_id)).deleted
+                s.delete(s.get(History, ("pg-alice", record_id))); s.commit()
+                assert s.get(History, ("pg-alice", record_id)) is None
+                assert s.get(History, ("pg-bob", record_id)) is not None
             with Operations.context(MigrationContext.configure(connection)): migration.downgrade()
             connection.commit()
             assert inspect(connection).get_table_names(schema=schema) == []

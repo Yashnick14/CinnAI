@@ -50,6 +50,7 @@ coverage.xml
 backend/test-results/
 frontend/test-results/
 /delete_folder/
+/delete/
 
 # Original Colab notebook contains private output; keep local until sanitized.
 /backend/backend_handoff/FYP.ipynb
@@ -76,3 +77,8 @@ release-plan.sha256
 **/cloud_credentials.h
 **/device-credentials*.json
 .test-tmp/
+
+# Local Jenkins credentials and generated release output
+infrastructure/jenkins/local/secrets/
+release-result.json
+.ci-reports/

@@ -5,6 +5,7 @@ function Assert-MainRelease {
 }
 function Invoke-Checked {
     param([string]$Command, [string[]]$Arguments)
+    $null = Get-Command $Command -ErrorAction Stop
     $ErrorActionPreference = 'Continue'
     $PSNativeCommandUseErrorActionPreference = $false
     & $Command @Arguments

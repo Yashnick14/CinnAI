@@ -1,6 +1,6 @@
 // Validation job: never receives registry or deployment credentials.
 pipeline {
-  agent { label 'cinnai-validation-windows' }
+  agent { label 'cinnai-validation-linux' }
   options {
     skipDefaultCheckout(true)
     disableConcurrentBuilds()
@@ -12,11 +12,11 @@ pipeline {
     choice(name: 'PLAN_STACK', choices: ['foundation','application'], description: 'Existing single environment, never a development deployment.')
   }
   stages {
-    stage('Checkout') { steps { checkout scm } }
+    stage('Checkout') { steps { script { if (env.CHANGE_ID || env.TAG_NAME || !['main','Development','development'].contains(env.BRANCH_NAME)) { error('Trusted branches only; no PR/fork execution on local Docker agent') } }; checkout scm } }
     stage('Tests, Docker and Terraform plans') {
       steps {
         lock(resource: 'cinnai-local-docker-validation') {
-          powershell '& ./infrastructure/jenkins/validate.ps1'
+          pwsh '& ./infrastructure/jenkins/validate.ps1'
         }
       }
     }
@@ -31,7 +31,7 @@ pipeline {
           file(credentialsId: "cinnai-plan-${params.PLAN_STACK}-backend", variable: 'TF_BACKEND_FILE'),
           file(credentialsId: "cinnai-plan-${params.PLAN_STACK}-vars", variable: 'TF_VARS_FILE')
         ]) {
-          powershell '& ./infrastructure/jenkins/plan-readonly.ps1 -Stack $env:PLAN_STACK'
+          pwsh '& ./infrastructure/jenkins/plan-readonly.ps1 -Stack $env:PLAN_STACK'
         }
       }
     }
