@@ -1,6 +1,7 @@
 param([ValidateSet('deploy','rollback')][string]$Action)
 $ErrorActionPreference='Stop'
 . "$PSScriptRoot/policy.ps1"
+. "$PSScriptRoot/baseline.ps1"
 Assert-MainRelease $env:BRANCH_NAME $env:CHANGE_ID $env:TAG_NAME $env:VALIDATED_COMMIT ((git rev-parse HEAD).Trim())
 function Read-App {
  $raw=az containerapp show -g cinnai-666a84-rg -n cinnai -o json
@@ -28,9 +29,9 @@ $workspaceFull=[IO.Path]::GetFullPath((Get-Location).Path).TrimEnd([IO.Path]::Di
 if ($ledgerFull.StartsWith($workspaceFull,[StringComparison]::OrdinalIgnoreCase)) {throw 'Release ledger must be outside the checkout'}
 $before=Read-App
 if ($before.properties.configuration.activeRevisionsMode -ne 'Single') {throw 'Release requires the reviewed Single revision configuration'}
-$oldImage=$before.properties.template.containers[0].image
-if ($oldImage -notmatch '@sha256:[a-f0-9]{64}$') {throw 'Immutable rollback baseline required'}
-$baseline=Wait-Healthy $oldImage
+$currentReference=$before.properties.template.containers[0].image
+$oldImage=Resolve-RollbackBaseline $before
+$baseline=Wait-Healthy $currentReference
 if ($Action -eq 'rollback') {
  $record=Get-Content $env:CINNAI_RELEASE_LEDGER -Raw | ConvertFrom-Json
  if ($oldImage -ne $record.deployed_image) {throw 'Deployment changed since ledger; refuse rollback'}

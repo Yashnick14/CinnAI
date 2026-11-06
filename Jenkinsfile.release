@@ -26,28 +26,11 @@ pipeline {
    when { expression { params.ACTION == 'deploy' } }
    steps { lock(resource:'cinnai-local-docker-validation') { pwsh '& ./infrastructure/jenkins/validate.ps1' } }
   }
-  stage('Image release') {
-   steps {
-    lock(resource:'cinnai-production') {
-     withCredentials([
-      gitUsernamePassword(credentialsId:'cinnai-github-read', gitToolName:'Default'),
-      string(credentialsId:'cinnai-release-client-id', variable:'AZURE_CLIENT_ID'),
-      string(credentialsId:'cinnai-release-tenant-id', variable:'AZURE_TENANT_ID'),
-      file(credentialsId:'cinnai-release-certificate', variable:'AZURE_CERTIFICATE')
-     ]) {
-      sh '''
-       set +x
-       export AZURE_CONFIG_DIR="$(mktemp -d)"
-       export DOCKER_CONFIG="$(mktemp -d)"
-       trap 'rm -rf "$AZURE_CONFIG_DIR" "$DOCKER_CONFIG"' EXIT
-       az login --service-principal --username "$AZURE_CLIENT_ID" --certificate "$AZURE_CERTIFICATE" --tenant "$AZURE_TENANT_ID" --output none
-       az account set --subscription 666a8489-014b-456e-8d3a-3b531503b1b3
-       pwsh -NoProfile -File infrastructure/jenkins/image-release.ps1 -Action "$ACTION"
-      '''
-     }
-    }
-   }
+  stage('Export verified image') {
+   when { expression { params.ACTION == 'deploy' } }
+   steps { pwsh '& ./infrastructure/jenkins/export-image.ps1' }
   }
+
  }
- post { always { archiveArtifacts artifacts:'release-result.json,.ci-reports/**', allowEmptyArchive:true; pwsh '& ./infrastructure/jenkins/cleanup-cache.ps1' } }
+ post { always { archiveArtifacts artifacts:'release-bundle/*,.ci-reports/**', allowEmptyArchive:true; pwsh '& ./infrastructure/jenkins/cleanup-cache.ps1' } }
 }

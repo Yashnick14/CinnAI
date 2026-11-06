@@ -1,4 +1,5 @@
 $ErrorActionPreference='Stop'
+& "$PSScriptRoot/test-baseline.ps1"
 $repo=(Resolve-Path "$PSScriptRoot/../..").Path
 $release=Join-Path $PSScriptRoot 'image-release.ps1'
 $testRoot=Join-Path (Join-Path $repo '.test-tmp') ('cinnai-script-tests-'+[guid]::NewGuid().ToString('N'))
@@ -65,6 +66,23 @@ try {
  Assert-Test $caught 'Missing tools must fail validation'
  $compose=Get-Content "$repo/infrastructure/jenkins/local/compose.yaml" -Raw
  Assert-Test (!$compose.Contains('docker.sock') -and $compose.Contains('127.0.0.1:8080:8080')) 'Controller socket/port isolation regressed'
+ . "$PSScriptRoot/verify-bundle.ps1"
+ 'image test bytes' | Set-Content image.tar
+ $manifest=@{schema=1;commit=$global:cinnaiTest_testSha;image_id=('sha256:'+('d'*64));archive_sha256=(Get-FileHash image.tar).Hash.ToLower();build_number='42';tests_passed=$true}
+ $manifest | ConvertTo-Json | Set-Content manifest.json
+ $verified=Assert-ReleaseBundle manifest.json image.tar $global:cinnaiTest_testSha '42'
+ Assert-Test ($verified.image_id -eq $manifest.image_id) 'Valid bundle rejected'
+ foreach ($case in @('commit','build','hash','tests')) {
+  $copy=$manifest.Clone()
+  switch ($case) {'commit' {$copy.commit='f'*40};'build' {$copy.build_number='43'};'hash' {$copy.archive_sha256='e'*64};'tests' {$copy.tests_passed=$false}}
+  $copy | ConvertTo-Json | Set-Content manifest.json
+  $caught=$false
+  try {Assert-ReleaseBundle manifest.json image.tar $global:cinnaiTest_testSha '42'} catch {$caught=$true}
+  Assert-Test $caught "Unsafe bundle accepted: $case"
+ }
+ $pipeline=Get-Content "$repo/Jenkinsfile.release" -Raw
+ Assert-Test (!$pipeline.Contains('AZURE_CERTIFICATE') -and !$pipeline.Contains('az login') -and !$pipeline.Contains('image-release.ps1')) 'Jenkins must not authenticate/deploy to Azure'
+ Assert-Test ($pipeline.Contains('export-image.ps1') -and $pipeline.Contains('validate.ps1')) 'Jenkins validation/export missing'
  foreach ($path in @(Get-ChildItem "$repo/scripts","$repo/infrastructure/jenkins","$repo/backend/docker" -Filter *.ps1 -Recurse)) {
   $parseErrors=$null;$tokens=$null
   $null=[Management.Automation.Language.Parser]::ParseFile($path.FullName,[ref]$tokens,[ref]$parseErrors)

@@ -3,6 +3,13 @@ $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 Push-Location $root
 try {
+ if ((git branch --show-current).Trim() -cne 'main' -or (git status --porcelain)) {throw 'Run releases from a clean reviewed main checkout'}
+ $subscription=az account show --query id -o tsv
+ if ($LASTEXITCODE -ne 0 -or "$subscription".Trim() -ne '666a8489-014b-456e-8d3a-3b531503b1b3') {throw 'Use az login on Windows and select the CinnAI subscription first'}
+ $liveApp=az containerapp show -g cinnai-666a84-rg -n cinnai -o json
+ if ($LASTEXITCODE -ne 0) {throw 'Cannot read the existing app with this Azure login'}
+ . "$root/infrastructure/jenkins/baseline.ps1"
+ $null=Resolve-RollbackBaseline ($liveApp | ConvertFrom-Json)
  $local=(git rev-parse refs/heads/main).Trim()
  if ($LASTEXITCODE -ne 0) {throw 'Local main is missing'}
  $remote=git ls-remote origin refs/heads/main
@@ -35,6 +42,5 @@ try {
   if ((Get-Date) -gt $deadline) {throw 'Build wait timed out; job may still be running'}
  } while ($b.building -or !$b.result)
  if ($b.result -ne 'SUCCESS') {throw "Jenkins result: $($b.result). See $build"}
- $result=Invoke-RestMethod "$build/artifact/release-result.json" -Headers $headers
- $result | Format-List
+ & "$root/infrastructure/jenkins/windows-release.ps1" -Action $Action -Commit $local -Build $build -BuildNumber ([string]$b.number) -Headers $headers
 } finally { $headers=$null; $credential=$null; Pop-Location }

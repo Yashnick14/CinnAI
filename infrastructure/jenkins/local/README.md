@@ -66,11 +66,8 @@ Create folder `cinnai-production` with admin-only permissions. Store these crede
 | ID | Jenkins kind | Value |
 |---|---|---|
 | cinnai-github-read | Username/password | GitHub username and repository-scoped read-only token; also used for remote-main checks |
-| cinnai-release-client-id | Secret text | Dedicated Entra service principal application ID |
-| cinnai-release-tenant-id | Secret text | Tenant ID |
-| cinnai-release-certificate | Secret file | PEM private key and certificate matching the registered principal certificate |
 
-Creating the principal/certificate and Azure role assignments requires separate approval; this setup creates none. Grant AcrPush only on `cinnai666a84`. Grant an app-scoped custom role with `Microsoft.App/containerApps/read`, `Microsoft.App/containerApps/write`, and `Microsoft.App/containerApps/revisions/read` on existing `cinnai`. Add environment read access only if required by Azure. Do not grant subscription Owner/Contributor, role-assignment, PostgreSQL administration, state-storage access or Key Vault secret-read to the release identity. App write permission is not field-restricted, so release pipeline editing must remain admin-only.
+No Azure credentials are stored in Jenkins. Windows uses the existing interactive Azure CLI login; no personal Azure cache is mounted or copied into containers.
 
 Create Pipeline `cinnai-production/cinnai-release`:
 
@@ -81,7 +78,13 @@ In Manage Jenkins → Tools, configure a Git installation named `Default` with e
 3. No webhook, polling, timer, or PR triggers. Only admin can Build/Configure/Replay.
 4. Jenkins must load the parameter definitions before using the trigger script. A first parameterless setup build deliberately fails before release if parameters were not loaded yet.
 
-Azure and Docker login files use private temporary directories cleared after the release stage. Runtime application secrets remain in Azure; none enters the Docker image. The pipeline changes only the app image; it does not enable cloud feature flags or run production database migrations.
+Keep the job **disabled** until these Development changes have been reviewed, merged and pushed to main: the older main Jenkinsfile may still request service-principal credentials. Do not run it now. After the merge, enable it and run the parameterless setup build to load its parameters.
+
+Folder setup: Dashboard → New Item → `cinnai-production` → Folder → Save. Inside it choose Credentials → folder domain → Add Credentials → Username with password, ID `cinnai-github-read`, GitHub username and a repository-scoped read-only token. Then New Item → `cinnai-release` → Pipeline. The repository URL is `https://github.com/Yashnick14/CinnAI.git`. Select that credential in Pipeline SCM configuration. Leave build triggers unchecked.
+
+Current checked-in security configuration grants only `cinnai-admin` Overall/Administer, disables signup and grants no anonymous permissions. Preserve this under Manage Jenkins → Security. Folder inheritance is protected by that admin-only global matrix; do not grant other authenticated users Build, Configure or Replay. Verify these settings in the running dashboard before enabling the job. No Azure credentials are required in either job or folder.
+
+The main-only release job validates and exports the tested image. It never publishes to Azure or updates the app. The Windows client downloads the archive from the exact successful build and checks commit, build number, SHA256 and loaded Docker image ID. Checksums detect corruption; trust still depends on the protected Jenkins controller, job and reviewed main code.
 
 ## Normal deployment
 
@@ -93,7 +96,7 @@ $env:CINNAI_JENKINS_JOB_PATH = 'job/cinnai-production/job/cinnai-release'
 .\scripts\deploy.ps1
 ```
 
-Enter Jenkins username/API token in the credential prompt. Keep Docker and the laptop awake. Local main must match pushed main. Jenkins checks the requested SHA against checkout and remote main, runs all validation, publishes the tested image ID under the commit tag, resolves its immutable digest, updates the existing app and verifies the ready revision and HTTPS health endpoint. It refuses an already deployed digest to preserve rollback history. The script waits and prints the verified image, revision and URL. No automatic merge or Git push occurs.
+Enter Jenkins username/API token in the credential prompt. Keep Docker and the laptop awake. Local main must match pushed main. Jenkins checks the requested SHA against checkout and remote main, runs all validation and exports the tested image without rebuilding it. Windows checks the downloaded manifest/archive and loaded image, then prompts for RELEASE followed by the commit SHA. Only after approval does Windows publish the tested image under the commit tag, resolve its immutable digest, update the existing app and verify revision readiness and HTTPS health. Run az login and select the correct subscription on Windows first. The checkout must be clean main. It refuses an already deployed digest to preserve rollback history. The script waits and prints the verified image, revision and URL. No automatic merge or Git push occurs.
 
 ## Rollback and infrastructure
 
@@ -101,7 +104,7 @@ Enter Jenkins username/API token in the credential prompt. Keep Docker and the l
 .\scripts\rollback.ps1
 ```
 
-Rollback is a separately selected action on the protected main job. It deploys the previous digest as a new revision, verifies health, and refuses if the live image no longer matches the persistent ledger. It does not undo database migrations. Ledger: `/home/jenkins/agent/release/ledger.json`. A failed new deployment attempts restoration of the old image and still reports failure.
+Rollback is a separate command using the same main guard and explicit Windows release confirmation. Jenkins checks main but does not rebuild for rollback. It deploys the previous digest as a new revision, verifies health, and refuses if the live image no longer matches the persistent ledger. It does not undo database migrations. Ledger: `%LOCALAPPDATA%\CinnAI\releases\ledger.json`, protected by a local exclusive deployment lock. Keep a backup. A failed new deployment attempts restoration of the old image and still reports failure.
 
 `Jenkinsfile.infrastructure` is a separate foundation-only main job with hashed plans and explicit human approval before apply. Leave it disabled unless needed. It needs separately scoped infrastructure credentials, current reviewed vars/backend files, and the `cinnai-infrastructure-linux` label. Do not reuse obsolete vars that disable the database. Ordinary deployment never invokes Terraform apply. Before a future application Terraform plan, set its reviewed image variable to the actual live digest to avoid reverting an image release.
 
@@ -122,7 +125,7 @@ Invoke-RestMethod 'https://cinnai.wittymushroom-238da769.centralindia.azureconta
 az containerapp show -g cinnai-666a84-rg -n cinnai --query '{image:properties.template.containers[0].image,ready:properties.latestReadyRevisionName,latest:properties.latestRevisionName}' -o json
 ```
 
-Match the image and revision with Jenkins `release-result.json`. Review Docker/model artifacts under `.ci-reports/docker`, PostgreSQL integration output, lint/types and frontend/backend test results. Health alone does not prove the required tests ran.
+Match the image and revision with the Windows checkout `release-result.json`. Review Docker/model artifacts under `.ci-reports/docker`, PostgreSQL integration output, lint/types and frontend/backend test results. Health alone does not prove the required tests ran.
 
 ```powershell
 docker compose -f $compose --profile agent stop
@@ -130,3 +133,13 @@ docker compose -f $compose --profile agent up -d
 ```
 
 Official references: [Jenkins Docker](https://www.jenkins.io/doc/book/installing/docker/), [JCasC secret files](https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/docs/features/secrets.adoc), [Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/).
+
+## Transfer storage and activation
+
+Read-only verification on 2026-11-06: the Windows identity has effective `*` actions with no exclusions at the ACR, app and environment scopes. ACR uses LegacyRegistryPermissions. This permits the required management/push actions; a future policy or expired login can still reject an operation. No permission grants were changed.
+
+The initial tagged revision is now supported by baseline.ps1: only cinnai--0000004 with cloud-af7814c, resolving to the recorded OCI digest, with tag/index/child locks verified on each release. The stored rollback target is the digest, not the tag. No app redeployment was required. Evidence is registry/revision metadata (unchanged tag timestamp preceding revision creation); no running replica digest was available.
+
+Archives and manifests are downloaded under %LOCALAPPDATA%\CinnAI\releases in unique directories. Allow disk space for the image archive in Jenkins and Windows plus Docker storage. Jenkins retains five artifact sets. Windows archives are retained for audit; manually remove old UUID download folders when no release is running, keeping ledger.json. No Docker images or volumes are pruned on Windows. Registry credentials use an ACL-restricted temporary Docker config removed afterward; the existing Windows Azure CLI cache is untouched.
+
+Review and merge these changes to main and push manually before activating the release job. Do not run a Development release. No service principal, certificate, Azure password or Entra registration is needed. Terraform remains a separate protected workflow; its credentials are not configured by this change.

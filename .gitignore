@@ -82,3 +82,4 @@ release-plan.sha256
 infrastructure/jenkins/local/secrets/
 release-result.json
 .ci-reports/
+/release-bundle/
