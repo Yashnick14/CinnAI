@@ -32,5 +32,17 @@ pipeline {
   }
 
  }
- post { always { archiveArtifacts artifacts:'release-bundle/*,.ci-reports/**', allowEmptyArchive:true; pwsh '& ./infrastructure/jenkins/cleanup-cache.ps1' } }
+ post {
+  always {
+   script {
+    // Parameter validation can stop the first build before checkout exists.
+    if (fileExists('infrastructure/jenkins/cleanup-cache.ps1')) {
+     archiveArtifacts artifacts:'release-bundle/*,.ci-reports/**', allowEmptyArchive:true
+     pwsh '& ./infrastructure/jenkins/cleanup-cache.ps1'
+    } else {
+     echo 'Skipping artifacts/cache cleanup: checkout is not available.'
+    }
+   }
+  }
+ }
 }
