@@ -23,12 +23,23 @@ try {
   Invoke-WebRequest "$Build/artifact/release-bundle/manifest.json" -Headers $Headers -OutFile $manifest -UseBasicParsing -MaximumRedirection 0
   Invoke-WebRequest "$Build/artifact/release-bundle/image.tar" -Headers $Headers -OutFile $archive -UseBasicParsing -MaximumRedirection 0
   $m=Assert-ReleaseBundle $manifest $archive $Commit $BuildNumber
+  $identities=python "$PSScriptRoot/archive_identity.py" $archive $m.image_id
+  if ($LASTEXITCODE -ne 0) {throw 'Archive identity verification failed; Python 3 is required'}
+  $allowed=@($identities | ConvertFrom-Json)
   Invoke-Checked docker @('load','--input',$archive)
-  $loaded=(docker image inspect $m.image_id --format '{{.Id}}').Trim()
-  if ($LASTEXITCODE -ne 0 -or $loaded -cne $m.image_id) {throw 'Loaded image ID mismatch'}
-  $platform=(docker image inspect $m.image_id --format '{{.Os}}/{{.Architecture}}').Trim()
+  $loaded=$null
+  foreach ($candidate in $allowed) {
+   try {
+    $ErrorActionPreference='Continue'
+    $inspection=docker image inspect $candidate --format '{{.Id}}' 2>$null
+    $inspectExit=$LASTEXITCODE
+   } finally {$ErrorActionPreference='Stop'}
+   if ($inspectExit -eq 0 -and "$inspection".Trim() -ceq $candidate) {$loaded=$candidate;break}
+  }
+  if (!$loaded) {throw 'No loaded image matches the verified archive identities'}
+  $platform=(docker image inspect $loaded --format '{{.Os}}/{{.Architecture}}').Trim()
   if ($LASTEXITCODE -ne 0 -or $platform -cne 'linux/amd64') {throw 'Expected Linux/amd64 image'}
-  $m.image_id | Set-Content .ci-tested-image.txt
+  $loaded | Set-Content .ci-tested-image.txt
  }
  if ((Read-Host "Type RELEASE $Commit to approve Azure $Action") -cne "RELEASE $Commit") {throw 'Release not approved; Azure unchanged'}
  $privateDocker=Join-Path $releaseRoot ([guid]::NewGuid().ToString('N'))
