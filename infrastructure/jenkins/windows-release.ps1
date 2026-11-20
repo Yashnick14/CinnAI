@@ -36,7 +36,8 @@ try {
         if ($LASTEXITCODE -ne 0) {
             throw 'Archive identity verification failed; Python 3 is required'
         }
-        $allowed = @($identities | ConvertFrom-Json)
+        # Direct assignment avoids a nested Object[] in Windows PowerShell 5.1.
+        $allowed = ConvertFrom-Json -InputObject ($identities -join "`n")
         Invoke-Checked docker @('load', '--input', $archive)
         $loaded = $null
         foreach ($candidate in $allowed) {

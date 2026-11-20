@@ -184,6 +184,16 @@ try {
         $null = [Management.Automation.Language.Parser]::ParseFile($path.FullName, [ref]$tokens, [ref]$parseErrors)
         Assert-Test ($parseErrors.Count -eq 0) "PowerShell parse failure: $($path.FullName) $parseErrors"
     }
+    $jsonIds = '["sha256:aaa","sha256:bbb"]'
+    $allowedIds = ConvertFrom-Json -InputObject ($jsonIds -join "`n")
+    $individualIds = @()
+    foreach ($candidate in $allowedIds) {
+        Assert-Test ($candidate -is [string]) 'Archive identities must be individual strings on Windows PowerShell'
+        $individualIds += $candidate
+    }
+    Assert-Test ($individualIds.Count -eq 2) 'Both verified image identities must be inspected'
+    $releaseSource = Get-Content "$repo/infrastructure/jenkins/windows-release.ps1" -Raw
+    Assert-Test ($releaseSource.Contains('$allowed = ConvertFrom-Json -InputObject')) 'Use Windows-compatible direct JSON array assignment'
     Write-Host "$global:cinnaiTest_checks script regression checks passed (all cloud/Docker calls mocked)."
 }
 finally {
