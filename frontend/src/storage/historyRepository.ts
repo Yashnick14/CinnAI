@@ -16,12 +16,16 @@ export interface HistoryRepository {
   get(id: string): Promise<GradingResult | undefined>;
   save(result: GradingResult): Promise<GradingResult>;
 }
+
+/** Create local history operations with validation, deduplication and photo preservation. */
 export function createHistoryRepository(
   storage: KeyValueStore,
   images: ImageStore,
   storageKey: string = APP.historyKey,
 ): HistoryRepository {
   let queue: Promise<unknown> = Promise.resolve();
+
+  /** Load grading records from this repository. */
   const list = async () => {
     const raw = await storage.getItem(storageKey);
     if (!raw) return [];
@@ -45,7 +49,11 @@ export function createHistoryRepository(
   };
   return {
     list,
+
+    /** Look up a grading record by its identifier. */
     get: async (id) => (await list()).find((r) => r.id === id),
+
+    /** Remove the selected record through the repository's deletion flow. */
     remove(id) {
       const operation = queue.then(async () => {
         const records = await list();
@@ -57,6 +65,8 @@ export function createHistoryRepository(
       queue = operation.catch(() => {});
       return operation;
     },
+
+    /** Persist the grading assessment through the configured storage flow. */
     save(result) {
       const operation = queue.then(async () => {
         const validated = GradingResultSchema.parse(result);

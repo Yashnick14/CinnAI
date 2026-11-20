@@ -15,10 +15,17 @@ class ArchiveIdentityTests(unittest.TestCase):
         manifest = json.dumps({"config": {"digest": config_id}}).encode()
         manifest_id = "sha256:" + hashlib.sha256(manifest).hexdigest()
         config_path = "blobs/sha256/" + config_id.split(":")[1]
-        files = {config_path: config, "manifest.json": json.dumps([{"Config": config_path}]).encode()}
+        files = {
+            config_path: config,
+            "manifest.json": json.dumps([{"Config": config_path}]).encode(),
+        }
         if oci:
-            files["index.json"] = json.dumps({"manifests": [{"digest": manifest_id}]}).encode()
-            files["blobs/sha256/" + manifest_id.split(":")[1]] = b"{}" if corrupt else manifest
+            files["index.json"] = json.dumps(
+                {"manifests": [{"digest": manifest_id}]}
+            ).encode()
+            files["blobs/sha256/" + manifest_id.split(":")[1]] = (
+                b"{}" if corrupt else manifest
+            )
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "image.tar"
             with tarfile.open(path, "w") as archive:
@@ -26,7 +33,11 @@ class ArchiveIdentityTests(unittest.TestCase):
                     item = tarfile.TarInfo(name)
                     item.size = len(data)
                     archive.addfile(item, io.BytesIO(data))
-            return image_ids(path, "sha256:" + "0" * 64 if wrong else config_id), config_id, manifest_id
+            return (
+                image_ids(path, "sha256:" + "0" * 64 if wrong else config_id),
+                config_id,
+                manifest_id,
+            )
 
     def test_oci_configuration_and_manifest(self):
         ids, config, manifest = self.check_archive()

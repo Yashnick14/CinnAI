@@ -26,6 +26,8 @@ const reasons = [
   "Automatic checks could not complete",
   "Other",
 ];
+
+/** Render an accessible selection control for the manual-review form. */
 function Select({
   label,
   value,
@@ -55,9 +57,7 @@ function Select({
           justifyContent: "space-between",
         }}
       >
-        <Text style={{ color: theme.primary }}>
-          {value || "Select an option"}
-        </Text>
+        <Text style={{ color: theme.primary }}>{value || "Select an option"}</Text>
         <Text>{open ? "−" : "⌄"}</Text>
       </Pressable>
       {open && (
@@ -84,10 +84,9 @@ function Select({
     </View>
   );
 }
-export function ManualReviewScreen({
-  route,
-  navigation,
-}: ScreenProps<"ManualReview">) {
+
+/** Collect a reviewer-selected grade and review details for the assessment. */
+export function ManualReviewScreen({ route, navigation }: ScreenProps<"ManualReview">) {
   const { result } = route.params;
   const assigned = result.status === "VALID" && result.final_grade;
   const [grade, setGrade] = useState<Grade | undefined>();
@@ -107,6 +106,8 @@ export function ManualReviewScreen({
     backgroundColor: theme.paper,
     fontFamily: "Poppins_400Regular",
   };
+
+  /** Validate and confirm the reviewer-selected grade and associated review metadata. */
   async function confirm() {
     if (lock.current) return;
     if (!grade || !reason || !reviewer.trim()) {
@@ -163,8 +164,7 @@ export function ManualReviewScreen({
         {result.diagnostics.visual && (
           <Body>
             Visual support: {result.diagnostics.visual.visual_prediction} ·{" "}
-            {(result.diagnostics.visual.visual_confidence * 100).toFixed(1)}%
-            confidence
+            {(result.diagnostics.visual.visual_confidence * 100).toFixed(1)}% confidence
           </Body>
         )}
       </Card>
@@ -210,9 +210,8 @@ export function ManualReviewScreen({
         />
       </Card>
       <Body>
-        The reviewer, reason, selected grade and original automatic result are
-        saved on this device for traceability. This creates a separate reviewed
-        record.
+        The reviewer, reason, selected grade and original automatic result are saved on
+        this device for traceability. This creates a separate reviewed record.
       </Body>
       {!!error && <WarningMessage text={error} error />}
       <Button

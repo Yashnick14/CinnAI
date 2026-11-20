@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 const positive = z.number().finite().positive();
 export const DiameterSchema = z.object({
   coin_diameter_px: positive,

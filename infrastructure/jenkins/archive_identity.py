@@ -3,6 +3,7 @@
 Caller must first verify the complete archive SHA256 against the Jenkins bundle.
 No archive members are extracted to disk. Requires Python 3 standard library only.
 """
+
 import hashlib
 import json
 import re
@@ -10,6 +11,7 @@ import sys
 import tarfile
 
 
+# Verify archive contents and resolve the tested image's configuration and manifest identities.
 def image_ids(path, expected):
     if not re.fullmatch(r"sha256:[0-9a-f]{64}", expected):
         raise ValueError("Invalid tested configuration digest")
@@ -19,12 +21,14 @@ def image_ids(path, expected):
         if len(names) != len(set(names)):
             raise ValueError("Duplicate archive members")
 
+        # Read an expected image archive member without extracting it to disk.
         def read(name):
             member = archive.getmember(name)
             if not member.isfile() or member.size > 4 * 1024 * 1024:
                 raise ValueError("Invalid metadata member")
             return archive.extractfile(member).read()
 
+        # Read and verify a content-addressed image blob from the archive.
         def blob(digest):
             if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
                 raise ValueError("Invalid blob digest")

@@ -8,6 +8,7 @@ import {
 import { onAuthStateChanged, updateProfile, type User } from "firebase/auth";
 import { firebaseConfigured } from "../config/firebase";
 import { firebaseAuth } from "../services/firebaseAuth";
+
 const Context = createContext<{
   user: User | null;
   loading: boolean;
@@ -17,15 +18,21 @@ const Context = createContext<{
   user: null,
   loading: true,
   error: null,
+
+  /** Update the signed-in user's display name through the account context. */
   updateUsername: async () => {
     throw new Error("Sign in first.");
   },
 });
+
+/** Track Firebase authentication and expose account operations to descendants. */
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(firebaseConfigured);
   const [error, setError] = useState<string | null>(null);
   const [profileVersion, setProfileVersion] = useState(0);
+
+  /** Update the signed-in user's display name through the account context. */
   async function updateUsername(name: string) {
     const current = firebaseAuth().currentUser;
     if (!current) throw new Error("Sign in first.");
@@ -60,4 +67,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
     </Context.Provider>
   );
 }
+
+/** Read the shared authentication context. */
 export const useAuth = () => useContext(Context);

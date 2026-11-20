@@ -9,6 +9,8 @@ export const ReviewInputSchema = z.object({
   reason: z.string().trim().min(1).max(200),
   notes: z.string().trim().max(2000),
 });
+
+/** Build a manually reviewed record while preserving the original assessment evidence. */
 export function reviewedRecord(
   result: SampleResult,
   input: unknown,
@@ -21,16 +23,13 @@ export function reviewedRecord(
     ...original,
     finalGrade: review.selectedGrade,
     finalStatus:
-      original.moistureStatus === "FAIL"
-        ? "MOISTURE_NON_COMPLIANT"
-        : "GRADE_ACCEPTED",
+      original.moistureStatus === "FAIL" ? "MOISTURE_NON_COMPLIANT" : "GRADE_ACCEPTED",
     manualReview: {
       ...review,
       reviewedAt: timestamp,
       originalStatus: result.status,
       originalGrade: result.final_grade,
-      originalDiameterGrade:
-        result.diagnostics.diameter?.diameter_grade ?? null,
+      originalDiameterGrade: result.diagnostics.diameter?.diameter_grade ?? null,
       originalMessage: result.message,
     },
     warnings: [

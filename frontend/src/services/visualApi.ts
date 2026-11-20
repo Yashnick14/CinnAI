@@ -17,6 +17,7 @@ export type VisualErrorKind =
   | "configuration"
   | "request_failed";
 export class VisualApiError extends Error {
+  /** Initialize the service with its configured dependencies. */
   constructor(
     public readonly kind: VisualErrorKind,
     message: string,
@@ -26,6 +27,7 @@ export class VisualApiError extends Error {
   }
 }
 
+/** Resolve the configured visual-prediction endpoint. */
 export function visualEndpoint() {
   let url: URL;
   try {
@@ -56,12 +58,15 @@ export function visualEndpoint() {
   return `${url.origin}/predict-visual`;
 }
 
+/** Upload the captured image and validate the visual-only prediction response. */
 export async function predictVisual(
   request: VisualRequest,
   signal: AbortSignal,
 ): Promise<VisualResult> {
   const endpoint = visualEndpoint();
   const controller = new AbortController();
+
+  /** Cancel the current asynchronous operation and its pending work. */
   const cancel = () => controller.abort();
   signal.addEventListener("abort", cancel, { once: true });
   if (signal.aborted) controller.abort();
@@ -127,10 +132,7 @@ export async function predictVisual(
         typeof raw.detail === "string"
           ? raw.detail
           : "";
-      if (
-        response.status === 422 &&
-        /no usable|foreground feature sets/i.test(detail)
-      )
+      if (response.status === 422 && /no usable|foreground feature sets/i.test(detail))
         throw new VisualApiError(
           "unusable_features",
           "The image could not provide usable visual features. Please retake in even lighting.",
@@ -172,8 +174,7 @@ export async function predictVisual(
       probabilities: result.probabilities,
     };
   } catch (error) {
-    if (signal.aborted)
-      throw new VisualApiError("cancelled", "Analysis cancelled.");
+    if (signal.aborted) throw new VisualApiError("cancelled", "Analysis cancelled.");
     if (timedOut)
       throw new VisualApiError(
         "backend_unavailable",

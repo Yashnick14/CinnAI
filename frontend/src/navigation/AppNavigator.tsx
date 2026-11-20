@@ -1,11 +1,14 @@
+import { HomeNavbar } from "../components/HomeNavbar";
+import { sensorService } from "../services/ble";
+import { CloudSensorService } from "../services/cloudSensor";
 import { useAuth } from "../context/AuthContext";
 import { AuthScreen } from "../screens/Auth/AuthScreen";
 import { AccountScreen } from "../screens/Auth/AccountScreen";
 import { ManualReviewScreen } from "../screens/Results/ManualReviewScreen";
 import { AssistantLauncher } from "../components/AssistantLauncher";
 import { AssistantScreen } from "../screens/Assistant/AssistantScreen";
-import { useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, AppState, View } from "react-native";
 import { WorkspaceFrame } from "./WorkspaceFrame";
 import {
   NavigationContainer,
@@ -27,22 +30,37 @@ import { HistoryScreen } from "../screens/History/HistoryScreen";
 import { HistoryDetailScreen } from "../screens/History/HistoryDetailScreen";
 import { SensorScreen } from "../screens/Sensor/SensorScreen";
 import { SettingsScreen } from "../screens/Settings/SettingsScreen";
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const navigation = createNavigationContainerRef<RootStackParamList>();
+
+/** Select authenticated routes and coordinate shared navigation controls. */
 export function AppNavigator() {
   const { user, loading } = useAuth();
   const [route, setRoute] = useState("Login");
+
+  // Only foreground screens displaying live readings need the faster poll rate.
+  useEffect(() => {
+    const service = sensorService;
+    if (!(service instanceof CloudSensorService)) return;
+    const update = (state: string) =>
+      service.setLiveViewActive(
+        !!user && state === "active" && ["Sensor", "ImageReview"].includes(route),
+      );
+    update(AppState.currentState);
+    const subscription = AppState.addEventListener("change", update);
+    return () => {
+      subscription.remove();
+      service.setLiveViewActive(false);
+    };
+  }, [route, user]);
+
+  /** Navigate to the selected primary application tab. */
   function selectTab(tab: TabName) {
     if (!user || !navigation.isReady()) return;
     if (tab === "Camera") {
       if (
-        [
-          "Preparation",
-          "Camera",
-          "ImageReview",
-          "Analysing",
-          "Result",
-        ].includes(route)
+        ["Preparation", "Camera", "ImageReview", "Analysing", "Result"].includes(route)
       )
         return;
       navigation.navigate("Preparation");
@@ -89,12 +107,8 @@ export function AppNavigator() {
       >
         <NavigationContainer
           ref={navigation}
-          onReady={() =>
-            setRoute(navigation.getCurrentRoute()?.name ?? "Splash")
-          }
-          onStateChange={() =>
-            setRoute(navigation.getCurrentRoute()?.name ?? "Splash")
-          }
+          onReady={() => setRoute(navigation.getCurrentRoute()?.name ?? "Splash")}
+          onStateChange={() => setRoute(navigation.getCurrentRoute()?.name ?? "Splash")}
           theme={{
             ...DefaultTheme,
             colors: {
@@ -138,7 +152,17 @@ export function AppNavigator() {
                   />
                 </Stack.Group>
               ) : (
-                <Stack.Group>
+                <Stack.Group
+                  screenOptions={{
+                    headerShown: true,
+                    header: ({ navigation: screenNavigation }) => (
+                      <HomeNavbar
+                        onAccount={() => screenNavigation.navigate("Account")}
+                        onSettings={() => screenNavigation.navigate("Settings")}
+                      />
+                    ),
+                  }}
+                >
                   <Stack.Screen
                     name="Account"
                     component={AccountScreen}
@@ -147,12 +171,12 @@ export function AppNavigator() {
                   <Stack.Screen
                     name="Splash"
                     component={SplashScreen}
-                    options={{ headerShown: false }}
+                    options={{ headerShown: true }}
                   />
                   <Stack.Screen
                     name="Home"
                     component={HomeScreen}
-                    options={{ headerShown: false }}
+                    options={{ headerShown: true }}
                   />
                   <Stack.Screen
                     name="Preparation"
@@ -191,7 +215,7 @@ export function AppNavigator() {
                   <Stack.Screen
                     name="History"
                     component={HistoryScreen}
-                    options={{ headerShown: false }}
+                    options={{ headerShown: true }}
                   />
                   <Stack.Screen
                     name="HistoryDetail"
@@ -201,7 +225,7 @@ export function AppNavigator() {
                   <Stack.Screen
                     name="Sensor"
                     component={SensorScreen}
-                    options={{ headerShown: false }}
+                    options={{ headerShown: true }}
                   />
                   <Stack.Screen
                     name="Settings"
@@ -233,9 +257,7 @@ export function AppNavigator() {
               )}
           </View>
           {!!user &&
-            !["Splash", "Login", "Register", "ForgotPassword"].includes(
-              route,
-            ) && (
+            !["Splash", "Login", "Register", "ForgotPassword"].includes(route) && (
               <BottomNavigation
                 route={route === "Assistant" ? "Home" : route}
                 onSelect={selectTab}

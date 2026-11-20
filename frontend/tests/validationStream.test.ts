@@ -24,11 +24,7 @@ it("delivers progress before completion and handles split network chunks", async
     ),
   );
   await new Promise((resolve) => setTimeout(resolve, 0));
-  expect(events).toEqual([
-    "detector:running",
-    "detector:passed",
-    "visual:running",
-  ]);
+  expect(events).toEqual(["detector:running", "detector:passed", "visual:running"]);
   source.close();
   await failed;
 });

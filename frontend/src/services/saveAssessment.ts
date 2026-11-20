@@ -3,11 +3,8 @@ import { displayedGrade, type SampleResult } from "../types/decision";
 import { SUPPORTED_GRADES } from "../config/grading";
 import { moistureQuality } from "./moistureCapture";
 
-export function toHistoryRecord(
-  result: SampleResult,
-  id: string,
-  timestamp: string,
-) {
+/** Convert an assessment into a savable record while retaining its evidence and review metadata. */
+export function toHistoryRecord(result: SampleResult, id: string, timestamp: string) {
   const grade = displayedGrade(result);
   const visual = grade ? result.diagnostics.visual : null;
   const moisture = moistureQuality(result.moisture);
@@ -21,8 +18,7 @@ export function toHistoryRecord(
     visualPrediction: visual?.visual_prediction ?? null,
     visualConfidence: visual?.visual_confidence ?? null,
     visualProbabilities:
-      visual?.probabilities ??
-      Object.fromEntries(SUPPORTED_GRADES.map((g) => [g, 0])),
+      visual?.probabilities ?? Object.fromEntries(SUPPORTED_GRADES.map((g) => [g, 0])),
     diameterMm: result.diagnostics.diameter?.quill_diameter_mm ?? null,
     diameterCandidates: grade ? [grade] : [],
     candidateProbabilities: {},

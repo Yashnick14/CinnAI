@@ -5,24 +5,19 @@ import { validatePhoto } from "../storage/photos";
 import { DiameterSchema } from "../types/diameter";
 import type { VisualRequest } from "../types/visual";
 
-export async function measureDiameter(
-  request: VisualRequest,
-  signal: AbortSignal,
-) {
+/** Upload the image and capture geometry and validate the diameter response. */
+export async function measureDiameter(request: VisualRequest, signal: AbortSignal) {
   if (!request.captureGeometry)
-    throw new Error(
-      "No capture guides were saved. Retake using the fixed guides.",
-    );
+    throw new Error("No capture guides were saved. Retake using the fixed guides.");
   const controller = new AbortController();
+
+  /** Cancel the current asynchronous operation and its pending work. */
   const cancel = () => controller.abort();
   signal.addEventListener("abort", cancel, { once: true });
   if (signal.aborted) cancel();
   const timer = setTimeout(cancel, API.timeoutMs);
   try {
-    const endpoint = visualEndpoint().replace(
-      /\/predict-visual$/,
-      "/measure-diameter",
-    );
+    const endpoint = visualEndpoint().replace(/\/predict-visual$/, "/measure-diameter");
     const photo = await uploadPhoto(await validatePhoto(request.imageUri));
     const body = new FormData();
     body.append(
@@ -62,8 +57,7 @@ export async function measureDiameter(
       throw new Error(detail);
     }
     const parsed = DiameterSchema.safeParse(raw);
-    if (!parsed.success)
-      throw new Error("Invalid diameter response from backend.");
+    if (!parsed.success) throw new Error("Invalid diameter response from backend.");
     return parsed.data;
   } finally {
     clearTimeout(timer);

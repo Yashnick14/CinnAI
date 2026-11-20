@@ -14,7 +14,9 @@ import { CapturedPhoto } from "../../components/CapturedPhoto";
 import { displayedGrade } from "../../types/decision";
 import type { ScreenProps } from "../../types/navigation";
 import { finalSummary } from "../../services/finalSummary";
-import { moistureQuality } from "../../services/moistureCapture";
+import { SessionMoistureCard } from "../../components/SessionMoistureCard";
+
+/** Present the official result alongside diameter, visual and moisture evidence. */
 export function ResultScreen({ navigation, route }: ScreenProps<"Result">) {
   const result = route.params.result;
   const grade = displayedGrade(result);
@@ -26,37 +28,14 @@ export function ResultScreen({ navigation, route }: ScreenProps<"Result">) {
       <CapturedPhoto uri={result.imageUri} height={180} />
       {grade && diameter ? (
         <>
-          <Text style={{ fontWeight: "700", fontSize: 28 }}>
-            Grade: {grade}
-          </Text>
+          <Text style={{ fontWeight: "700", fontSize: 28 }}>Grade: {grade}</Text>
           <Text>Diameter: {diameter.quill_diameter_mm.toFixed(2)} mm</Text>
-          <Text>
-            Grade based on diameter. Visual analysis is supporting evidence.
-          </Text>
-          <Card>
-            <Label>Moisture Status</Label>
-            <Text style={{ fontSize: 24, fontWeight: "700" }}>
-              {moistureQuality(result.moisture)}
-            </Text>
-            <Body>
-              Raw-sensor quality check · ADC:{" "}
-              {result.moisture?.raw_value ?? "Unavailable"}
-            </Body>
-            <Body>
-              Captured: {result.moisture?.timestamp ?? "No reading captured"}
-            </Body>
-            <Body>
-              No calibrated percentage. Moisture does not change the grade.
-            </Body>
-          </Card>
+          <Text>Grade based on diameter. Visual analysis is supporting evidence.</Text>
+          <SessionMoistureCard reading={result.moisture} />
           <Card>
             <Label>Final summary</Label>
             <Body>Grade: {summary.grade}</Body>
             <Body>Export Quality: {summary.exportQuality}</Body>
-            <Body>
-              Moisture-based export-quality indication, not export
-              certification.
-            </Body>
           </Card>
           {result.visual_disagreement && (
             <WarningMessage text="Visual evidence differs from the diameter grade. The diameter grade is retained; consider manual review." />

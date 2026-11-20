@@ -8,7 +8,7 @@ const sensor = (patch: Partial<SensorSnapshot> = {}): SensorSnapshot => ({
   isMock: false,
   device: { id: "esp32", name: "CinnamonGradingSensor" },
   devices: [],
-  medianAdc: 3000,
+  medianAdc: 1800,
   moisturePercent: null,
   updatedAt: new Date(now).toISOString(),
   error: null,
@@ -16,13 +16,13 @@ const sensor = (patch: Partial<SensorSnapshot> = {}): SensorSnapshot => ({
 });
 describe("sample moisture attachment", () => {
   it.each([
-    [2841, "FAIL_PROVISIONAL"],
-    [2842, "PASS_PROVISIONAL"],
-    [3000, "PASS_PROVISIONAL"],
+    [1710, "FAIL_PROVISIONAL"],
+    [1711, "PASS_PROVISIONAL"],
+    [1800, "PASS_PROVISIONAL"],
   ])("interprets ADC %s provisionally", (adc, expected) => {
-    expect(
-      snapshotMoisture(sensor({ medianAdc: Number(adc) }), now).status,
-    ).toBe(expected);
+    expect(snapshotMoisture(sensor({ medianAdc: Number(adc) }), now).status).toBe(
+      expected,
+    );
   });
   it.each([
     [{ state: "connection_lost" }, "disconnected"],
@@ -51,7 +51,7 @@ describe("sample moisture attachment", () => {
     current.medianAdc = 2000;
     current.state = "disconnected";
     expect(saved).toMatchObject({
-      raw_value: 3000,
+      raw_value: 1800,
       status: "PASS_PROVISIONAL",
       connection_state: "connected",
     });

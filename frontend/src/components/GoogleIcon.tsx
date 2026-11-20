@@ -1,4 +1,6 @@
 import Svg, { Path } from "react-native-svg";
+
+/** Render the Google sign-in brand icon. */
 export function GoogleIcon() {
   return (
     <Svg width={20} height={20} viewBox="0 0 48 48" accessible={false}>

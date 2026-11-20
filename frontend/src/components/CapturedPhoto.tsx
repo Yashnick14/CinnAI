@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, View } from "react-native";
 import { WarningMessage } from "./ui";
 import { resolvePhotoUri } from "../storage/photos";
+
+/** Display a captured image with the component's fallback handling. */
 export function CapturedPhoto({
   uri,
   height = 240,

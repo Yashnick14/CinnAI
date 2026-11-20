@@ -14,12 +14,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "../../components/AppText";
 import { theme } from "../../config/theme";
 import { createAssistantConversation } from "../../services/assistantConversation";
+
 const suggestions = [
   "How can I produce Alba quality quills?",
   "What is the moisture requirement for cinnamon quills?",
   "Why is 19.4 mm classified as M4?",
   "What defects reduce quill quality?",
 ];
+
+/** Display the assistant conversation and question-entry controls. */
 export function AssistantScreen() {
   const [conversation] = useState(createAssistantConversation);
   const state = useSyncExternalStore(
@@ -31,6 +34,8 @@ export function AssistantScreen() {
   const scroll = useRef<ScrollView>(null);
   const headerHeight = useHeaderHeight();
   useEffect(() => () => conversation.cancel(), [conversation]);
+
+  /** Submit a question through the existing assistant conversation flow. */
   function send(value = question) {
     if (state.pending || !value.trim()) return;
     setQuestion("");
@@ -47,8 +52,8 @@ export function AssistantScreen() {
           <View style={s.heading}>
             <Text style={s.title}>CinnAI Assistant</Text>
             <Text style={s.helper}>
-              Ask about cinnamon grades, preparation, drying, moisture, defects,
-              or grading rules.
+              Ask about cinnamon grades, preparation, drying, moisture, defects, or
+              grading rules.
             </Text>
           </View>
           <ScrollView
@@ -56,9 +61,7 @@ export function AssistantScreen() {
             style={s.history}
             contentContainerStyle={s.messages}
             keyboardShouldPersistTaps="handled"
-            onContentSizeChange={() =>
-              scroll.current?.scrollToEnd({ animated: true })
-            }
+            onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: true })}
             onLayout={() => scroll.current?.scrollToEnd({ animated: false })}
           >
             {state.messages.length === 0 && (
@@ -66,18 +69,13 @@ export function AssistantScreen() {
                 <Text style={s.welcomeTitle}>
                   A little guidance for your next quill.
                 </Text>
-                <Text style={s.helper}>
-                  Choose a question below, or ask your own.
-                </Text>
+                <Text style={s.helper}>Choose a question below, or ask your own.</Text>
                 {suggestions.map((text) => (
                   <Pressable
                     key={text}
                     accessibilityRole="button"
                     onPress={() => send(text)}
-                    style={({ pressed }) => [
-                      s.chip,
-                      pressed && { opacity: 0.7 },
-                    ]}
+                    style={({ pressed }) => [s.chip, pressed && { opacity: 0.7 }]}
                   >
                     <Text style={s.chipText}>{text} →</Text>
                   </Pressable>
@@ -87,10 +85,7 @@ export function AssistantScreen() {
             {state.messages.map((message) => (
               <View
                 key={message.id}
-                style={[
-                  s.bubble,
-                  message.role === "user" ? s.user : s.assistant,
-                ]}
+                style={[s.bubble, message.role === "user" ? s.user : s.assistant]}
               >
                 <Text style={[s.author, message.role === "user" && s.light]}>
                   {message.role === "user" ? "You" : "CinnAI Assistant"}
@@ -107,8 +102,7 @@ export function AssistantScreen() {
                     <View style={s.summary}>
                       {message.result.detected_diameter_mm !== null && (
                         <Text style={s.summaryText}>
-                          Measured diameter:{" "}
-                          {message.result.detected_diameter_mm} mm
+                          Measured diameter: {message.result.detected_diameter_mm} mm
                         </Text>
                       )}
                       {message.result.application_grade !== null && (
@@ -123,7 +117,9 @@ export function AssistantScreen() {
             {state.pending && (
               <View style={s.loading} accessibilityLiveRegion="polite">
                 <ActivityIndicator color={theme.primary} />
-                <Text style={[s.helper, { flex: 1 }]}>Preparing your answer… The first request may take a little longer.</Text>
+                <Text style={[s.helper, { flex: 1 }]}>
+                  Preparing your answer… The first request may take a little longer.
+                </Text>
               </View>
             )}
             {!!state.error && (
@@ -133,8 +129,8 @@ export function AssistantScreen() {
                   accessibilityRole="button"
                   onPress={() =>
                     setQuestion(
-                      state.messages.filter((m) => m.role === "user").at(-1)
-                        ?.text ?? "",
+                      state.messages.filter((m) => m.role === "user").at(-1)?.text ??
+                        "",
                     )
                   }
                 >
@@ -163,10 +159,7 @@ export function AssistantScreen() {
               }}
               disabled={state.pending || !question.trim()}
               onPress={() => send()}
-              style={[
-                s.send,
-                (state.pending || !question.trim()) && { opacity: 0.45 },
-              ]}
+              style={[s.send, (state.pending || !question.trim()) && { opacity: 0.45 }]}
             >
               <Text style={s.sendText}>Send ↑</Text>
             </Pressable>
@@ -273,4 +266,3 @@ const s = StyleSheet.create({
     paddingBottom: 10,
   },
 });
-

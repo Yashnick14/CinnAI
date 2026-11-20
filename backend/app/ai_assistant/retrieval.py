@@ -1,4 +1,5 @@
 """Tested Colab ranking; scores are internal combined scores, not similarities."""
+
 import json
 from pathlib import Path
 import numpy as np
@@ -7,17 +8,34 @@ from app.ai_assistant.cinnamon_assistant_final import detect_grade
 
 ARTIFACT_ROOT = Path(__file__).resolve().parent
 
+
 class Retriever:
+    # Load knowledge documents and matching embeddings for the supplied encoder.
     def __init__(self, embedding_model, root=ARTIFACT_ROOT):
         self.embedding_model = embedding_model
-        self.kb = json.loads((root / "knowledge/cinnamon_quill_rag_final.json").read_text(encoding="utf-8-sig"))
-        self.documents = json.loads((root / "embeddings/cinnamon_rag_documents.json").read_text(encoding="utf-8-sig"))
-        self.embeddings = np.load(root / "embeddings/cinnamon_rag_embeddings.npy", allow_pickle=False)
-        if self.embeddings.shape != (62, 384) or len(self.documents) != 62 or not np.isfinite(self.embeddings).all():
+        self.kb = json.loads(
+            (root / "knowledge/cinnamon_quill_rag_final.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        self.documents = json.loads(
+            (root / "embeddings/cinnamon_rag_documents.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        self.embeddings = np.load(
+            root / "embeddings/cinnamon_rag_embeddings.npy", allow_pickle=False
+        )
+        if (
+            self.embeddings.shape != (62, 384)
+            or len(self.documents) != 62
+            or not np.isfinite(self.embeddings).all()
+        ):
             raise ValueError("Invalid assistant artifacts")
         if not any(d["id"] == "P01" for d in self.documents):
             raise ValueError("Missing application policy")
 
+    # Select answering-guide records appropriate to the query's topics.
     def get_answering_guide_ids(self, query):
         q = query.lower().strip()
 
@@ -30,26 +48,10 @@ class Retriever:
 
             intent_match = (
                 ("produce alba" in q and "produce alba" in guide_q)
-                or
-                (
-                    "requirements for alba" in q
-                    and "requirements for alba" in guide_q
-                )
-                or
-                (
-                    "dry" in q
-                    and "dry quills" in guide_q
-                )
-                or
-                (
-                    "moisture" in q
-                    and "moisture" in guide_q
-                )
-                or
-                (
-                    "improve" in q
-                    and "improve" in guide_q
-                )
+                or ("requirements for alba" in q and "requirements for alba" in guide_q)
+                or ("dry" in q and "dry quills" in guide_q)
+                or ("moisture" in q and "moisture" in guide_q)
+                or ("improve" in q and "improve" in guide_q)
             )
 
             if intent_match:
@@ -71,7 +73,6 @@ class Retriever:
 
         return list(set(matched_ids))
 
-
     # ============================================================
     # RETRIEVAL
     #
@@ -89,6 +90,7 @@ class Retriever:
     # numpy array shape (62, 384)
     # ============================================================
 
+    # Rank knowledge records with cosine-based retrieval plus boosts; scores are internal combined scores.
     def retrieve(self, query, top_k=10):
 
         # --------------------------------------------------------
@@ -96,18 +98,14 @@ class Retriever:
         # --------------------------------------------------------
 
         query_embedding = self.embedding_model.encode(
-            [query],
-            normalize_embeddings=True
+            [query], normalize_embeddings=True
         )
 
         # --------------------------------------------------------
         # Base cosine similarity
         # --------------------------------------------------------
 
-        semantic_scores = cosine_similarity(
-            query_embedding,
-            self.embeddings
-        )[0]
+        semantic_scores = cosine_similarity(query_embedding, self.embeddings)[0]
 
         detected_grade = detect_grade(query)
 
@@ -123,31 +121,20 @@ class Retriever:
 
         for idx, doc in enumerate(self.documents):
 
-            score = float(
-                semantic_scores[idx]
-            )
+            score = float(semantic_scores[idx])
 
             record = doc["full_record"]
 
-            grades = record.get(
-                "relevant_grade",
-                []
-            )
+            grades = record.get("relevant_grade", [])
 
-            record_id = record.get(
-                "id"
-            )
+            record_id = record.get("id")
 
             # ====================================================
             # 1. GRADE-AWARE BOOST
             # ====================================================
 
-            if (
-                detected_grade
-                and detected_grade in grades
-            ):
+            if detected_grade and detected_grade in grades:
                 score += 0.20
-
 
             # ====================================================
             # 2. EXACT GRADE TABLE RECORD BOOST
@@ -156,21 +143,14 @@ class Retriever:
             # "Grade table row for Alba..."
             # ====================================================
 
-            text = record.get(
-                "corrected_english",
-                ""
-            ).lower()
+            text = record.get("corrected_english", "").lower()
 
             if detected_grade:
 
-                phrase = (
-                    f"grade table row for "
-                    f"{detected_grade.lower()}"
-                )
+                phrase = f"grade table row for " f"{detected_grade.lower()}"
 
                 if phrase in text:
                     score += 0.20
-
 
             # ====================================================
             # 3. ANSWERING-GUIDE BOOST
@@ -179,40 +159,24 @@ class Retriever:
             if record_id in guide_ids:
                 score += 0.18
 
-
             # ====================================================
             # 4. KEYWORD OVERLAP BOOST
             # ====================================================
 
-            keywords = [
-                str(x).lower()
-                for x in record.get(
-                    "rag_keywords",
-                    []
-                )
-            ]
+            keywords = [str(x).lower() for x in record.get("rag_keywords", [])]
 
             for keyword in keywords:
 
                 if keyword in query_lower:
                     score += 0.03
 
-
             # ====================================================
             # 5. PRODUCTION-QUESTION TOPIC BOOST
             # ====================================================
 
-            production_words = [
-                "produce",
-                "make",
-                "prepare",
-                "processing"
-            ]
+            production_words = ["produce", "make", "prepare", "processing"]
 
-            if any(
-                word in query_lower
-                for word in production_words
-            ):
+            if any(word in query_lower for word in production_words):
 
                 if record.get("topic") in [
                     "preparation",
@@ -220,25 +184,17 @@ class Retriever:
                     "drying",
                     "filling",
                     "handling",
-                    "moisture"
+                    "moisture",
                 ]:
                     score += 0.04
 
-
-            ranked.append(
-                (score, idx)
-            )
-
+            ranked.append((score, idx))
 
         # --------------------------------------------------------
         # Rank highest score first
         # --------------------------------------------------------
 
-        ranked.sort(
-            key=lambda x: x[0],
-            reverse=True
-        )
-
+        ranked.sort(key=lambda x: x[0], reverse=True)
 
         # --------------------------------------------------------
         # Build result objects
@@ -246,27 +202,20 @@ class Retriever:
 
         results = []
 
-        for rank, (score, idx) in enumerate(
-            ranked[:top_k],
-            start=1
-        ):
+        for rank, (score, idx) in enumerate(ranked[:top_k], start=1):
 
             doc = self.documents[idx]
 
-            results.append({
-                "rank": rank,
-
-                # This is a combined retrieval score,
-                # NOT pure cosine similarity.
-                "score": score,
-
-                "id": doc["id"],
-
-                "collection":
-                    doc["collection"],
-
-                "record":
-                    doc["full_record"]
-            })
+            results.append(
+                {
+                    "rank": rank,
+                    # This is a combined retrieval score,
+                    # NOT pure cosine similarity.
+                    "score": score,
+                    "id": doc["id"],
+                    "collection": doc["collection"],
+                    "record": doc["full_record"],
+                }
+            )
 
         return results

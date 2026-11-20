@@ -21,6 +21,7 @@ vi.mock("../src/config/firebase", () => ({
 }));
 import { firebaseAuth } from "../src/services/firebaseAuth";
 import { signInGoogle } from "../src/services/googleAuth";
+
 describe("account input and errors", () => {
   it("accepts registration", () =>
     expect(
@@ -37,13 +38,13 @@ describe("account input and errors", () => {
   it("requires password", () =>
     expect(validateCredentials("a@b.com", "")).toContain("password"));
   it("requires name", () =>
-    expect(
-      validateCredentials("a@b.com", "password", true, "", "password"),
-    ).toContain("name"));
+    expect(validateCredentials("a@b.com", "password", true, "", "password")).toContain(
+      "name",
+    ));
   it("rejects short signup passwords", () =>
-    expect(
-      validateCredentials("a@b.com", "short", true, "User", "short"),
-    ).toContain("8"));
+    expect(validateCredentials("a@b.com", "short", true, "User", "short")).toContain(
+      "8",
+    ));
   it("does not reject existing shorter login password", () =>
     expect(validateCredentials("a@b.com", "short")).toBeNull());
   it("checks confirmation", () =>
@@ -51,15 +52,11 @@ describe("account input and errors", () => {
       validateCredentials("a@b.com", "password", true, "User", "different"),
     ).toContain("match"));
   it("maps network failure", () =>
-    expect(authError({ code: "auth/network-request-failed" })).toContain(
-      "internet",
-    ));
+    expect(authError({ code: "auth/network-request-failed" })).toContain("internet"));
   it("does not disclose server exception text", () =>
     expect(authError(new Error("secret"))).not.toContain("secret"));
   it("handles Google cancellation", () =>
-    expect(authError({ code: "auth/popup-closed-by-user" })).toContain(
-      "cancelled",
-    ));
+    expect(authError({ code: "auth/popup-closed-by-user" })).toContain("cancelled"));
 });
 describe("Firebase integration", () => {
   beforeEach(() => {

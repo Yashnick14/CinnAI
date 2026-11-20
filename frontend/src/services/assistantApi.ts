@@ -1,25 +1,18 @@
 import { z } from "zod";
 import { API } from "../config/api";
+
 export const ASSISTANT_ERROR =
   "Sorry, the assistant is temporarily unavailable. Please try again.";
 export const AssistantResponseSchema = z.object({
   answer: z.string().trim().min(1),
   detected_diameter_mm: z.number().finite().positive().nullable(),
   application_grade: z
-    .enum([
-      "Alba",
-      "C5 Special",
-      "C5",
-      "C4",
-      "M5",
-      "M4",
-      "H1",
-      "H2",
-      "Manual Review",
-    ])
+    .enum(["Alba", "C5 Special", "C5", "C4", "M5", "M4", "H1", "H2", "Manual Review"])
     .nullable(),
 });
 export type AssistantResponse = z.infer<typeof AssistantResponseSchema>;
+
+/** Send an assistant question with cancellation and response validation. */
 export async function askAssistant(
   question: string,
   signal?: AbortSignal,
@@ -28,6 +21,8 @@ export async function askAssistant(
   if (!trimmed || trimmed.length > 4000)
     throw new Error("Enter a question of up to 4,000 characters.");
   const controller = new AbortController();
+
+  /** Cancel the current asynchronous operation and its pending work. */
   const cancel = () => controller.abort();
   signal?.addEventListener("abort", cancel);
   if (signal?.aborted) cancel();

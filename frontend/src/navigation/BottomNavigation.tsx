@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from "react";
-import { Animated, Easing, Pressable, StyleSheet, View } from "react-native";
+import { Animated, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "../components/AppText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon, type IconName } from "../components/Icon";
@@ -14,6 +14,7 @@ const tabs: { name: TabName; icon: IconName }[] = [
   { name: "History", icon: "history" },
 ];
 
+/** Render an accessible navigation tab with its selection animation. */
 function AnimatedTab({
   tab,
   isActive,
@@ -25,22 +26,14 @@ function AnimatedTab({
 }) {
   const scale = useRef(new Animated.Value(1)).current;
   const iconTranslateY = useRef(new Animated.Value(0)).current;
-  const dotScale = useRef(new Animated.Value(isActive ? 1 : 0)).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.spring(iconTranslateY, {
-        toValue: isActive ? -2 : 0,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-      Animated.spring(dotScale, {
-        toValue: isActive ? 1 : 0,
-        friction: 6,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [isActive, iconTranslateY, dotScale]);
+    Animated.spring(iconTranslateY, {
+      toValue: isActive ? -2 : 0,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  }, [isActive, iconTranslateY]);
 
   const handlePressIn = useCallback(() => {
     Animated.spring(scale, {
@@ -92,20 +85,11 @@ function AnimatedTab({
           {tab.name}
         </Text>
       </Animated.View>
-      {/* Active dot indicator */}
-      <Animated.View
-        style={[
-          styles.activeDot,
-          {
-            backgroundColor: theme.primary,
-            transform: [{ scale: dotScale }],
-          },
-        ]}
-      />
     </Pressable>
   );
 }
 
+/** Render the primary navigation tabs and current selection. */
 export function BottomNavigation({
   route,
   onSelect,
@@ -165,11 +149,4 @@ const styles = StyleSheet.create({
     color: theme.muted,
     fontWeight: "500",
   },
-  activeDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    marginTop: 2,
-  },
 });
-

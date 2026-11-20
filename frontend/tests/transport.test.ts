@@ -21,6 +21,7 @@ vi.mock("../src/storage/photos", () => ({
 import { gradeSample } from "../src/services/grading";
 import { gradeViaApi } from "../src/services/api";
 import { gradeCapturedPhoto } from "../src/services/mockGradingService";
+
 const request = {
   imageUri: "file:///capture.jpg",
   moisturePercent: null,
@@ -41,36 +42,35 @@ afterEach(() => {
 
 it("does not fall back to a demo response when the network fails", async () => {
   fetchMock.mockRejectedValue(new TypeError("Network request failed"));
-  await expect(
-    gradeSample(request, new AbortController().signal),
-  ).rejects.toThrow("Cannot reach the backend");
+  await expect(gradeSample(request, new AbortController().signal)).rejects.toThrow(
+    "Cannot reach the backend",
+  );
 });
 
 it("requires a configured URL in API mode", async () => {
   config.baseUrl = "";
-  await expect(
-    gradeViaApi(request, new AbortController().signal),
-  ).rejects.toThrow("EXPO_PUBLIC_API_URL");
+  await expect(gradeViaApi(request, new AbortController().signal)).rejects.toThrow(
+    "EXPO_PUBLIC_API_URL",
+  );
   expect(fetchMock).not.toHaveBeenCalled();
 });
 
 it("surfaces upload validation errors", async () => {
   fetchMock.mockResolvedValue(
-    new Response(
-      JSON.stringify({ detail: "Image exceeds the upload size limit." }),
-      { status: 413 },
-    ),
+    new Response(JSON.stringify({ detail: "Image exceeds the upload size limit." }), {
+      status: 413,
+    }),
   );
-  await expect(
-    gradeSample(request, new AbortController().signal),
-  ).rejects.toThrow("upload size limit");
+  await expect(gradeSample(request, new AbortController().signal)).rejects.toThrow(
+    "upload size limit",
+  );
 });
 
 it("rejects an incompatible success response", async () => {
   fetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
-  await expect(
-    gradeSample(request, new AbortController().signal),
-  ).rejects.toThrow("incompatible grading response");
+  await expect(gradeSample(request, new AbortController().signal)).rejects.toThrow(
+    "incompatible grading response",
+  );
 });
 
 it("omits unavailable moisture and lets fetch set the multipart boundary", async () => {
@@ -84,9 +84,7 @@ it("omits unavailable moisture and lets fetch set the multipart boundary", async
   expect(image).toBeInstanceOf(Blob);
   expect(image.name).toBe("cinnamon.jpg");
   expect(image.type).toBe("image/jpeg");
-  expect(await image.arrayBuffer()).toEqual(
-    new Uint8Array([0xff, 0xd8, 0xff]).buffer,
-  );
+  expect(await image.arrayBuffer()).toEqual(new Uint8Array([0xff, 0xd8, 0xff]).buffer);
   expect(options.headers).toBeUndefined();
 });
 
@@ -117,9 +115,9 @@ it("times out a pending backend request", async () => {
 it("cancels a pending request when leaving analysis", async () => {
   abortableFetch();
   const controller = new AbortController();
-  const assertion = expect(
-    gradeSample(request, controller.signal),
-  ).rejects.toThrow("cancelled");
+  const assertion = expect(gradeSample(request, controller.signal)).rejects.toThrow(
+    "cancelled",
+  );
   controller.abort();
   await assertion;
 });

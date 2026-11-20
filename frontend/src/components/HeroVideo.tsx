@@ -18,13 +18,10 @@ export function HeroVideo({
   const [active, setActive] = useState(AppState.currentState === "active");
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
-  const player = useVideoPlayer(
-    require("../../assets/quill_video_1.mp4"),
-    (video) => {
-      video.loop = true;
-      video.muted = true;
-    },
-  );
+  const player = useVideoPlayer(require("../../assets/quill_video_1.mp4"), (video) => {
+    video.loop = true;
+    video.muted = true;
+  });
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) =>
@@ -58,11 +55,7 @@ export function HeroVideo({
       ]}
     >
       {!failed && (
-        <View
-          pointerEvents="none"
-          accessible={false}
-          style={StyleSheet.absoluteFill}
-        >
+        <View pointerEvents="none" accessible={false} style={StyleSheet.absoluteFill}>
           <VideoView
             player={player}
             style={[StyleSheet.absoluteFill, { opacity: ready ? 1 : 0 }]}

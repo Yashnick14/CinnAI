@@ -2,35 +2,6 @@ import { useEffect, useRef } from "react";
 import { Animated, Easing } from "react-native";
 
 /**
- * Fade-in + slight slide-up on mount.
- */
-export function useFadeInUp(delay = 0, duration = 450) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(18)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration,
-        delay,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration,
-        delay,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [delay, duration, opacity, translateY]);
-
-  return { opacity, transform: [{ translateY }] };
-}
-
-/**
  * Simple fade in on mount.
  */
 export function useFadeIn(delay = 0, duration = 400) {

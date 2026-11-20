@@ -4,20 +4,24 @@ import type { GradeRequest } from "../types/grading";
 import { gradeViaApi } from "./api";
 import { createMockResult } from "./mockGrading";
 
+/** Run the configured grading operation with cancellation support. */
 export async function gradeSample(request: GradeRequest, signal: AbortSignal) {
   const controller = new AbortController();
+
+  /** Cancel the current asynchronous operation and its pending work. */
   const cancel = () => controller.abort();
   signal.addEventListener("abort", cancel);
   if (signal.aborted) controller.abort();
   const timer = setTimeout(cancel, API.timeoutMs);
   try {
-    if (API.mode === "api")
-      return await gradeViaApi(request, controller.signal);
+    if (API.mode === "api") return await gradeViaApi(request, controller.signal);
     await new Promise<void>((resolve, reject) => {
       if (controller.signal.aborted) {
         reject(new Error("Analysis cancelled."));
         return;
       }
+
+      /** Propagate cancellation to the in-flight operation. */
       const abort = () => {
         clearTimeout(wait);
         reject(new Error("Analysis cancelled."));
@@ -28,11 +32,7 @@ export async function gradeSample(request: GradeRequest, signal: AbortSignal) {
       }, 2400);
       controller.signal.addEventListener("abort", abort, { once: true });
     });
-    return createMockResult(
-      request,
-      Crypto.randomUUID(),
-      new Date().toISOString(),
-    );
+    return createMockResult(request, Crypto.randomUUID(), new Date().toISOString());
   } catch (e) {
     if (controller.signal.aborted)
       throw new Error(

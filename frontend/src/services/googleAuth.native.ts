@@ -2,12 +2,15 @@ import Constants from "expo-constants";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { googleWebClientId, googleIosClientId } from "../config/firebase";
 import { firebaseAuth } from "./firebaseAuth";
+
 export const googleUnavailableReason =
   Constants.appOwnership === "expo"
     ? "Google sign-in requires a development build. In Expo Go, use email and password."
     : !googleWebClientId || !googleIosClientId
       ? "Google sign-in is awaiting OAuth client configuration."
       : null;
+
+/** Authenticate through the platform-specific Google sign-in flow. */
 export async function signInGoogle() {
   if (googleUnavailableReason) throw new Error(googleUnavailableReason);
   // Only load the native module in a development/production build, never Expo Go.

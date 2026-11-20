@@ -1,4 +1,6 @@
 import { useFonts } from "expo-font";
+
+/** Load the application font family before rendering styled content. */
 export function useAppFonts() {
   return useFonts({
     Poppins_400Regular: require("@expo-google-fonts/poppins/400Regular/Poppins_400Regular.ttf"),

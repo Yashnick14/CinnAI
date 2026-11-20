@@ -50,8 +50,7 @@ export function createMockResult(
       "Demo scenario supplies an illustrative moisture reading of 15.1%.",
     );
   }
-  if (result.moistureStatus === "FAIL")
-    result.finalStatus = "MOISTURE_NON_COMPLIANT";
+  if (result.moistureStatus === "FAIL") result.finalStatus = "MOISTURE_NON_COMPLIANT";
   if (result.moistureStatus === "UNAVAILABLE") {
     result.finalStatus = "MANUAL_REVIEW";
     result.warnings.push(
@@ -79,10 +78,7 @@ export function createMockResult(
       "Illustrative visual and diameter conflict: compatible grades have no visual support.",
     );
   }
-  if (
-    request.scenario === "measurement_error" ||
-    request.scenario === "no_quill"
-  ) {
+  if (request.scenario === "measurement_error" || request.scenario === "no_quill") {
     result.diameterMm = null;
     result.diameterCandidates = [];
     result.candidateProbabilities = {};

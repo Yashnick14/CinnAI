@@ -10,6 +10,8 @@ from app.core.config import ALLOWED_ORIGINS
 from app.ml.visual.service import VisualModelService
 from starlette.concurrency import run_in_threadpool
 
+
+# Initialize application services for the FastAPI lifespan.
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     # Fail startup rather than serving invented grades when an artifact is invalid.
@@ -18,6 +20,7 @@ async def lifespan(application: FastAPI):
         yield
     finally:
         application.state.visual_service = None
+
 
 app = FastAPI(
     title="Cinnamon Visual Grading",
@@ -41,8 +44,11 @@ app.include_router(sample_router)
 app.include_router(assistant_router)
 
 from app.cloud.database import enabled as cloud_enabled
+
 if cloud_enabled():
     from app.cloud.limits import CloudBodyLimit
+
     app.add_middleware(CloudBodyLimit)
     from app.cloud.routes import router as cloud_router
+
     app.include_router(cloud_router)

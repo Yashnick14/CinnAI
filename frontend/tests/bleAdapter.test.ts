@@ -85,18 +85,16 @@ it("discovers exact name, discovers characteristic, subscribes, and receives ADC
   const f = tracked();
   await f.discover();
   await f.sensor.connect("esp32");
-  expect(f.device.characteristicsForService).toHaveBeenCalledWith(
-    BLE.serviceUuid,
-  );
+  expect(f.device.characteristicsForService).toHaveBeenCalledWith(BLE.serviceUuid);
   expect(f.device.monitorCharacteristicForService).toHaveBeenCalledWith(
     BLE.serviceUuid,
     BLE.moistureCharacteristicUuid,
     expect.any(Function),
   );
-  f.notify(encode("2903"));
+  f.notify(encode("1803"));
   expect(f.sensor.getSnapshot()).toMatchObject({
     state: "connected",
-    medianAdc: 2903,
+    medianAdc: 1803,
     provisionalStatus: "PASS",
     moisturePercent: null,
     error: null,
@@ -107,7 +105,7 @@ it("clears invalid readings and recovers on the next valid notification", async 
   const f = tracked();
   await f.discover();
   await f.sensor.connect("esp32");
-  f.notify(encode("2903"));
+  f.notify(encode("1803"));
   f.notify(encode("bad"));
   expect(f.sensor.getSnapshot()).toMatchObject({
     state: "connected",
@@ -115,9 +113,9 @@ it("clears invalid readings and recovers on the next valid notification", async 
     updatedAt: null,
   });
   expect(f.sensor.getSnapshot().error).toContain("Invalid BLE value");
-  f.notify(encode("2841"));
+  f.notify(encode("1710"));
   expect(f.sensor.getSnapshot()).toMatchObject({
-    medianAdc: 2841,
+    medianAdc: 1710,
     provisionalStatus: "FAIL",
     error: null,
   });
@@ -151,7 +149,7 @@ it("clears readings on connection loss and reconnects with a new subscription", 
   const f = tracked();
   await f.discover();
   await f.sensor.connect("esp32");
-  f.notify(encode("2903"));
+  f.notify(encode("1803"));
   f.lost();
   expect(f.sensor.getSnapshot()).toMatchObject({
     state: "connection_lost",
@@ -180,7 +178,7 @@ it("removes subscriptions on manual disconnect and ignores late notifications", 
   await f.discover();
   await f.sensor.connect("esp32");
   f.sensor.disconnect();
-  f.notify(encode("2903"));
+  f.notify(encode("1803"));
   expect(f.sensor.getSnapshot()).toMatchObject({
     state: "disconnected",
     medianAdc: null,

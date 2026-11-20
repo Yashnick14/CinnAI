@@ -1,4 +1,3 @@
-import { HomeNavbar } from "../../components/HomeNavbar";
 import { useCallback, useRef, useEffect, useState } from "react";
 import {
   useWindowDimensions,
@@ -47,20 +46,12 @@ function MetricCard({
   delay?: number;
 }) {
   const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(16)).current;
   const scale = useRef(new Animated.Value(0.92)).current;
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
-        duration: 450,
-        delay,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
         duration: 450,
         delay,
         easing: Easing.out(Easing.cubic),
@@ -73,15 +64,11 @@ function MetricCard({
         useNativeDriver: true,
       }),
     ]).start();
-  }, [opacity, translateY, scale, delay]);
+  }, [opacity, scale, delay]);
 
   return (
     <Animated.View
-      style={[
-        styles.metric,
-        theme.shadow(2),
-        { opacity, transform: [{ translateY }, { scale }] },
-      ]}
+      style={[styles.metric, theme.shadow(2), { opacity, transform: [{ scale }] }]}
     >
       <Text style={[styles.metricNumber, { color }]}>{value}</Text>
       <Text style={styles.metricCaption}>{label}</Text>
@@ -102,9 +89,7 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
   const heroOpacity = useRef(new Animated.Value(0)).current;
   const heroScale = useRef(new Animated.Value(1.05)).current;
   const brandOpacity = useRef(new Animated.Value(0)).current;
-  const brandTranslate = useRef(new Animated.Value(-12)).current;
   const ctaOpacity = useRef(new Animated.Value(0)).current;
-  const ctaTranslate = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
     Animated.stagger(150, [
@@ -127,12 +112,6 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
           duration: 400,
           useNativeDriver: true,
         }),
-        Animated.timing(brandTranslate, {
-          toValue: 0,
-          duration: 400,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
       ]),
       Animated.parallel([
         Animated.timing(ctaOpacity, {
@@ -140,15 +119,9 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
           duration: 400,
           useNativeDriver: true,
         }),
-        Animated.timing(ctaTranslate, {
-          toValue: 0,
-          duration: 450,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
       ]),
     ]).start();
-  }, [heroOpacity, heroScale, brandOpacity, brandTranslate, ctaOpacity, ctaTranslate]);
+  }, [heroOpacity, heroScale, brandOpacity, ctaOpacity]);
 
   useFocusEffect(
     useCallback(() => {
@@ -178,7 +151,6 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
       contentContainerStyle={{ paddingBottom: 24 }}
       showsVerticalScrollIndicator={false}
     >
-      <HomeNavbar onAccount={() => navigation.navigate("Account")} onSettings={() => navigation.navigate("Settings")} />
       {/* ── Hero Section ──────────────────────────────────────── */}
       <Animated.View
         style={{
@@ -189,18 +161,25 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
         <HeroVideo style={[styles.hero, desktop && { height: 400 }]}>
           <View style={styles.heroOverlay}>
             <View style={styles.heroInner}>
-
-
               <Animated.View
                 style={[
                   styles.heroCtaContainer,
                   {
                     opacity: ctaOpacity,
-                    transform: [{ translateY: ctaTranslate }],
                   },
                 ]}
               >
-                <Text style={[styles.heroHeadline, desktop && { fontSize: 36, lineHeight: 48 }]}>Every quill has a story.{"\n"}<Text style={styles.heroHeadlineAccent}>Start with the evidence.</Text></Text>
+                <Text
+                  style={[
+                    styles.heroHeadline,
+                    desktop && { fontSize: 36, lineHeight: 48 },
+                  ]}
+                >
+                  Every quill has a story.{"\n"}
+                  <Text style={styles.heroHeadlineAccent}>
+                    Start with the evidence.
+                  </Text>
+                </Text>
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Start New Grading"
@@ -221,14 +200,22 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
       </Animated.View>
 
       {/* ── Dashboard Content ─────────────────────────────────── */}
-      <View style={[styles.content, desktop && { width: "100%", maxWidth: 1240, alignSelf: "center", paddingHorizontal: 32, paddingTop: 24, gap: 20 }]}>
+      <View
+        style={[
+          styles.content,
+          desktop && {
+            width: "100%",
+            maxWidth: 1240,
+            alignSelf: "center",
+            paddingHorizontal: 32,
+            paddingTop: 24,
+            gap: 20,
+          },
+        ]}
+      >
         {/* Metrics Row */}
         <View style={styles.metricsRow}>
-          <MetricCard
-            value={String(summary.count)}
-            label="Today"
-            delay={400}
-          />
+          <MetricCard value={String(summary.count)} label="Today" delay={400} />
           <MetricCard
             value={
               summary.averageConfidence === null
@@ -246,9 +233,6 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
             delay={600}
           />
         </View>
-
-
-
 
         {/* Recent Gradings */}
         <View style={styles.sectionHeader}>
@@ -269,9 +253,7 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
             compact
             key={r.id}
             result={r}
-            onPress={() =>
-              navigation.navigate("HistoryDetail", { id: r.id })
-            }
+            onPress={() => navigation.navigate("HistoryDetail", { id: r.id })}
           />
         ))}
 
@@ -289,23 +271,22 @@ export function HomeScreen({ navigation }: ScreenProps<"Home">) {
           accessibilityRole="button"
           accessibilityLabel="Manage Sensor"
           onPress={() => navigation.navigate("Sensor")}
-          style={({ pressed }) => [
-            styles.sensorStrip,
-            pressed && { opacity: 0.7 },
-          ]}
+          style={({ pressed }) => [styles.sensorStrip, pressed && { opacity: 0.7 }]}
         >
           <View style={styles.sensorIcon}>
             <Icon
-              name="bluetooth"
+              name="wifi"
               color={sensor.state === "connected" ? theme.blue : theme.muted}
               size={16}
             />
           </View>
           <Text style={styles.sensorLabel}>Moisture</Text>
-          <StatusBadge
-            label={`${sensor.isMock ? "Simulated · " : ""}${sensor.state}`}
-            tone={sensor.state === "connected" ? "blue" : "neutral"}
-          />
+          <View style={{ justifyContent: "center", alignSelf: "center" }}>
+            <StatusBadge
+              label={`${sensor.isMock ? "Sample data · " : ""}${sensor.state}`}
+              tone={sensor.state === "connected" ? "blue" : "neutral"}
+            />
+          </View>
           <Icon name="chevron" size={14} />
         </Pressable>
       </View>
@@ -343,7 +324,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  heroHeadline: { color: "#FFFFFF", fontSize: 24, lineHeight: 34, fontWeight: "600", textAlign: "center" },
+  heroHeadline: {
+    color: "#FFFFFF",
+    fontSize: 24,
+    lineHeight: 34,
+    fontWeight: "600",
+    textAlign: "center",
+  },
   heroHeadlineAccent: { color: "#EADBBC" },
   heroCtaContainer: {
     gap: 20,
@@ -440,8 +427,3 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-
-
-
-
-

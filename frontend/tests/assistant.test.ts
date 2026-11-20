@@ -4,6 +4,7 @@ vi.mock("../src/config/api", () => ({
 }));
 import { askAssistant, ASSISTANT_ERROR } from "../src/services/assistantApi";
 import { createAssistantConversation } from "../src/services/assistantConversation";
+
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.useRealTimers();
@@ -31,25 +32,18 @@ it.each([
       application_grade: "Manual Review",
     },
   ],
-])(
-  "displays the backend answer and metadata for %s",
-  async (question, payload) => {
-    const fetcher = vi
-      .fn()
-      .mockResolvedValue({ ok: true, json: async () => payload });
-    vi.stubGlobal("fetch", fetcher);
-    const chat = createAssistantConversation();
-    const request = chat.send(` ${question} `);
-    expect(chat.getSnapshot().messages[0]!.text).toBe(question);
-    expect(chat.getSnapshot().pending).toBe(true);
-    await request;
-    expect(chat.getSnapshot().messages[1]!.result).toEqual(payload);
-    expect(fetcher.mock.calls[0]![0]).toBe(
-      "http://192.168.10.10:8000/assistant/ask",
-    );
-    expect(JSON.parse(fetcher.mock.calls[0]![1].body)).toEqual({ question });
-  },
-);
+])("displays the backend answer and metadata for %s", async (question, payload) => {
+  const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => payload });
+  vi.stubGlobal("fetch", fetcher);
+  const chat = createAssistantConversation();
+  const request = chat.send(` ${question} `);
+  expect(chat.getSnapshot().messages[0]!.text).toBe(question);
+  expect(chat.getSnapshot().pending).toBe(true);
+  await request;
+  expect(chat.getSnapshot().messages[1]!.result).toEqual(payload);
+  expect(fetcher.mock.calls[0]![0]).toBe("http://192.168.10.10:8000/assistant/ask");
+  expect(JSON.parse(fetcher.mock.calls[0]![1].body)).toEqual({ question });
+});
 it("does not send empty input or duplicate requests", async () => {
   let resolve!: (r: typeof result) => void;
   const request = vi.fn(
@@ -84,13 +78,11 @@ it("retains multiple messages in order and notifies subscribers", async () => {
 it.each([502, 503, 500, 404])("hides HTTP %s details", async (status) => {
   vi.stubGlobal(
     "fetch",
-    vi
-      .fn()
-      .mockResolvedValue({
-        ok: false,
-        status,
-        json: async () => ({ detail: "secret provider error" }),
-      }),
+    vi.fn().mockResolvedValue({
+      ok: false,
+      status,
+      json: async () => ({ detail: "secret provider error" }),
+    }),
   );
   const chat = createAssistantConversation();
   await chat.send("Alba?");
@@ -111,10 +103,7 @@ it.each([
   await expect(askAssistant("Alba?")).rejects.toThrow(ASSISTANT_ERROR);
 });
 it("handles offline requests", async () => {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn().mockRejectedValue(new TypeError("network detail")),
-  );
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("network detail")));
   await expect(askAssistant("Alba?")).rejects.toThrow(ASSISTANT_ERROR);
 });
 it("aborts timed out requests with a friendly error", async () => {
@@ -124,15 +113,11 @@ it("aborts timed out requests with a friendly error", async () => {
     vi.fn(
       (_url, options) =>
         new Promise((_resolve, reject) =>
-          options.signal.addEventListener("abort", () =>
-            reject(new Error("aborted")),
-          ),
+          options.signal.addEventListener("abort", () => reject(new Error("aborted"))),
         ),
     ),
   );
-  const assertion = expect(askAssistant("Alba?")).rejects.toThrow(
-    ASSISTANT_ERROR,
-  );
+  const assertion = expect(askAssistant("Alba?")).rejects.toThrow(ASSISTANT_ERROR);
   await vi.advanceTimersByTimeAsync(120_000);
   await assertion;
 });
@@ -150,4 +135,3 @@ it("cancels on screen disposal without adding a late reply", async () => {
   await sent;
   expect(chat.getSnapshot().messages).toHaveLength(1);
 });
-

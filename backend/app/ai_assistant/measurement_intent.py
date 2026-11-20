@@ -1,4 +1,5 @@
 """Conservative extraction: only explicit single-sample diameter statements."""
+
 import re
 import math
 
@@ -11,11 +12,14 @@ PATTERNS = [
 ]
 
 
+# Extract a sample diameter only when measurement intent is present, excluding policy questions.
 def extract_diameter_mm(question: str) -> float | None:
     values = []
     for clause in re.split(r"[;!?]|\.(?!\d)|\bbut\b", question.lower()):
         # A policy quote must not become a measurement, even if it quotes a question.
-        if re.search(r"\b(handbook|reference|policy|range|says|states|quoted?)\b", clause):
+        if re.search(
+            r"\b(handbook|reference|policy|range|says|states|quoted?)\b", clause
+        ):
             continue
         for pattern in PATTERNS:
             for match in re.finditer(pattern, clause):

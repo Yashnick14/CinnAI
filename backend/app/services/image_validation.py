@@ -1,10 +1,13 @@
 """Upload validation only. No grading, segmentation or measurement."""
+
 from io import BytesIO
 import warnings
 from PIL import Image, UnidentifiedImageError
 from fastapi import HTTPException
 from app.core.config import MAX_IMAGE_PIXELS
 
+
+# Reject invalid or unsupported image data before model inference.
 def validate_image(data: bytes) -> None:
     if not data:
         raise HTTPException(400, "The uploaded image is empty.")
@@ -15,10 +18,18 @@ def validate_image(data: bytes) -> None:
                 if image.format not in ("JPEG", "PNG"):
                     raise HTTPException(415, "Upload a JPEG or PNG image.")
                 if image.width * image.height > MAX_IMAGE_PIXELS:
-                    raise HTTPException(413, "Image resolution is too large. Use a smaller capture.")
+                    raise HTTPException(
+                        413, "Image resolution is too large. Use a smaller capture."
+                    )
                 image.verify()
     except HTTPException:
         raise
-    except (UnidentifiedImageError, OSError, SyntaxError, ValueError, Image.DecompressionBombError, Image.DecompressionBombWarning):
+    except (
+        UnidentifiedImageError,
+        OSError,
+        SyntaxError,
+        ValueError,
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ):
         raise HTTPException(400, "The file is not a valid JPEG or PNG image.") from None
-

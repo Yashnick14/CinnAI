@@ -3,6 +3,7 @@
 CSV uses literal null for unavailable values; images are never training inputs.
 The lock serializes CSV writes in the default single-worker backend.
 """
+
 import csv
 import json
 import os
@@ -13,13 +14,26 @@ from uuid import uuid4
 from app.core.config import V5_COLLECTION_DIRECTORY
 
 COLLECTION_DIRECTORY = V5_COLLECTION_DIRECTORY
-FIELDS = ["filename", "timestamp", "v5_detection_count", "v5_max_confidence",
-          "coin_detected", "coin_confidence", "quill_detected", "quill_confidence",
-          "quill_mask_available", "diameter_success", "diameter_mm",
-          "sample_validation_result", "rf_predicted_grade", "final_displayed_grade"]
+FIELDS = [
+    "filename",
+    "timestamp",
+    "v5_detection_count",
+    "v5_max_confidence",
+    "coin_detected",
+    "coin_confidence",
+    "quill_detected",
+    "quill_confidence",
+    "quill_mask_available",
+    "diameter_success",
+    "diameter_mm",
+    "sample_validation_result",
+    "rf_predicted_grade",
+    "final_displayed_grade",
+]
 _lock = Lock()
 
 
+# Append a capture evaluation row using the configured CSV log.
 def write_row(row):
     directory = COLLECTION_DIRECTORY
     with _lock:
@@ -32,18 +46,34 @@ def write_row(row):
                     raise OSError("Capture CSV header mismatch; existing log preserved")
                 rows = list(reader)
         rows = [old for old in rows if old["filename"] != row["filename"]]
-        rows.append({key: "null" if row.get(key) is None else str(row[key]).lower() if isinstance(row[key], bool) else row[key] for key in FIELDS})
+        rows.append(
+            {
+                key: (
+                    "null"
+                    if row.get(key) is None
+                    else (
+                        str(row[key]).lower()
+                        if isinstance(row[key], bool)
+                        else row[key]
+                    )
+                )
+                for key in FIELDS
+            }
+        )
         temporary = directory / f".results-{uuid4().hex}.tmp"
         try:
             with temporary.open("x", newline="", encoding="utf-8") as stream:
                 writer = csv.DictWriter(stream, fieldnames=FIELDS)
-                writer.writeheader(); writer.writerows(rows)
-                stream.flush(); os.fsync(stream.fileno())
+                writer.writeheader()
+                writer.writerows(rows)
+                stream.flush()
+                os.fsync(stream.fileno())
             os.replace(temporary, csv_path)
         finally:
             temporary.unlink(missing_ok=True)
 
 
+# Preserve original image bytes and initialize the real-world capture log entry.
 def begin_capture(data):
     now = datetime.now(timezone.utc)
     suffix = ".png" if data.startswith(b"\x89PNG\r\n\x1a\n") else ".jpg"
@@ -58,30 +88,47 @@ def begin_capture(data):
     return row
 
 
+# Attach available validation and model outputs to the capture log without fabricating missing values.
 def finish_capture(row, result):
     if result is not None:
         diagnostics = result.get("diagnostics", {})
         detector = diagnostics.get("detector") or {}
         diameter = diagnostics.get("diameter")
         visual = diagnostics.get("visual") or {}
-        segmentation = (result.get("debug_comparison") or {}).get("segmentation_model") or {}
-        row.update(v5_detection_count=detector.get("detected_quills"),
-                   v5_max_confidence=max(detector.get("confidences", []), default=None),
-                   coin_detected=segmentation.get("coin_detected"), coin_confidence=segmentation.get("coin_confidence"),
-                   quill_detected=segmentation.get("quill_detected"), quill_confidence=segmentation.get("quill_confidence"),
-                   quill_mask_available=segmentation.get("quill_mask_available"),
-                   diameter_success=diameter is not None,
-                   diameter_mm=(diameter or {}).get("diameter_mm"),
-                   sample_validation_result=result.get("status"), rf_predicted_grade=visual.get("visual_prediction"),
-                   final_displayed_grade=result.get("final_grade") if result.get("status") == "VALID" else None)
+        segmentation = (result.get("debug_comparison") or {}).get(
+            "segmentation_model"
+        ) or {}
+        row.update(
+            v5_detection_count=detector.get("detected_quills"),
+            v5_max_confidence=max(detector.get("confidences", []), default=None),
+            coin_detected=segmentation.get("coin_detected"),
+            coin_confidence=segmentation.get("coin_confidence"),
+            quill_detected=segmentation.get("quill_detected"),
+            quill_confidence=segmentation.get("quill_confidence"),
+            quill_mask_available=segmentation.get("quill_mask_available"),
+            diameter_success=diameter is not None,
+            diameter_mm=(diameter or {}).get("diameter_mm"),
+            sample_validation_result=result.get("status"),
+            rf_predicted_grade=visual.get("visual_prediction"),
+            final_displayed_grade=(
+                result.get("final_grade") if result.get("status") == "VALID" else None
+            ),
+        )
     write_row(row)
     if result is not None:
         # Preserve complete request-correlated diagnostics without duplicating base64 overlays.
         def compact(value):
             if isinstance(value, dict):
-                return {k: compact(v) for k, v in value.items() if k != "diagnostic_overlay"}
+                return {
+                    k: compact(v) for k, v in value.items() if k != "diagnostic_overlay"
+                }
             if isinstance(value, list):
                 return [compact(v) for v in value]
             return value
-        destination = COLLECTION_DIRECTORY / "images" / (row["filename"] + ".validation.json")
-        destination.write_text(json.dumps(compact(result), indent=2, allow_nan=False), encoding="utf-8")
+
+        destination = (
+            COLLECTION_DIRECTORY / "images" / (row["filename"] + ".validation.json")
+        )
+        destination.write_text(
+            json.dumps(compact(result), indent=2, allow_nan=False), encoding="utf-8"
+        )

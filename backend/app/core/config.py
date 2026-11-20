@@ -1,4 +1,5 @@
 """Application configuration. The active API is visual-only."""
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -15,7 +16,10 @@ MOISTURE_LIMIT_PERCENT = 14.0
 MAX_IMAGE_BYTES = int(os.getenv("MAX_IMAGE_BYTES", str(10 * 1024 * 1024)))
 MAX_IMAGE_PIXELS = 24_000_000
 TEMP_VISUAL_UPLOAD_DIRECTORY = Path(
-    os.getenv("TEMP_VISUAL_UPLOAD_DIRECTORY", str(PROJECT_ROOT / "data" / "temporary-visual-uploads"))
+    os.getenv(
+        "TEMP_VISUAL_UPLOAD_DIRECTORY",
+        str(PROJECT_ROOT / "data" / "temporary-visual-uploads"),
+    )
 )
 if not TEMP_VISUAL_UPLOAD_DIRECTORY.is_absolute():
     TEMP_VISUAL_UPLOAD_DIRECTORY = PROJECT_ROOT / TEMP_VISUAL_UPLOAD_DIRECTORY
@@ -28,7 +32,9 @@ UPLOAD_DIRECTORY = Path(
 )
 ALLOWED_ORIGINS = tuple(
     origin.strip()
-    for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:8081,http://localhost:8082").split(",")
+    for origin in os.getenv(
+        "ALLOWED_ORIGINS", "http://localhost:8081,http://localhost:8082"
+    ).split(",")
     if origin.strip()
 )
 # Configuration for future integration only; not executed by the mock service.
@@ -47,9 +53,20 @@ MIN_NORMALIZED_CANDIDATE_CONFIDENCE = 0.50
 
 
 # Container storage overrides; local development defaults are unchanged.
-ASSISTANT_ENCODER_PATH = os.getenv("ASSISTANT_ENCODER_PATH", "sentence-transformers/all-MiniLM-L6-v2")
-ASSISTANT_ENCODER_CACHE = Path(os.getenv("ASSISTANT_ENCODER_CACHE", str(PROJECT_ROOT / "data" / "assistant-encoder")))
-V5_COLLECTION_DIRECTORY = Path(os.getenv("V5_COLLECTION_DIRECTORY", str(PROJECT_ROOT / "backend_handoff" / "realworld_v5_collection")))
+ASSISTANT_ENCODER_PATH = os.getenv(
+    "ASSISTANT_ENCODER_PATH", "sentence-transformers/all-MiniLM-L6-v2"
+)
+ASSISTANT_ENCODER_CACHE = Path(
+    os.getenv(
+        "ASSISTANT_ENCODER_CACHE", str(PROJECT_ROOT / "data" / "assistant-encoder")
+    )
+)
+V5_COLLECTION_DIRECTORY = Path(
+    os.getenv(
+        "V5_COLLECTION_DIRECTORY",
+        str(PROJECT_ROOT / "backend_handoff" / "realworld_v5_collection"),
+    )
+)
 if not ASSISTANT_ENCODER_CACHE.is_absolute():
     ASSISTANT_ENCODER_CACHE = PROJECT_ROOT / ASSISTANT_ENCODER_CACHE
 if not V5_COLLECTION_DIRECTORY.is_absolute():

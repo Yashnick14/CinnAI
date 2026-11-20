@@ -1,4 +1,3 @@
-
 import re
 
 # ============================================================
@@ -13,7 +12,7 @@ APPLICATION_GRADE_POLICY = {
     "M5": "> 16 mm and < 18 mm",
     "M4": "> 18 mm and < 21 mm",
     "H1": "> 21 mm and < 25 mm",
-    "H2": "> 25 mm and <= 32 mm"
+    "H2": "> 25 mm and <= 32 mm",
 }
 
 MANUAL_BOUNDARIES = [10, 12, 16, 18, 21, 25]
@@ -23,19 +22,12 @@ MANUAL_BOUNDARIES = [10, 12, 16, 18, 21, 25]
 # DETECT GRADE
 # ============================================================
 
+
+# Identify a referenced cinnamon grade in the question.
 def detect_grade(query):
     q = query.lower()
 
-    ordered = [
-        "C5 Special",
-        "Alba",
-        "C5",
-        "C4",
-        "M5",
-        "M4",
-        "H1",
-        "H2"
-    ]
+    ordered = ["C5 Special", "Alba", "C5", "C4", "M5", "M4", "H1", "H2"]
 
     for grade in ordered:
         if grade.lower() in q:
@@ -52,6 +44,7 @@ from app.ai_assistant.measurement_intent import extract_diameter_mm
 from app.ml.measurement.config import diameter_grade
 
 
+# Classify a supplied diameter using the application's existing diameter policy.
 def classify_diameter(d):
     return diameter_grade(d).replace("Manual review", "Manual Review")
 
@@ -60,6 +53,8 @@ def classify_diameter(d):
 # BUILD CONTEXT FOR GEMINI
 # ============================================================
 
+
+# Format retrieved knowledge into the context supplied to the answer generator.
 def build_rag_context(results):
     blocks = []
 
@@ -131,21 +126,14 @@ VERIFICATION NOTE:
 #
 # ============================================================
 
-def ask_cinnamon_assistant(
-    question,
-    retrieve,
-    documents,
-    client,
-    top_k=12
-):
+
+# Combine retrieval and deterministic diameter classification to generate a grounded answer.
+def ask_cinnamon_assistant(question, retrieve, documents, client, top_k=12):
     # --------------------------------------------------------
     # Retrieve relevant knowledge
     # --------------------------------------------------------
 
-    results = retrieve(
-        question,
-        top_k=top_k
-    )
+    results = retrieve(question, top_k=top_k)
 
     detected_grade = detect_grade(question)
     q_lower = question.lower()
@@ -156,8 +144,7 @@ def ask_cinnamon_assistant(
 
     needs_policy = (
         extract_diameter_mm(question) is not None
-        or
-        detected_grade is not None
+        or detected_grade is not None
         or "diameter" in q_lower
         or "grade" in q_lower
         or "grading" in q_lower
@@ -165,10 +152,7 @@ def ask_cinnamon_assistant(
     )
 
     if needs_policy:
-        already_has_policy = any(
-            r["id"] == "P01"
-            for r in results
-        )
+        already_has_policy = any(r["id"] == "P01" for r in results)
 
         if not already_has_policy:
             for doc in documents:
@@ -180,12 +164,12 @@ def ask_cinnamon_assistant(
                             "score": 1.0,
                             "id": "P01",
                             "collection": "application_policy",
-                            "record": doc["full_record"]
-                        }
+                            "record": doc["full_record"],
+                        },
                     )
                     break
 
-    results = results[:top_k + 1]
+    results = results[: top_k + 1]
 
     # --------------------------------------------------------
     # Deterministic diameter classification
@@ -204,11 +188,21 @@ def ask_cinnamon_assistant(
     if grading_result in APPLICATION_GRADE_POLICY:
         for doc in documents:
             record = doc["full_record"]
-            if (grading_result in record.get("relevant_grade", [])
-                    and f"grade table row for {grading_result.lower()}" in record.get("corrected_english", "").lower()):
+            if (
+                grading_result in record.get("relevant_grade", [])
+                and f"grade table row for {grading_result.lower()}"
+                in record.get("corrected_english", "").lower()
+            ):
                 if not any(r["id"] == doc["id"] for r in results):
-                    results.append({"rank": 0, "score": None, "id": doc["id"],
-                                    "collection": doc["collection"], "record": record})
+                    results.append(
+                        {
+                            "rank": 0,
+                            "score": None,
+                            "id": doc["id"],
+                            "collection": doc["collection"],
+                            "record": record,
+                        }
+                    )
                 break
 
     context = build_rag_context(results)
@@ -389,8 +383,10 @@ USER-FACING RULES:
 25. Use simple, practical English.
 
 26. Do not use outside knowledge to fill gaps.
-27. Raw sensor ADC is not a calibrated percentage. ADC >= 2842 is
-    PASS_PROVISIONAL; ADC < 2842 is FAIL_PROVISIONAL. Never convert ADC
+27. Raw sensor ADC is not a calibrated percentage. 1711 <= ADC < 2850 is
+    PASS_PROVISIONAL; ADC < 1711 is FAIL_PROVISIONAL; ADC >= 2850 is
+    UNTOUCHED, not a valid sample. These are empirical screening thresholds,
+    not a verified conversion to 14% moisture. Never convert ADC
     into an exact moisture percentage.
 28. A reference diameter in a policy question is not a sample measurement.
     If no APPLICATION CALCULATION is provided, do not classify a sample.
@@ -431,8 +427,7 @@ Do not reveal internal implementation details.
     # --------------------------------------------------------
 
     response = client.models.generate_content(
-        model="gemini-3.5-flash-lite",
-        contents=prompt
+        model="gemini-3.5-flash-lite", contents=prompt
     )
 
     return {
@@ -440,5 +435,5 @@ Do not reveal internal implementation details.
         "diameter_mm": diameter,
         "detected_grade": detected_grade,
         "application_result": grading_result,
-        "retrieved_records": results
+        "retrieved_records": results,
     }

@@ -19,13 +19,14 @@ vi.mock("../src/types/decision", () => ({
 import { validateSample } from "../src/services/sampleApi";
 import type { VisualRequest } from "../src/types/visual";
 import { snapshotMoisture } from "../src/services/sessionMoisture";
+
 it("retry retains the captured sample reading instead of reading the live sensor", async () => {
   const moisture = snapshotMoisture({
     state: "connected",
     isMock: false,
     device: null,
     devices: [],
-    medianAdc: 2910,
+    medianAdc: 1800,
     moisturePercent: null,
     updatedAt: new Date().toISOString(),
     error: null,
@@ -43,9 +44,9 @@ it("retry retains the captured sample reading instead of reading the live sensor
     success: true,
     data: { status: "VALID", final_grade: "M4" },
   });
-  await expect(
-    validateSample(request, new AbortController().signal),
-  ).rejects.toThrow("Cannot complete");
+  await expect(validateSample(request, new AbortController().signal)).rejects.toThrow(
+    "Cannot complete",
+  );
   const result = await validateSample(request, new AbortController().signal);
   expect(result.moisture).toEqual(moisture);
   expect(result.moisture).not.toBe(moisture);

@@ -4,19 +4,29 @@ from sqlalchemy.orm import Session
 from app.models.grading_record import GradingRecord
 from app.schemas.grading import GradingResult
 
+
 class GradingRecordRepository:
+    # Retain the database session used by this repository.
     def __init__(self, session: Session):
         self.session = session
 
-    def save(self, result: GradingResult, image_filename: str, content_type: str) -> GradingRecord:
+    # Persist a grading result and its image metadata in the legacy database.
+    def save(
+        self, result: GradingResult, image_filename: str, content_type: str
+    ) -> GradingRecord:
         payload = result.model_dump(mode="json")
         record = GradingRecord(
-            id=str(result.id), timestamp=result.timestamp, is_mock=result.is_mock,
-            final_grade=result.final_grade, visual_prediction=result.visual_prediction,
-            diameter_mm=result.diameter_mm, moisture_percent=result.moisture_percent,
+            id=str(result.id),
+            timestamp=result.timestamp,
+            is_mock=result.is_mock,
+            final_grade=result.final_grade,
+            visual_prediction=result.visual_prediction,
+            diameter_mm=result.diameter_mm,
+            moisture_percent=result.moisture_percent,
             final_status=result.final_status,
             detected_quill_count=result.detected_quill_count,
-            image_filename=image_filename, image_content_type=content_type,
+            image_filename=image_filename,
+            image_content_type=content_type,
             result_payload=payload,
         )
         try:
@@ -28,13 +38,16 @@ class GradingRecordRepository:
             raise
         return record
 
+    # Retrieve a grading record by UUID.
     def get(self, record_id: UUID) -> GradingRecord | None:
         return self.session.get(GradingRecord, str(record_id))
 
+    # List grading records using the requested pagination.
     def list(self, limit: int = 100, offset: int = 0) -> list[GradingRecord]:
         statement = (
             select(GradingRecord)
             .order_by(GradingRecord.timestamp.desc())
-            .offset(offset).limit(limit)
+            .offset(offset)
+            .limit(limit)
         )
         return list(self.session.scalars(statement))

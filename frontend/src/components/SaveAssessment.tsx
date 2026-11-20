@@ -4,6 +4,8 @@ import { history } from "../storage/history";
 import type { SampleResult } from "../types/decision";
 import { toHistoryRecord } from "../services/saveAssessment";
 import { Body, Button, WarningMessage } from "./ui";
+
+/** Offer an explicit save action and report its completion or error. */
 export function SaveAssessment({
   result,
   onHistory,
@@ -19,19 +21,19 @@ export function SaveAssessment({
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const busy = useRef(false);
+
+  /** Persist the grading assessment through the configured storage flow. */
   async function save() {
     if (busy.current || saved) return;
     busy.current = true;
     setSaving(true);
     setError("");
     try {
-      await history.save(
-        toHistoryRecord(result, identity.id, identity.timestamp),
-      );
+      await history.save(toHistoryRecord(result, identity.id, identity.timestamp));
       setSaved(true);
     } catch {
       setError(
-        "Could not save this assessment. Please try again and check available device storage.",
+        "Could not save this assessment. Check your internet connection and try again.",
       );
     } finally {
       busy.current = false;
@@ -49,7 +51,7 @@ export function SaveAssessment({
       />
       {saved && (
         <>
-          <Body>Assessment saved on this device.</Body>
+          <Body>Assessment saved.</Body>
           <Button title="View History" secondary onPress={onHistory} />
         </>
       )}

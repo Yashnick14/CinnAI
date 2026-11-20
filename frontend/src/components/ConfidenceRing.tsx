@@ -2,6 +2,8 @@ import { View } from "react-native";
 import { Text } from "./AppText";
 import Svg, { Circle } from "react-native-svg";
 import { theme } from "../config/theme";
+
+/** Render a circular confidence indicator, including the unavailable state. */
 export function ConfidenceRing({
   value,
   label = "CONFIDENCE",
@@ -45,9 +47,7 @@ export function ConfidenceRing({
             stroke={color}
             strokeWidth={3}
             strokeDasharray={`${circumference} ${circumference}`}
-            strokeDashoffset={
-              circumference * (1 - Math.max(0, Math.min(1, value)))
-            }
+            strokeDashoffset={circumference * (1 - Math.max(0, Math.min(1, value)))}
             rotation={-90}
             origin={`${size / 2}, ${size / 2}`}
             strokeLinecap="round"

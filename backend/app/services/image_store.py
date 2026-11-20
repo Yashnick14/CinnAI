@@ -3,10 +3,13 @@ from pathlib import Path
 from uuid import UUID
 from app.core.config import UPLOAD_DIRECTORY
 
+
 class ImageStore:
+    # Select the directory used to store grading images.
     def __init__(self, directory: Path = UPLOAD_DIRECTORY):
         self.directory = directory
 
+    # Write an original grading image using its record ID and validated content type.
     def save(self, record_id: UUID, data: bytes, content_type: str) -> str:
         self.directory.mkdir(parents=True, exist_ok=True)
         extension = ".png" if content_type == "image/png" else ".jpg"
@@ -21,10 +24,12 @@ class ImageStore:
             raise RuntimeError("The uploaded image could not be stored.") from error
         return filename
 
+    # Resolve an image filename within the configured storage directory.
     def path(self, filename: str) -> Path:
         if Path(filename).name != filename:
             raise ValueError("Invalid image filename.")
         return self.directory / filename
 
+    # Remove the stored image associated with a grading record.
     def delete(self, filename: str) -> None:
         self.path(filename).unlink(missing_ok=True)

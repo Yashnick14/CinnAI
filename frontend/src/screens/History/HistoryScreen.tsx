@@ -1,5 +1,5 @@
-import { CLOUD_ENABLED } from "../../services/cloudApi";
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { AdminQualityReport } from "../../components/AdminQualityReport";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Text } from "../../components/AppText";
 import { useFocusEffect } from "@react-navigation/native";
-import { history, cloudHistory } from "../../storage/history";
+import { history } from "../../storage/history";
 import type { GradingResult } from "../../types/grading";
 import type { ScreenProps } from "../../types/navigation";
 import {
@@ -27,10 +27,13 @@ import { errorMessage, percent } from "../../utils/format";
 import { filterHistory, summarize } from "../../utils/historySummary";
 import { SUPPORTED_GRADES } from "../../config/grading";
 import { theme } from "../../config/theme";
+
+/** List the current user's saved assessments with filtering and deletion actions. */
 export function HistoryScreen({ navigation }: ScreenProps<"History">) {
-  const syncStatus = useSyncExternalStore(cloudHistory.subscribe, cloudHistory.getSyncStatus, cloudHistory.getSyncStatus);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  /** Delete the selected history record through the repository and refresh the view. */
   async function removeRecord(id: string) {
     if (busy) return;
     setBusy(true);
@@ -77,19 +80,10 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
   const visible = filterHistory(records, search, filter);
   const summary = summarize(visible);
   return (
-    <Page topInset>
-      <Heading
-        title="Grading History"
-        subtitle={CLOUD_ENABLED ? "Your cloud and local assessments" : "Your local sample and assessment register"}
-      />
-      {CLOUD_ENABLED && <Card>
-        <Body>{syncStatus}</Body>
-        <Button title="Sync this device's history" disabled={busy} onPress={() => {
-          setBusy(true);
-          void cloudHistory.syncLocal().then(() => setRetry(v => v + 1))
-            .catch(e => setError(errorMessage(e))).finally(() => setBusy(false));
-        }} />
-      </Card>}
+    <Page>
+      <Heading title="Grading History" subtitle="Your saved assessments" />
+      <AdminQualityReport />
+
       <View
         style={{
           flexDirection: "row",
@@ -170,18 +164,14 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
       {error && (
         <>
           <WarningMessage text={error} error />
-          <Button
-            title="Retry History"
-            onPress={() => setRetry((r) => r + 1)}
-          />
+          <Button title="Retry History" onPress={() => setRetry((r) => r + 1)} />
         </>
       )}
       {!loading && !error && records.length === 0 && (
         <Card>
           <Label>No saved results yet</Label>
           <Body>
-            Complete an assessment and select Save Result to start your
-            register.
+            Complete an assessment and select Save Result to start your register.
           </Body>
           <Button
             title="New Grading"
@@ -201,8 +191,8 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
           {deleting === r.id ? (
             <Card>
               <Body>
-                Delete this saved record from this device? This does not delete
-                backend captures.
+                Delete this saved record from this device? This does not delete backend
+                captures.
               </Body>
               <Button
                 title="Delete Record"

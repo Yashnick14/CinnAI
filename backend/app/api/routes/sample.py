@@ -14,27 +14,47 @@ from app.services.v5_capture_log import begin_capture, finish_capture
 router = APIRouter(tags=["sample-validation"])
 
 
+# Run sample validation while preserving capture and result diagnostics.
 def logged_validation(data, geometry, service, progress=None):
     row = begin_capture(data)
     result = None
     try:
-        result = validate_sample(data, geometry, service, progress) if progress else validate_sample(data, geometry, service)
+        result = (
+            validate_sample(data, geometry, service, progress)
+            if progress
+            else validate_sample(data, geometry, service)
+        )
         return result
     finally:
         finish_capture(row, result)
 
 
+# Stream progress events and the final validation result without blocking the event loop.
 async def live_validation(data, geometry, service):
     queue = asyncio.Queue()
     loop = asyncio.get_running_loop()
+
+    # Forward a validation stage update to the streaming response queue.
     def progress(step, state):
-        loop.call_soon_threadsafe(queue.put_nowait, {"type": "progress", "step": step, "state": state})
+        loop.call_soon_threadsafe(
+            queue.put_nowait, {"type": "progress", "step": step, "state": state}
+        )
+
+    # Execute validation in the background and enqueue its result or failure.
     async def run():
         try:
-            result = await run_in_threadpool(logged_validation, data, geometry, service, progress)
+            result = await run_in_threadpool(
+                logged_validation, data, geometry, service, progress
+            )
             await queue.put({"type": "result", "result": result})
         except Exception:
-            await queue.put({"type": "error", "message": "Validation could not complete. Please retry."})
+            await queue.put(
+                {
+                    "type": "error",
+                    "message": "Validation could not complete. Please retry.",
+                }
+            )
+
     task = asyncio.create_task(run())
     try:
         while True:
@@ -46,6 +66,7 @@ async def live_validation(data, geometry, service):
         task.cancel()
 
 
+# Validate the multipart image and route the sample through combined validation.
 @router.post("/validate-sample")
 async def validate_sample_endpoint(
     image: Annotated[UploadFile, File()],
@@ -61,8 +82,13 @@ async def validate_sample_endpoint(
             raise HTTPException(413, "Image exceeds upload limit.")
         await run_in_threadpool(validate_image, data)
         if live:
-            return StreamingResponse(live_validation(data, capture_geometry, service),
-                media_type="application/x-ndjson", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
-        return await run_in_threadpool(logged_validation, data, capture_geometry, service)
+            return StreamingResponse(
+                live_validation(data, capture_geometry, service),
+                media_type="application/x-ndjson",
+                headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+            )
+        return await run_in_threadpool(
+            logged_validation, data, capture_geometry, service
+        )
     finally:
         await image.close()

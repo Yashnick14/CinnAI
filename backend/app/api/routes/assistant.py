@@ -1,12 +1,15 @@
 from fastapi import APIRouter, HTTPException
 from app.ai_assistant.schemas import AssistantAnswer, AssistantQuestion
 from app.ai_assistant.service import (
-    AssistantGenerationError, AssistantUnavailable, get_assistant_service,
+    AssistantGenerationError,
+    AssistantUnavailable,
+    get_assistant_service,
 )
 
 router = APIRouter(prefix="/assistant", tags=["assistant"])
 
 
+# Handle an assistant question with isolated service errors and a validated response.
 @router.post("/ask", response_model=AssistantAnswer)
 def ask_assistant(request: AssistantQuestion):
     # FastAPI runs sync handlers in its thread pool (encoding and SDK are synchronous).

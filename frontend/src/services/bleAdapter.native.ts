@@ -4,9 +4,10 @@ import type { SensorService, SensorSnapshot } from "../types/sensor";
 import { decodeSensorReading } from "./sensorReading";
 
 type Runtime = { manager: BleManager; permission: () => Promise<boolean> };
+
+/** Load the native BLE runtime only when native sensor access is requested. */
 async function nativeRuntime(): Promise<Runtime> {
-  const { NativeModules, PermissionsAndroid, Platform } =
-    await import("react-native");
+  const { NativeModules, PermissionsAndroid, Platform } = await import("react-native");
   if (!NativeModules.BlePlx)
     throw new Error(
       "Bluetooth requires a new Expo Development Build with react-native-ble-plx. Expo Go is not supported.",
@@ -14,6 +15,8 @@ async function nativeRuntime(): Promise<Runtime> {
   const { BleManager } = await import("react-native-ble-plx");
   return {
     manager: new BleManager(),
+
+    /** Request the platform permissions required for BLE access. */
     permission: async () => {
       if (Platform.OS !== "android") return true;
       const permissions =
@@ -53,19 +56,29 @@ export class RealBleService implements SensorService {
   private cancelReady?: () => void;
   private currentId?: string;
   private disposed = false;
+
+  /** Initialize the service with its configured dependencies. */
   constructor(private loadRuntime = nativeRuntime) {}
+
+  /** Return the current state snapshot for subscribers. */
   getSnapshot = () => this.snapshot;
+
+  /** Register a state listener and return its unsubscribe callback. */
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
     };
   };
+
+  /** Merge a sensor state update and notify registered listeners. */
   private set(patch: Partial<SensorSnapshot>) {
     if (this.disposed) return;
     this.snapshot = { ...this.snapshot, ...patch };
     this.listeners.forEach((fn) => fn());
   }
+
+  /** Return the empty reading fields used after disconnection or invalid data. */
   private clearReading() {
     return {
       medianAdc: null,
@@ -74,6 +87,8 @@ export class RealBleService implements SensorService {
       updatedAt: null,
     };
   }
+
+  /** Stop BLE discovery and clear its timeout. */
   private stopScan() {
     clearTimeout(this.scanTimer);
     this.scanTimer = undefined;
@@ -82,6 +97,8 @@ export class RealBleService implements SensorService {
     this.finishScan?.();
     this.finishScan = undefined;
   }
+
+  /** Remove BLE monitors and outstanding connection resources. */
   private cleanup() {
     this.generation++;
     this.cancelReady?.();
@@ -93,6 +110,8 @@ export class RealBleService implements SensorService {
     this.currentId = undefined;
     if (id) void this.manager?.cancelDeviceConnection(id).catch(() => {});
   }
+
+  /** Clear unusable readings and publish the sensor failure state. */
   private fail(error: unknown, state: SensorSnapshot["state"] = "error") {
     this.cleanup();
     const code = (error as { errorCode?: number })?.errorCode;
@@ -105,6 +124,8 @@ export class RealBleService implements SensorService {
       error: error instanceof Error ? error.message : String(error),
     });
   }
+
+  /** Ensure the BLE manager is available and Bluetooth is ready before discovery. */
   private async ready(token: number) {
     if (!this.runtime)
       this.runtime = this.loadRuntime().catch((error) => {
@@ -127,6 +148,8 @@ export class RealBleService implements SensorService {
     const state = await new Promise<string>((resolve) => {
       let sub: Subscription | undefined;
       let done = false;
+
+      /** Settle the pending Bluetooth readiness check and release its resources. */
       const finish = (state: string) => {
         if (done) return;
         done = true;
@@ -169,15 +192,15 @@ export class RealBleService implements SensorService {
           );
         if (token === this.generation && state === "Unauthorized")
           this.fail(
-            new Error(
-              "Bluetooth permission denied. Enable access in Settings.",
-            ),
+            new Error("Bluetooth permission denied. Enable access in Settings."),
             "permission_denied",
           );
       }, false),
     );
     return runtime.manager;
   }
+
+  /** Discover available sensors using the configured service implementation. */
   async scan() {
     this.cleanup();
     const token = this.generation;
@@ -203,28 +226,24 @@ export class RealBleService implements SensorService {
             );
         }, BLE.scanTimeoutMs);
         // Name matching also supports firmware that omits the service from advertising.
-        const starting = manager.startDeviceScan(
-          null,
-          null,
-          (error, device) => {
-            if (token !== this.generation) return;
-            if (error) {
-              this.fail(error);
-              return;
-            }
-            if (
-              device &&
-              (device.name === BLE.expectedDeviceName ||
-                device.localName === BLE.expectedDeviceName)
-            ) {
-              this.stopScan();
-              this.set({
-                state: "disconnected",
-                devices: [{ id: device.id, name: BLE.expectedDeviceName }],
-              });
-            }
-          },
-        );
+        const starting = manager.startDeviceScan(null, null, (error, device) => {
+          if (token !== this.generation) return;
+          if (error) {
+            this.fail(error);
+            return;
+          }
+          if (
+            device &&
+            (device.name === BLE.expectedDeviceName ||
+              device.localName === BLE.expectedDeviceName)
+          ) {
+            this.stopScan();
+            this.set({
+              state: "disconnected",
+              devices: [{ id: device.id, name: BLE.expectedDeviceName }],
+            });
+          }
+        });
         void Promise.resolve(starting).catch((error) => {
           if (token === this.generation) this.fail(error);
         });
@@ -233,6 +252,8 @@ export class RealBleService implements SensorService {
       if (token === this.generation) this.fail(error);
     }
   }
+
+  /** Connect to the selected sensor and begin receiving its readings. */
   async connect(id: string) {
     if (!this.snapshot.devices.some((d) => d.id === id)) {
       this.fail(new Error("Scan and select CinnamonGradingSensor first."));
@@ -255,9 +276,7 @@ export class RealBleService implements SensorService {
         timer = setTimeout(
           () =>
             reject(
-              new Error(
-                "Sensor connection/discovery timed out. Reconnect to retry.",
-              ),
+              new Error("Sensor connection/discovery timed out. Reconnect to retry."),
             ),
           BLE.connectTimeoutMs,
         );
@@ -284,9 +303,7 @@ export class RealBleService implements SensorService {
         );
         device = await device.discoverAllServicesAndCharacteristics();
         if (token !== this.generation) return;
-        const characteristics = await device.characteristicsForService(
-          BLE.serviceUuid,
-        );
+        const characteristics = await device.characteristicsForService(BLE.serviceUuid);
         if (token !== this.generation) return;
         const characteristic = characteristics.find(
           (c) => c.uuid.toLowerCase() === BLE.moistureCharacteristicUuid,
@@ -314,9 +331,7 @@ export class RealBleService implements SensorService {
                 return;
               }
               try {
-                const reading = decodeSensorReading(
-                  characteristic?.value ?? null,
-                );
+                const reading = decodeSensorReading(characteristic?.value ?? null);
                 this.set({
                   ...reading,
                   moisturePercent: null,
@@ -326,10 +341,7 @@ export class RealBleService implements SensorService {
               } catch (error) {
                 this.set({
                   ...this.clearReading(),
-                  error:
-                    error instanceof Error
-                      ? error.message
-                      : "Invalid BLE value.",
+                  error: error instanceof Error ? error.message : "Invalid BLE value.",
                 });
               }
             },
@@ -343,6 +355,8 @@ export class RealBleService implements SensorService {
       clearTimeout(timer);
     }
   }
+
+  /** Stop active sensor work and clear the connection's current reading. */
   disconnect() {
     this.cleanup();
     this.set({
@@ -352,19 +366,20 @@ export class RealBleService implements SensorService {
       ...this.clearReading(),
     });
   }
+
+  /** Retry the service's selected or configured sensor connection. */
   async reconnect() {
     await this.scan();
     const device = this.snapshot.devices[0];
-    if (device && this.snapshot.state === "disconnected")
-      await this.connect(device.id);
+    if (device && this.snapshot.state === "disconnected") await this.connect(device.id);
   }
+
+  /** Release timers, subscriptions and service resources. */
   dispose() {
     this.cleanup();
     this.disposed = true;
     this.listeners.clear();
     if (this.runtime)
-      void this.runtime
-        .then(({ manager }) => manager.destroy())
-        .catch(() => {});
+      void this.runtime.then(({ manager }) => manager.destroy()).catch(() => {});
   }
 }

@@ -19,6 +19,8 @@ import { errorMessage, measurement, percent } from "../../utils/format";
 import { recordLabel } from "../../utils/historySummary";
 import { theme } from "../../config/theme";
 import { CapturedPhoto } from "../../components/CapturedPhoto";
+
+/** Display a saved grading record and its available sharing actions. */
 export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
   const [result, setResult] = useState<GradingResult>();
   const [error, setError] = useState("");
@@ -40,6 +42,8 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
       active = false;
     };
   }, [route.params.id]);
+
+  /** Share the selected record using the platform share interface. */
   async function share() {
     if (!result) return;
     try {
@@ -51,13 +55,19 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
           `Diameter: ${measurement(result.diameterMm, "mm")}`,
           `Moisture: ${measurement(result.moisturePercent, "%")} (${result.moistureStatus})`,
           `Status: ${result.finalStatus.replace(/_/g, " ")}`,
-          ...result.warnings.map(w => w.replace(/\bdemo\b/gi, "simulated").replace(/\bprovisional\b/gi, "raw-sensor")),
+          ...result.warnings.map((w) =>
+            w
+              .replace(/\bdemo\b/gi, "sample data")
+              .replace(/\bprovisional\b/gi, "sensor"),
+          ),
         ].join("\n"),
       });
     } catch (e) {
       setError(errorMessage(e));
     }
   }
+
+  /** Group related record details under a section title. */
   const Section = ({
     title,
     children,
@@ -69,9 +79,7 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
   }) => (
     <Card
       style={
-        blue
-          ? { backgroundColor: theme.blueBg, borderColor: "#B9DDF7" }
-          : undefined
+        blue ? { backgroundColor: theme.blueBg, borderColor: "#B9DDF7" } : undefined
       }
     >
       <Text
@@ -124,27 +132,30 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
             <Section title="MANUAL REVIEW">
               <Row label="Grade source" value="Human review" />
               <Row label="Reviewer" value={result.manualReview.reviewer} />
-              <Row label="Reviewed" value={new Date(result.manualReview.reviewedAt).toLocaleString()} />
+              <Row
+                label="Reviewed"
+                value={new Date(result.manualReview.reviewedAt).toLocaleString()}
+              />
               <Row label="Original status" value={result.manualReview.originalStatus} />
-              <Row label="Original grade" value={result.manualReview.originalGrade ?? "Not assigned"} />
-              <Row label="Diameter grade" value={result.manualReview.originalDiameterGrade ?? "Unavailable"} />
+              <Row
+                label="Original grade"
+                value={result.manualReview.originalGrade ?? "Not assigned"}
+              />
+              <Row
+                label="Diameter grade"
+                value={result.manualReview.originalDiameterGrade ?? "Unavailable"}
+              />
               <Body>{result.manualReview.reason}</Body>
               <Body>{result.manualReview.notes || "No additional notes."}</Body>
             </Section>
           )}
           <Section title="CLASSIFICATION DETAILS">
-            <Row
-              label="Assessed grade"
-              value={result.finalGrade ?? "Manual review"}
-            />
+            <Row label="Assessed grade" value={result.finalGrade ?? "Manual review"} />
             <Row
               label="Visual prediction"
               value={result.visualPrediction ?? "Unavailable"}
             />
-            <Row
-              label="Visual confidence"
-              value={percent(result.visualConfidence)}
-            />
+            <Row label="Visual confidence" value={percent(result.visualConfidence)} />
             <Row
               label="Candidate confidence"
               value={percent(result.finalCandidateConfidence)}
@@ -156,10 +167,7 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
               label="Detected quill count"
               value={String(result.detectedQuillCount)}
             />
-            <Row
-              label="Diameter"
-              value={measurement(result.diameterMm, "mm")}
-            />
+            <Row label="Diameter" value={measurement(result.diameterMm, "mm")} />
             <Row
               label="Compatible grades"
               value={result.diameterCandidates.join(", ") || "None"}
@@ -170,13 +178,30 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
               label="Measured moisture"
               value={measurement(result.moisturePercent, "%")}
             />
-            <Row label="Raw sensor ADC" value={result.moistureRawAdc == null ? "Unavailable" : String(result.moistureRawAdc)} /><Row label="Sensor captured" value={result.moistureCapturedAt ?? "Unavailable"} /><Row label="Compliance" value={result.moistureStatus} />
-            <Row label="Requirement" value="Below 14.0%" />
+            <Row
+              label="Raw sensor ADC"
+              value={
+                result.moistureRawAdc == null
+                  ? "Unavailable"
+                  : String(result.moistureRawAdc)
+              }
+            />
+            <Row
+              label="Sensor captured"
+              value={result.moistureCapturedAt ?? "Unavailable"}
+            />
+            <Row label="Compliance" value={result.moistureStatus} />
+            <Row label="Requirement" value="Maximum 14.0% (reference requirement)" />
           </Section>
           {result.warnings
             .filter((w) => !w.startsWith("DEMO ONLY:"))
             .map((w, i) => (
-              <WarningMessage key={i} text={w.replace(/\bdemo\b/gi, "simulated").replace(/\bprovisional\b/gi, "raw-sensor")} />
+              <WarningMessage
+                key={i}
+                text={w
+                  .replace(/\bdemo\b/gi, "sample data")
+                  .replace(/\bprovisional\b/gi, "sensor")}
+              />
             ))}
           <Button
             title={expanded ? "Hide Technical Details" : "Technical Details"}
@@ -193,14 +218,9 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
               <Body>Full record ID: {result.id}</Body>
             </Card>
           )}
-          <Button
-            title="Share Record"
-            icon="arrow"
-            onPress={() => void share()}
-          />
+          <Button title="Share Record" icon="arrow" onPress={() => void share()} />
         </>
       )}
     </Page>
   );
 }
-

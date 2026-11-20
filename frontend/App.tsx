@@ -4,6 +4,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppNavigator } from "./src/navigation/AppNavigator";
 import { useAppFonts } from "./src/hooks/useAppFonts";
 import { ActivityIndicator, View, Text } from "react-native";
+
+/** Compose the root application providers and navigation. */
 export default function App() {
   const [loaded, error] = useAppFonts();
   if (!loaded && !error)

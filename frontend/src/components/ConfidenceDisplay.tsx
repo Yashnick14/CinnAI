@@ -2,6 +2,8 @@ import { View } from "react-native";
 import { Text } from "./AppText";
 import { theme } from "../config/theme";
 import { percent } from "../utils/format";
+
+/** Present model confidence without implying it determines the official diameter grade. */
 export function ConfidenceDisplay({
   label,
   value,

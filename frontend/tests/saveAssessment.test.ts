@@ -88,13 +88,13 @@ describe("assessment history", () => {
         time,
       ),
     ).toMatchObject({ finalGrade: "M4", moistureStatus: "FAIL" });
-    expect(
-      toHistoryRecord({ ...sample, moisture: undefined }, id, time),
-    ).toMatchObject({
-      finalGrade: "M4",
-      moistureStatus: "UNAVAILABLE",
-      moisturePercent: null,
-    });
+    expect(toHistoryRecord({ ...sample, moisture: undefined }, id, time)).toMatchObject(
+      {
+        finalGrade: "M4",
+        moistureStatus: "UNAVAILABLE",
+        moisturePercent: null,
+      },
+    );
   });
   it("deletes only the requested record and persists across reads", async () => {
     const { repo } = setup();
@@ -126,6 +126,7 @@ describe("assessment history", () => {
 });
 
 import { reviewedRecord } from "../src/services/manualReview";
+
 const review = {
   selectedGrade: "C4",
   reviewer: "Reviewer One",
@@ -176,14 +177,8 @@ it("does not mark failed automatic checks as valid after human review", () => {
   expect(record.warnings.join(" ")).toContain("INVALID");
 });
 it("requires reviewer, reason and a supported grade", () => {
-  for (const patch of [
-    { reviewer: " " },
-    { reason: "" },
-    { selectedGrade: "H3" },
-  ]) {
-    expect(() =>
-      reviewedRecord(sample, { ...review, ...patch }, id, time),
-    ).toThrow();
+  for (const patch of [{ reviewer: " " }, { reason: "" }, { selectedGrade: "H3" }]) {
+    expect(() => reviewedRecord(sample, { ...review, ...patch }, id, time)).toThrow();
   }
 });
 it("manual grading preserves moisture failure", () => {

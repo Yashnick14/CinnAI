@@ -28,6 +28,8 @@ import { authError, validateCredentials } from "../../services/authValidation";
 import { requestPasswordReset } from "../../services/passwordReset";
 import { useAuth } from "../../context/AuthContext";
 import type { ScreenProps } from "../../types/navigation";
+
+/** Render login, registration or password-reset controls for the active route. */
 export function AuthScreen({
   navigation,
   route,
@@ -45,14 +47,14 @@ export function AuthScreen({
   const [error, setError] = useState(""),
     [sentTo, setSentTo] = useState("");
   const lock = useRef(false);
+
+  /** Run the selected authentication action and present its progress or failure. */
   async function perform(google = false) {
     if (lock.current) return;
     setError("");
     setSentTo("");
     if (!firebaseConfigured) {
-      setError(
-        "Firebase configuration is missing. Please complete account setup.",
-      );
+      setError("Firebase configuration is missing. Please complete account setup.");
       return;
     }
     if (!google) {
@@ -80,12 +82,7 @@ export function AuthScreen({
           password,
         );
         await updateProfile(result.user, { displayName: name.trim() });
-      } else
-        await signInWithEmailAndPassword(
-          firebaseAuth(),
-          email.trim(),
-          password,
-        );
+      } else await signInWithEmailAndPassword(firebaseAuth(), email.trim(), password);
       // Firebase's auth observer switches the navigator to Home. Never navigate across auth stacks.
     } catch (e) {
       setError(authError(e));
@@ -94,6 +91,8 @@ export function AuthScreen({
       setBusy(false);
     }
   }
+
+  /** Render a text action within the authentication form. */
   function link(label: string, action: () => void) {
     return (
       <Pressable
@@ -108,6 +107,8 @@ export function AuthScreen({
       </Pressable>
     );
   }
+
+  /** Render a consistently styled authentication input. */
   function field(
     label: string,
     value: string,
@@ -126,9 +127,7 @@ export function AuthScreen({
             secureTextEntry={secret && !visible}
             autoCapitalize={label === "Full name" ? "words" : "none"}
             autoCorrect={false}
-            keyboardType={
-              label === "Email address" ? "email-address" : "default"
-            }
+            keyboardType={label === "Email address" ? "email-address" : "default"}
             autoComplete={
               label === "Email address"
                 ? "email"
@@ -204,9 +203,7 @@ export function AuthScreen({
                   </Text>
                 </View>
                 {!firebaseConfigured && (
-                  <Text style={s.error}>
-                    Firebase account setup is pending.
-                  </Text>
+                  <Text style={s.error}>Firebase account setup is pending.</Text>
                 )}
                 {registering && field("Full name", name, setName)}
                 {field("Email address", email, setEmail)}
@@ -214,12 +211,7 @@ export function AuthScreen({
                 {registering && (
                   <>
                     <Text style={s.hint}>Use at least 8 characters.</Text>
-                    {field(
-                      "Confirm password",
-                      confirmation,
-                      setConfirmation,
-                      true,
-                    )}
+                    {field("Confirm password", confirmation, setConfirmation, true)}
                   </>
                 )}
                 {!registering && !resetting && (
@@ -240,9 +232,9 @@ export function AuthScreen({
                   <View accessibilityLiveRegion="polite" style={s.notice}>
                     <Text style={s.label}>Reset request accepted</Text>
                     <Text style={s.sub}>
-                      If an account exists for {sentTo}, Firebase will send a
-                      reset link. Check your inbox and spam folder. Delivery is
-                      not confirmed by the app.
+                      If an account exists for {sentTo}, Firebase will send a reset
+                      link. Check your inbox and spam folder. Delivery is not confirmed
+                      by the app.
                     </Text>
                     <Text style={s.hint}>
                       No email? Check the address above or try again after a few

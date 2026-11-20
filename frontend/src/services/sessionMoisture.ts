@@ -1,4 +1,4 @@
-import { ADC_THRESHOLD, BLE } from "../config/ble";
+import { ADC_THRESHOLD, ADC_UNTOUCHED_THRESHOLD, BLE } from "../config/ble";
 import type { SensorSnapshot, SensorState } from "../types/sensor";
 
 export interface SessionMoisture {
@@ -8,8 +8,7 @@ export interface SessionMoisture {
   timestamp: string | null;
   attached_at: string;
   connection_state: SensorState;
-  read_status:
-    "fresh" | "stale" | "missing" | "disconnected" | "invalid" | "demo";
+  read_status: "fresh" | "stale" | "missing" | "disconnected" | "invalid" | "demo";
   source: "ble" | "wifi" | "cloud" | "mock";
   device_id: string | null;
 }
@@ -21,16 +20,13 @@ export function snapshotMoisture(
 ): SessionMoisture {
   const raw = sensor.medianAdc;
   const validRaw =
-    typeof raw === "number" &&
-    Number.isInteger(raw) &&
-    raw >= 0 &&
-    raw <= BLE.adcMax;
+    typeof raw === "number" && Number.isInteger(raw) && raw >= 0 && raw <= BLE.adcMax;
   const age = sensor.updatedAt ? now - Date.parse(sensor.updatedAt) : NaN;
   const read_status: SessionMoisture["read_status"] = sensor.isMock
     ? "demo"
     : sensor.state !== "connected"
       ? "disconnected"
-      : sensor.error || (raw != null && !validRaw)
+      : sensor.error || (raw != null && (!validRaw || raw >= ADC_UNTOUCHED_THRESHOLD))
         ? "invalid"
         : !validRaw || !sensor.updatedAt
           ? "missing"
@@ -70,7 +66,13 @@ export function snapshotMoisture(
     attached_at: new Date(now).toISOString(),
     connection_state: sensor.state,
     read_status,
-    source: sensor.isMock ? "mock" : BLE.mode === "cloud" ? "cloud" : BLE.mode === "wifi" ? "wifi" : "ble",
+    source: sensor.isMock
+      ? "mock"
+      : BLE.mode === "cloud"
+        ? "cloud"
+        : BLE.mode === "wifi"
+          ? "wifi"
+          : "ble",
     device_id: sensor.device?.id ?? null,
   };
 }

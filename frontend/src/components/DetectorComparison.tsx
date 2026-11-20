@@ -3,6 +3,7 @@ import { Text } from "./AppText";
 import { Card, Label, Row } from "./ui";
 import type { SampleResult } from "../types/decision";
 
+/** Display detector and segmentation evidence for diagnostic comparison. */
 export function DetectorComparison({
   comparison,
 }: {
@@ -11,6 +12,8 @@ export function DetectorComparison({
   if (!comparison) return null;
   const legacy = comparison.legacy_detector;
   const segmentation = comparison.segmentation_model;
+
+  /** Format an available confidence value for the comparison panel. */
   const confidence = (value: number | null) =>
     value === null ? "—" : `${(value * 100).toFixed(1)}%`;
   return (
@@ -20,10 +23,7 @@ export function DetectorComparison({
       <Label>Legacy Quill Detector</Label>
       {legacy ? (
         <>
-          <Row
-            label="Quill detected"
-            value={legacy.quill_detected ? "Yes" : "No"}
-          />
+          <Row label="Quill detected" value={legacy.quill_detected ? "Yes" : "No"} />
           <Row label="Confidence" value={confidence(legacy.max_confidence)} />
         </>
       ) : (

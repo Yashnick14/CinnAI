@@ -10,6 +10,7 @@ vi.mock("../src/services/uploadPhoto", () => ({
   uploadPhoto: async () => new Blob(["photo"], { type: "image/jpeg" }),
 }));
 import { measureDiameter } from "../src/services/diameterApi";
+
 const request = {
   imageUri: "file://photo.jpg",
   captureGeometry: captureGeometry({ width: 300, height: 400 }, 1200, 1600),
@@ -29,9 +30,7 @@ it("sends the captured photo and geometry to the separate endpoint", async () =>
     .fn()
     .mockResolvedValue(new Response(JSON.stringify(result), { status: 200 }));
   vi.stubGlobal("fetch", fetcher);
-  expect(await measureDiameter(request, new AbortController().signal)).toEqual(
-    result,
-  );
+  expect(await measureDiameter(request, new AbortController().signal)).toEqual(result);
   const [url, options] = fetcher.mock.calls[0]!;
   expect(url).toBe("http://192.168.1.250:8000/measure-diameter");
   expect(options.body.get("image")).toBeInstanceOf(Blob);
@@ -43,31 +42,26 @@ it("sends the captured photo and geometry to the separate endpoint", async () =>
 it("preserves retake guidance", async () => {
   vi.stubGlobal(
     "fetch",
-    vi
-      .fn()
-      .mockResolvedValue(
-        new Response(JSON.stringify({ detail: "Coin is clipped. Retake." }), {
-          status: 422,
-        }),
-      ),
+    vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ detail: "Coin is clipped. Retake." }), {
+        status: 422,
+      }),
+    ),
   );
-  await expect(
-    measureDiameter(request, new AbortController().signal),
-  ).rejects.toThrow("Coin is clipped");
+  await expect(measureDiameter(request, new AbortController().signal)).rejects.toThrow(
+    "Coin is clipped",
+  );
 });
 it("rejects invalid responses and missing geometry", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn().mockResolvedValue(new Response("{}", { status: 200 })),
   );
+  await expect(measureDiameter(request, new AbortController().signal)).rejects.toThrow(
+    "Invalid diameter",
+  );
   await expect(
-    measureDiameter(request, new AbortController().signal),
-  ).rejects.toThrow("Invalid diameter");
-  await expect(
-    measureDiameter(
-      { imageUri: request.imageUri },
-      new AbortController().signal,
-    ),
+    measureDiameter({ imageUri: request.imageUri }, new AbortController().signal),
   ).rejects.toThrow("No capture guides");
 });
 it("does not upload after cancellation", async () => {
@@ -82,15 +76,31 @@ it("does not upload after cancellation", async () => {
 });
 
 it("preserves backend raw/calibrated fields without subtracting again", async () => {
-  const payload = { ...result, raw_diameter_mm: 19, calibrated_diameter_mm: 17.5,
-    quill_diameter_mm: 17.5, diameter_grade: "M5" };
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(payload), { status: 200 })));
+  const payload = {
+    ...result,
+    raw_diameter_mm: 19,
+    calibrated_diameter_mm: 17.5,
+    quill_diameter_mm: 17.5,
+    diameter_grade: "M5",
+  };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(new Response(JSON.stringify(payload), { status: 200 })),
+  );
   expect(await measureDiameter(request, new AbortController().signal)).toEqual(payload);
 });
 
 it("accepts a backend diameter clamped at zero", async () => {
-  const payload = { ...result, raw_diameter_mm: 1, calibrated_diameter_mm: 0,
-    quill_diameter_mm: 0, diameter_grade: "Alba" };
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(payload), { status: 200 })));
+  const payload = {
+    ...result,
+    raw_diameter_mm: 1,
+    calibrated_diameter_mm: 0,
+    quill_diameter_mm: 0,
+    diameter_grade: "Alba",
+  };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(new Response(JSON.stringify(payload), { status: 200 })),
+  );
   expect(await measureDiameter(request, new AbortController().signal)).toEqual(payload);
 });

@@ -6,14 +6,13 @@ import { capturePhotoDetails } from "../services/camera";
 import type { Viewport } from "../config/captureGuides";
 import type { VisualRequest } from "../types/visual";
 import { errorMessage } from "../utils/format";
+
+/** Coordinate camera permissions, readiness and capture while ignoring stale camera sessions. */
 export function useDeviceCamera(onCapture: (photo: VisualRequest) => void) {
-  const [permission, requestPermission, refreshPermission] =
-    useCameraPermissions();
+  const [permission, requestPermission, refreshPermission] = useCameraPermissions();
   const camera = useRef<CameraView>(null);
   const focused = useIsFocused();
-  const [foreground, setForeground] = useState(
-    AppState.currentState === "active",
-  );
+  const [foreground, setForeground] = useState(AppState.currentState === "active");
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -40,14 +39,15 @@ export function useDeviceCamera(onCapture: (photo: VisualRequest) => void) {
     setReady(false);
     if (!active) return;
     const timeout = setTimeout(() => {
-      if (!readyRef.current)
-        setError("The camera did not start. Please restart it.");
+      if (!readyRef.current) setError("The camera did not start. Please restart it.");
     }, 15000);
     return () => {
       generation.current += 1;
       clearTimeout(timeout);
     };
   }, [active, session]);
+
+  /** Request camera permission or open settings when permission cannot be requested again. */
   async function allow() {
     try {
       if (permission?.canAskAgain === false) await Linking.openSettings();
@@ -59,11 +59,11 @@ export function useDeviceCamera(onCapture: (photo: VisualRequest) => void) {
           );
       }
     } catch {
-      setError(
-        "Could not open camera permissions. Please use device Settings.",
-      );
+      setError("Could not open camera permissions. Please use device Settings.");
     }
   }
+
+  /** Capture one image while guarding against concurrent or inactive camera requests. */
   async function capture(viewport?: Viewport) {
     if (lock.current || !ready || !live.current) return;
     lock.current = true;
@@ -90,17 +90,23 @@ export function useDeviceCamera(onCapture: (photo: VisualRequest) => void) {
     session,
     allow,
     capture,
+
+    /** Mark the active camera session ready for capture. */
     onReady: () => {
       readyRef.current = true;
       setReady(true);
       setError("");
     },
+
+    /** Report a camera mount failure and clear readiness. */
     onError: () => {
       setReady(false);
       setError(
         "The rear camera is unavailable. Check permission and restart the camera.",
       );
     },
+
+    /** Restart the current operation using its existing retry flow. */
     retry: () => {
       setError("");
       setSession((value) => value + 1);

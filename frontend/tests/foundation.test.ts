@@ -7,6 +7,7 @@ import { MockSensorService, freshMoisture } from "../src/services/ble";
 import { createHistoryRepository } from "../src/storage/historyRepository";
 import { GradingResultSchema, type DemoScenario } from "../src/types/grading";
 import { APP } from "../src/config/app";
+
 const id = "7d99e15a-8743-4e3d-903c-d3c6952191bb";
 const timestamp = "2026-10-11T10:00:00.000Z";
 const result = (
@@ -144,8 +145,7 @@ describe("replaceable history repository", () => {
     };
     const images = {
       persist: vi.fn(
-        async (_uri: string, recordId: string) =>
-          `file:///documents/${recordId}.jpg`,
+        async (_uri: string, recordId: string) => `file:///documents/${recordId}.jpg`,
       ),
     };
     return {

@@ -1,6 +1,8 @@
 import type { GradingResult } from "../types/grading";
 import { measurement } from "../utils/format";
 import { Card, Label, Row, StatusBadge, Body } from "./ui";
+
+/** Present moisture quality separately from the cinnamon grade. */
 export function MoistureStatus({ result }: { result: GradingResult }) {
   return (
     <Card>
@@ -17,8 +19,8 @@ export function MoistureStatus({ result }: { result: GradingResult }) {
         }
       />
       <Body>
-        Below 14.0% passes. Moisture checks compliance; it does not select the
-        grade.
+        ADC-based moisture screening does not select the diameter grade or measure
+        moisture percentage.
       </Body>
     </Card>
   );

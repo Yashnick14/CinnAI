@@ -25,6 +25,7 @@ const evidenceSchema = z.object({
     .optional(),
 });
 
+/** Map backend evidence and progress into the analysis checklist's UI states. */
 export function validationSteps(
   result: SampleResult | null,
   interrupted = false,
@@ -42,14 +43,12 @@ export function validationSteps(
   const report = evidence.success ? evidence.data : undefined;
   const missing = report?.segmentation?.missing_classes ?? [];
   const confidence = report?.segmentation?.confidences ?? {};
-  const quillMissing =
-    errors.quill_missing === true || missing.includes("quill");
+  const quillMissing = errors.quill_missing === true || missing.includes("quill");
   const coinPassed =
     !!diameter ||
     (!missing.includes("coin") && confidence.coin !== undefined) ||
     report?.stage === "segmentation_quill_measurement";
-  const quillPassed =
-    !!diameter || (!quillMissing && confidence.quill !== undefined);
+  const quillPassed = !!diameter || (!quillMissing && confidence.quill !== undefined);
   return [
     {
       label: labels[0],

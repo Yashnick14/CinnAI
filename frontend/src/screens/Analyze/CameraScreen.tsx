@@ -1,32 +1,21 @@
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  View,
-  Platform,
-} from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View, Platform } from "react-native";
 import { Text } from "../../components/AppText";
 import { CameraView } from "expo-camera";
 import { useDeviceCamera } from "../../hooks/useDeviceCamera";
 import type { ScreenProps } from "../../types/navigation";
-import {
-  Button,
-  Heading,
-  Page,
-  StatusBadge,
-  WarningMessage,
-} from "../../components/ui";
+import { Button, Heading, Page, WarningMessage } from "../../components/ui";
 import { Icon } from "../../components/Icon";
 import { theme } from "../../config/theme";
 import { captureGuides } from "../../config/captureGuides";
+
+/** Capture a sample with fixed positioning boxes and optional instruction text. */
 export function CameraScreen({ navigation }: ScreenProps<"Camera">) {
-  const device = useDeviceCamera((photo) =>
-    navigation.navigate("ImageReview", photo),
-  );
+  const device = useDeviceCamera((photo) => navigation.navigate("ImageReview", photo));
   const { permission, camera, ready, busy, error, capture } = device;
   const focused = device.active;
   const [torch, setTorch] = useState(false);
+  const [showGuides, setShowGuides] = useState(false);
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const guides =
     viewport.width > 0 && viewport.height > 0 ? captureGuides(viewport) : null;
@@ -57,9 +46,7 @@ export function CameraScreen({ navigation }: ScreenProps<"Camera">) {
         </View>
         <Button
           title={
-            permission?.canAskAgain === false
-              ? "Open Device Settings"
-              : "Allow Camera"
+            permission?.canAskAgain === false ? "Open Device Settings" : "Allow Camera"
           }
           icon="camera"
           onPress={() => void device.allow()}
@@ -79,10 +66,6 @@ export function CameraScreen({ navigation }: ScreenProps<"Camera">) {
           <Text style={styles.title}>Capture Sample</Text>
           <Text style={styles.caption}>Cinnamon visual analysis</Text>
         </View>
-        <StatusBadge
-          label={ready ? "● Camera Ready" : "Starting…"}
-          tone={ready ? "success" : "neutral"}
-        />
       </View>
       <View
         style={{ flex: 1, minHeight: 220 }}
@@ -134,43 +117,44 @@ export function CameraScreen({ navigation }: ScreenProps<"Camera">) {
             </View>
           ))}
       </View>
-      <View style={styles.tip}>
-        <Icon name="info" size={16} color={theme.primary} />
-        <Text
-          style={{ color: theme.muted, fontSize: 11, lineHeight: 16, flex: 1 }}
-        >
-          Place the Rs.10 coin fully inside the square and one vertical quill
-          inside the tall guide. Use the same flat, plain surface, diffuse
-          light, and photograph straight from above.
-        </Text>
-      </View>
+      {showGuides && (
+        <View style={styles.tip}>
+          <Icon name="info" size={16} color={theme.primary} />
+          <Text style={{ color: theme.muted, fontSize: 11, lineHeight: 16, flex: 1 }}>
+            Place the Rs.10 coin fully inside the square and one vertical quill inside
+            the tall guide. Use a flat, plain surface, diffuse light, and photograph
+            straight from above.
+          </Text>
+        </View>
+      )}
       {error && (
         <>
           <WarningMessage text={error} error />
-          <Button
-            title="Restart Camera"
-            onPress={device.retry}
-            disabled={busy}
-          />
+          <Button title="Restart Camera" onPress={device.retry} disabled={busy} />
         </>
       )}
       <View style={styles.controls}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Fixed measurement guides, always enabled"
-          style={styles.control}
+          accessibilityLabel={showGuides ? "Hide guidelines" : "Show guidelines"}
+          accessibilityState={{ selected: showGuides }}
+          onPress={() => setShowGuides((visible) => !visible)}
+          style={[styles.control, showGuides && styles.controlActive]}
         >
-          <Icon name="camera" color="#E0B17D" />
-          <Text style={styles.controlText}>Fixed guides</Text>
+          <Icon
+            name={showGuides ? "info" : "info-off"}
+            color={showGuides ? "#E0B17D" : "#FFF"}
+          />
+          <Text style={styles.controlText}>
+            {showGuides ? "Guidelines" : "No guidelines"}
+          </Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Capture Image"
           accessibilityState={{ disabled: !ready || busy || !focused || !guides, busy }}
           disabled={!ready || busy || !focused || !guides}
-          onPress={() =>
-            void capture(Platform.OS === "ios" ? viewport : undefined)
-          }
+          onPress={() => void capture(Platform.OS === "ios" ? viewport : undefined)}
           style={[styles.shutter, (!ready || busy) && { opacity: 0.5 }]}
         >
           <View style={styles.shutterInner}>
@@ -222,6 +206,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
   },
+  controlActive: { backgroundColor: "#E0B17D26", borderRadius: 12 },
   controlText: { color: "#DBD5CF", fontSize: 10 },
   shutter: {
     width: 72,

@@ -15,6 +15,7 @@ import { HeroPhoto } from "../../components/HeroPhoto";
 import { BrandLogo } from "../../components/BrandLogo";
 import { Icon } from "../../components/Icon";
 
+/** Present the initial branded screen and its navigation action. */
 export function SplashScreen({ navigation }: ScreenProps<"Splash">) {
   const { height } = useWindowDimensions();
 
@@ -110,9 +111,7 @@ export function SplashScreen({ navigation }: ScreenProps<"Splash">) {
 
   return (
     <View style={styles.root}>
-      <HeroPhoto
-        style={{ height: heroHeight }}
-      >
+      <HeroPhoto style={{ height: heroHeight }}>
         <View style={styles.heroOverlay}>
           <SafeAreaView edges={["top"]} style={styles.heroSafe}>
             <Animated.View
@@ -138,10 +137,7 @@ export function SplashScreen({ navigation }: ScreenProps<"Splash">) {
         </View>
       </HeroPhoto>
 
-      <SafeAreaView
-        edges={["bottom"]}
-        style={styles.bottom}
-      >
+      <SafeAreaView edges={["bottom"]} style={styles.bottom}>
         <View style={styles.content}>
           <Animated.View
             style={{
@@ -149,33 +145,24 @@ export function SplashScreen({ navigation }: ScreenProps<"Splash">) {
               transform: [{ translateY: taglineTranslate }],
             }}
           >
-            <Text style={styles.headline}>
-              Precision grading{"\n"}for every quill.
-            </Text>
+            <Text style={styles.headline}>Precision grading{"\n"}for every quill.</Text>
           </Animated.View>
 
           <Animated.View
             style={{
               opacity: ctaOpacity,
-              transform: [
-                { translateY: ctaTranslate },
-              ],
+              transform: [{ translateY: ctaTranslate }],
               gap: 12,
             }}
           >
-            <Text style={styles.featureLabel}>
-              Intelligent Hybrid Grading
-            </Text>
+            <Text style={styles.featureLabel}>Intelligent Hybrid Grading</Text>
 
             <Animated.View style={{ transform: [{ scale: ctaScale }] }}>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Open Dashboard"
                 onPress={() => navigation.replace("Home")}
-                style={({ pressed }) => [
-                  styles.cta,
-                  pressed && { opacity: 0.85 },
-                ]}
+                style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}
               >
                 <Text style={styles.ctaText}>Open Dashboard</Text>
                 <Icon name="arrow" size={18} color="#FFFFFF" />

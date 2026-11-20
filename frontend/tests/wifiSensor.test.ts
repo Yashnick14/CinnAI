@@ -1,16 +1,13 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import {
-  WifiSensorService,
-  parseWifiReading,
-} from "../src/services/wifiSensor";
+import { WifiSensorService, parseWifiReading } from "../src/services/wifiSensor";
 import { SENSOR_WIFI } from "../src/config/sensorWifi";
 import { snapshotMoisture } from "../src/services/sessionMoisture";
 
 const payload = {
   device: "CinnamonGradingSensor",
-  median_adc: 2903,
+  median_adc: 1803,
   age_ms: 100,
-  threshold: 2842,
+  threshold: 1711,
   provisional: true,
 };
 const services: WifiSensorService[] = [];
@@ -33,31 +30,28 @@ function setup() {
   return { service, fetcher };
 }
 it.each([
-  [2910, "PASS_PROVISIONAL"],
-  [2842, "PASS_PROVISIONAL"],
-  [2841, "FAIL_PROVISIONAL"],
-] as const)(
-  "accepts current firmware ADC %d at phone receipt time",
-  (adc, status) => {
-    const reading = parseWifiReading({ adc, percentage: null, status });
-    expect(reading.medianAdc).toBe(adc);
-    expect(reading.provisionalStatus + "_PROVISIONAL").toBe(status);
-    expect(Date.parse(reading.updatedAt)).toBe(Date.now());
-  },
-);
+  [1800, "PASS_PROVISIONAL"],
+  [1711, "PASS_PROVISIONAL"],
+  [1710, "FAIL_PROVISIONAL"],
+] as const)("accepts current firmware ADC %d at phone receipt time", (adc, status) => {
+  const reading = parseWifiReading({ adc, percentage: null, status });
+  expect(reading.medianAdc).toBe(adc);
+  expect(reading.provisionalStatus + "_PROVISIONAL").toBe(status);
+  expect(Date.parse(reading.updatedAt)).toBe(Date.now());
+});
 it.each([
-  { adc: "2910", percentage: null, status: "PASS_PROVISIONAL" },
-  { adc: 2910.5, percentage: null, status: "PASS_PROVISIONAL" },
+  { adc: "1800", percentage: null, status: "PASS_PROVISIONAL" },
+  { adc: 1800.5, percentage: null, status: "PASS_PROVISIONAL" },
   { adc: 4096, percentage: null, status: "PASS_PROVISIONAL" },
-  { adc: 2910, percentage: 11.8, status: "PASS_PROVISIONAL" },
-  { adc: 2910, percentage: null, status: "FAIL_PROVISIONAL" },
-  { adc: 2910, percentage: null, status: "PASS" },
+  { adc: 1800, percentage: 11.8, status: "PASS_PROVISIONAL" },
+  { adc: 1800, percentage: null, status: "FAIL_PROVISIONAL" },
+  { adc: 1800, percentage: null, status: "PASS" },
 ])("rejects invalid current firmware payload %j", (raw) => {
   expect(() => parseWifiReading(raw)).toThrow("Invalid or stale");
 });
 it("refreshes timestamps on 2-second polling and preserves 30-second session protection", async () => {
   const { service, fetcher } = setup();
-  const raw = { adc: 2910, percentage: null, status: "PASS_PROVISIONAL" };
+  const raw = { adc: 1800, percentage: null, status: "PASS_PROVISIONAL" };
   fetcher.mockImplementation(async () => new Response(JSON.stringify(raw)));
   await service.reconnect();
   const first = service.getSnapshot().updatedAt;
@@ -69,9 +63,7 @@ it("refreshes timestamps on 2-second polling and preserves 30-second session pro
     status: "PASS_PROVISIONAL",
     percentage: null,
   });
-  expect(snapshotMoisture(current, Date.now() + 30000).read_status).toBe(
-    "fresh",
-  );
+  expect(snapshotMoisture(current, Date.now() + 30000).read_status).toBe("fresh");
   expect(snapshotMoisture(current, Date.now() + 30001)).toMatchObject({
     read_status: "stale",
     status: "UNAVAILABLE",
@@ -84,16 +76,16 @@ it("refreshes timestamps on 2-second polling and preserves 30-second session pro
   expect(console.info).toHaveBeenCalledWith(
     "[moisture:wifi] parsed",
     expect.objectContaining({
-      adc: 2910,
+      adc: 1800,
       status: "PASS_PROVISIONAL",
       readingAgeMs: 0,
     }),
   );
 });
 it.each([
-  [2842, "PASS"],
-  [2841, "FAIL"],
-  [2903, "PASS"],
+  [1711, "PASS"],
+  [1710, "FAIL"],
+  [1803, "PASS"],
 ])("classifies ADC %d without inventing a percentage", (adc, status) => {
   const reading = parseWifiReading({ ...payload, median_adc: adc });
   expect(reading).toMatchObject({ medianAdc: adc, provisionalStatus: status });
@@ -104,13 +96,13 @@ it.each([
   null,
   {},
   { ...payload, device: "wrong" },
-  { ...payload, median_adc: "2903" },
+  { ...payload, median_adc: "1803" },
   { ...payload, median_adc: 4096 },
   { ...payload, median_adc: -1 },
-  { ...payload, median_adc: 2903.5 },
+  { ...payload, median_adc: 1803.5 },
   { ...payload, age_ms: 10001 },
   { ...payload, age_ms: -1 },
-  { ...payload, threshold: 3000 },
+  { ...payload, threshold: 1800 },
   { ...payload, provisional: false },
 ])("rejects invalid or stale responses", (raw) => {
   expect(() => parseWifiReading(raw)).toThrow("Invalid or stale");
@@ -124,7 +116,7 @@ it("finds the configured ESP32, polls without overlap, and disconnects", async (
   await service.connect("http://192.168.10.126");
   expect(service.getSnapshot()).toMatchObject({
     state: "connected",
-    medianAdc: 2903,
+    medianAdc: 1803,
     moisturePercent: null,
   });
   await vi.advanceTimersByTimeAsync(SENSOR_WIFI.pollMs);
@@ -248,3 +240,16 @@ it("shows connection lost after a powered-off sensor times out", async () => {
   expect(service.getSnapshot().error).toContain("Sensor connection lost.");
   expect(service.getSnapshot().medianAdc).toBeNull();
 });
+
+it.each([2850, 2970, 4095])(
+  "marks untouched Wi-Fi ADC %d unavailable for a sample",
+  (adc) => {
+    expect(
+      parseWifiReading({ adc, percentage: null, status: "UNTOUCHED" }),
+    ).toMatchObject({ medianAdc: adc, provisionalStatus: null });
+    expect(parseWifiReading({ ...payload, median_adc: adc })).toMatchObject({
+      medianAdc: adc,
+      provisionalStatus: null,
+    });
+  },
+);

@@ -1,35 +1,32 @@
-import { ADC_THRESHOLD, BLE } from "../config/ble";
+import { ADC_THRESHOLD, BLE, adcScreeningStatus } from "../config/ble";
 import { SENSOR_WIFI } from "../config/sensorWifi";
 import type { SensorService, SensorSnapshot } from "../types/sensor";
 
 class SensorNetworkError extends Error {}
 
+/** Validate supported ESP32 JSON formats and timestamp accepted readings using phone receipt time. */
 export function parseWifiReading(raw: unknown, receivedAt = Date.now()) {
   const r = raw as Record<string, unknown> | null;
   const current = !!r && Object.prototype.hasOwnProperty.call(r, "adc");
   const adc = current ? r?.adc : r?.median_adc;
   const status =
-    typeof adc === "number" && adc >= ADC_THRESHOLD
-      ? "PASS_PROVISIONAL"
-      : "FAIL_PROVISIONAL";
+    typeof adc === "number" && adcScreeningStatus(adc)
+      ? `${adcScreeningStatus(adc)}_PROVISIONAL`
+      : "UNTOUCHED";
+
+  /** Reject a malformed or stale sensor response with an explicit reason. */
   const invalid = (reason: string): never => {
     throw new Error(`Invalid or stale sensor response: ${reason}`);
   };
   if (!r || typeof r !== "object" || Array.isArray(r))
     invalid("expected a JSON object.");
-  if (
-    !Number.isInteger(adc) ||
-    (adc as number) < 0 ||
-    (adc as number) > BLE.adcMax
-  )
+  if (!Number.isInteger(adc) || (adc as number) < 0 || (adc as number) > BLE.adcMax)
     invalid("ADC must be an integer from 0 to 4095.");
   if (current) {
     if (r!.percentage !== null)
-      invalid(
-        "percentage must be null; no calibrated percentage is supported.",
-      );
+      invalid("percentage must be null; no calibrated percentage is supported.");
     if (r!.status !== status)
-      invalid("status must match the provisional ADC threshold 2842.");
+      invalid("status must match the configured ADC screening thresholds.");
     if (r!.median_adc !== undefined && r!.median_adc !== adc)
       invalid("conflicting adc and median_adc values.");
   }
@@ -49,8 +46,7 @@ export function parseWifiReading(raw: unknown, receivedAt = Date.now()) {
   const medianAdc = adc as number;
   return {
     medianAdc,
-    provisionalStatus:
-      medianAdc >= ADC_THRESHOLD ? ("PASS" as const) : ("FAIL" as const),
+    provisionalStatus: adcScreeningStatus(medianAdc),
     updatedAt: new Date(
       receivedAt - (current ? 0 : (r!.age_ms as number)),
     ).toISOString(),
@@ -75,28 +71,40 @@ export class WifiSensorService implements SensorService {
   private controller?: AbortController;
   private timer?: ReturnType<typeof setTimeout>;
   private disposed = false;
+
+  /** Initialize the service with its configured dependencies. */
   constructor(
     private baseUrl = SENSOR_WIFI.baseUrl,
     private request: typeof fetch = (...args) => fetch(...args),
   ) {}
+
+  /** Return the current state snapshot for subscribers. */
   getSnapshot = () => this.snapshot;
+
+  /** Register a state listener and return its unsubscribe callback. */
   subscribe = (fn: () => void) => {
     this.listeners.add(fn);
     return () => {
       this.listeners.delete(fn);
     };
   };
+
+  /** Merge a sensor state update and notify registered listeners. */
   private set(patch: Partial<SensorSnapshot>) {
     if (this.disposed) return;
     this.snapshot = { ...this.snapshot, ...patch };
     this.listeners.forEach((fn) => fn());
   }
+
+  /** Cancel the current asynchronous operation and its pending work. */
   private cancel() {
     this.generation++;
     clearTimeout(this.timer);
     this.controller?.abort();
     this.controller = undefined;
   }
+
+  /** Return the empty reading fields used after disconnection or invalid data. */
   private clearReading() {
     return {
       moisturePercent: null,
@@ -105,6 +113,8 @@ export class WifiSensorService implements SensorService {
       updatedAt: null,
     };
   }
+
+  /** Fetch and validate the local ESP32 reading with a bounded request timeout. */
   private async read(token: number) {
     if (!/^https?:\/\/[^/]+$/.test(this.baseUrl))
       throw new Error(
@@ -143,9 +153,7 @@ export class WifiSensorService implements SensorService {
       } catch {
         if (controller.signal.aborted)
           throw new SensorNetworkError("Sensor request timed out.");
-        throw new Error(
-          "The ESP32 response could not be read. Reconnect and retry.",
-        );
+        throw new Error("The ESP32 response could not be read. Reconnect and retry.");
       }
       const result = parseWifiReading(raw, receivedAt);
       console.info("[moisture:wifi] parsed", {
@@ -167,6 +175,8 @@ export class WifiSensorService implements SensorService {
       if (this.controller === controller) this.controller = undefined;
     }
   }
+
+  /** Probe the configured ESP32 HTTP endpoint and advertise it only after a valid response. */
   async scan() {
     this.cancel();
     const token = this.generation;
@@ -181,14 +191,14 @@ export class WifiSensorService implements SensorService {
       if (!(await this.read(token)) || token !== this.generation) return;
       this.set({
         state: "disconnected",
-        devices: [
-          { id: this.baseUrl, name: `${BLE.expectedDeviceName} (Wi-Fi)` },
-        ],
+        devices: [{ id: this.baseUrl, name: `${BLE.expectedDeviceName} (Wi-Fi)` }],
       });
     } catch (error) {
       if (token === this.generation) this.fail(error, "not_found");
     }
   }
+
+  /** Clear unusable readings and publish the sensor failure state. */
   private fail(error: unknown, state: SensorSnapshot["state"]) {
     const message =
       error instanceof SensorNetworkError && state === "connection_lost"
@@ -202,6 +212,8 @@ export class WifiSensorService implements SensorService {
       error: message,
     });
   }
+
+  /** Fetch the next sensor reading while rejecting results from an obsolete connection. */
   private async poll(token: number) {
     try {
       const reading = await this.read(token);
@@ -222,6 +234,8 @@ export class WifiSensorService implements SensorService {
         );
     }
   }
+
+  /** Connect to the selected sensor and begin receiving its readings. */
   async connect(id: string) {
     if (id !== this.baseUrl) {
       this.fail(new Error("Select the configured Wi-Fi sensor."), "error");
@@ -237,6 +251,8 @@ export class WifiSensorService implements SensorService {
     });
     await this.poll(token);
   }
+
+  /** Stop active sensor work and clear the connection's current reading. */
   disconnect() {
     this.cancel();
     this.set({
@@ -246,9 +262,13 @@ export class WifiSensorService implements SensorService {
       ...this.clearReading(),
     });
   }
+
+  /** Retry the service's selected or configured sensor connection. */
   async reconnect() {
     await this.connect(this.baseUrl);
   }
+
+  /** Release timers, subscriptions and service resources. */
   dispose() {
     this.disconnect();
     this.disposed = true;

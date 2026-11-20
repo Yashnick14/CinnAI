@@ -11,27 +11,29 @@ import {
   Heading,
   Label,
   Page,
-  Row,
   StatusBadge,
   WarningMessage,
 } from "../../components/ui";
 import { ConfidenceRing } from "../../components/ConfidenceRing";
 import { Icon } from "../../components/Icon";
 import { useSensor } from "../../hooks/useSensor";
-import { MockSensorService, sensorService } from "../../services/ble";
-import { dateTime, errorMessage } from "../../utils/format";
+import { sensorService } from "../../services/ble";
+import { errorMessage } from "../../utils/format";
 import { theme } from "../../config/theme";
-import { ADC_THRESHOLD, BLE } from "../../config/ble";
+import { BLE } from "../../config/ble";
 import { provisionalLabel } from "../../services/sensorReading";
+
+/** Present live sensor readings, pairing and connection actions for the configured transport. */
 export function SensorScreen() {
   const desktop = useDesktopLayout();
   const sensor = useSensor();
   const [error, setError] = useState("");
-  const [showChecks, setShowChecks] = useState(false);
   const busy = sensor.state === "scanning" || sensor.state === "connecting";
   const cloud = BLE.mode === "cloud";
   const [pairCode, setPairCode] = useState("");
   const wifi = BLE.mode === "wifi" || cloud;
+
+  /** Run a sensor operation and surface its error in the screen. */
   async function action(operation: () => Promise<void>) {
     setError("");
     try {
@@ -41,7 +43,7 @@ export function SensorScreen() {
     }
   }
   return (
-    <Page topInset>
+    <Page>
       <View
         style={{
           flexDirection: "row",
@@ -71,9 +73,7 @@ export function SensorScreen() {
           >
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={
-                wifi ? "Find Wi-Fi Sensor" : "Scan for Sensor"
-              }
+              accessibilityLabel={wifi ? "Find Wi-Fi Sensor" : "Scan for Sensor"}
               accessibilityState={{
                 disabled: busy || sensor.state === "connected",
                 busy,
@@ -92,71 +92,88 @@ export function SensorScreen() {
               {busy ? (
                 <ActivityIndicator color={theme.blue} />
               ) : (
-                <Icon
-                  name={wifi ? "wifi" : "bluetooth"}
-                  size={28}
-                  color={theme.blue}
-                />
+                <Icon name={wifi ? "wifi" : "bluetooth"} size={28} color={theme.blue} />
               )}
             </Pressable>
             <Body>
               {sensor.state === "scanning"
                 ? sensor.isMock
-                  ? "Scanning for simulated moisture probes…"
+                  ? "Finding sample sensor…"
                   : wifi
                     ? "Checking the configured Wi-Fi sensor…"
-                    : "Scanning for CinnamonGradingSensor…"
+                    : "Scanning for Moisture Sensor…"
                 : sensor.state === "connecting"
                   ? sensor.isMock
-                    ? "Connecting to the simulated sensor…"
-                    : "Connecting to CinnamonGradingSensor…"
+                    ? "Opening sample sensor…"
+                    : "Connecting to Moisture Sensor…"
                   : sensor.state === "connected"
                     ? "Moisture probe connected"
                     : "Connect your moisture probe"}
             </Body>
           </Card>
           {sensor.isMock && <DemoNotice />}
-          {wifi && (
+          {cloud && (
             <Card>
-              <Row label="Connection method" value="Local Wi-Fi · Expo Go" />
+              <Label>Pair moisture device</Label>
+              <Body>
+                Connect ESP32 by USB, enter PAIR in Serial Monitor, then paste its
+                temporary code here.
+              </Body>
+              <TextInput
+                accessibilityLabel="Device pairing code"
+                value={pairCode}
+                onChangeText={setPairCode}
+                autoCapitalize="none"
+                autoCorrect={false}
+                maxLength={32}
+                style={{
+                  borderWidth: 1,
+                  borderColor: theme.line,
+                  borderRadius: 10,
+                  padding: 12,
+                  color: theme.ink,
+                }}
+              />
+              <Button
+                title="Pair Device"
+                disabled={busy || pairCode.trim().length !== 32}
+                onPress={() =>
+                  void action(async () => {
+                    if (sensorService instanceof CloudSensorService) {
+                      await sensorService.pair(pairCode);
+                      setPairCode("");
+                    }
+                  })
+                }
+              />
+              {sensor.device && (
+                <>
+                  <Button
+                    title="Unpair Device"
+                    secondary
+                    onPress={() =>
+                      void action(async () => {
+                        if (sensorService instanceof CloudSensorService)
+                          await sensorService.unpair();
+                      })
+                    }
+                  />
+                </>
+              )}
             </Card>
           )}
-          {cloud && <Card>
-            <Label>Pair moisture device</Label>
-            <Body>Connect ESP32 by USB, enter PAIR in Serial Monitor, then paste its temporary code here.</Body>
-            <TextInput accessibilityLabel="Device pairing code" value={pairCode} onChangeText={setPairCode}
-              autoCapitalize="none" autoCorrect={false} maxLength={32}
-              style={{ borderWidth: 1, borderColor: theme.line, borderRadius: 10, padding: 12, color: theme.ink }} />
-            <Button title="Pair Device" disabled={busy || pairCode.trim().length !== 32} onPress={() => void action(async () => {
-              if (sensorService instanceof CloudSensorService) { await sensorService.pair(pairCode); setPairCode(""); }
-            })} />
-            {sensor.device && <>
-              <Button title="Unpair Device" secondary onPress={() => void action(async () => {
-                if (sensorService instanceof CloudSensorService) await sensorService.unpair();
-              })} />
-              <Button title="Revoke Device Credential" secondary onPress={() => void action(async () => {
-                if (sensorService instanceof CloudSensorService) await sensorService.revoke();
-              })} />
-            </>}
-          </Card>}
           {(sensor.error || error) && (
             <WarningMessage text={sensor.error ?? error} error />
           )}
           {sensor.state === "connected" && sensor.device && (
             <Card>
-              <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
-              >
-                <Icon
-                  name={wifi ? "wifi" : "bluetooth"}
-                  color={theme.blue}
-                  size={20}
-                />
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                <Icon name={wifi ? "wifi" : "bluetooth"} color={theme.blue} size={20} />
                 <View style={{ flex: 1, gap: 3 }}>
-                  <Label>{sensor.device.name}</Label>
+                  <Label>Moisture Sensor</Label>
                   <Body>
                     {sensor.isMock
-                      ? "Simulated reading · every 5 seconds"
+                      ? "Sample readings"
                       : wifi
                         ? "Live median ADC · Wi-Fi updates"
                         : "Live median ADC · BLE notifications"}
@@ -169,7 +186,7 @@ export function SensorScreen() {
           {sensor.state !== "connected" &&
             sensor.devices.map((device) => (
               <Card key={device.id}>
-                <Label>{device.name}</Label>
+                <Label>Moisture Sensor</Label>
                 <Button
                   title="Connect Sensor"
                   color={theme.blue}
@@ -180,15 +197,11 @@ export function SensorScreen() {
             ))}
         </View>
         <View style={{ flex: desktop ? 1.1 : undefined, minWidth: 0, gap: 14 }}>
-          <Card
-            style={{ alignItems: "center", paddingVertical: desktop ? 32 : 23 }}
-          >
+          <Card style={{ alignItems: "center", paddingVertical: desktop ? 32 : 23 }}>
             {sensor.isMock ? (
               <ConfidenceRing
                 value={
-                  sensor.moisturePercent === null
-                    ? null
-                    : sensor.moisturePercent / 100
+                  sensor.moisturePercent === null ? null : sensor.moisturePercent / 100
                 }
                 label=""
                 color={theme.blue}
@@ -208,26 +221,17 @@ export function SensorScreen() {
                   backgroundColor: theme.paper,
                 }}
               >
-                <Text
-                  style={{ fontSize: 25, fontWeight: "800", color: theme.blue }}
-                >
+                <Text style={{ fontSize: 25, fontWeight: "800", color: theme.blue }}>
                   {sensor.medianAdc ?? "—"}
                 </Text>
-                <Text style={{ fontSize: 10, color: theme.muted }}>
-                  MEDIAN ADC
-                </Text>
+                <Text style={{ fontSize: 10, color: theme.muted }}>MEDIAN ADC</Text>
               </View>
             )}
-            <Text
-              style={{ color: theme.muted, fontSize: 12, fontWeight: "600" }}
-            >
-              {sensor.isMock
-                ? "Moisture Content (Simulated)"
-                : "Live Median ADC"}
+            <Text style={{ color: theme.muted, fontSize: 12, fontWeight: "600" }}>
+              {sensor.isMock ? "Sample moisture" : "Live Median ADC"}
             </Text>
             <Body>
-              {(sensor.isMock ? sensor.moisturePercent : sensor.medianAdc) ==
-              null
+              {(sensor.isMock ? sensor.moisturePercent : sensor.medianAdc) == null
                 ? "No reading received"
                 : "Latest reading from the connected sensor"}
             </Body>
@@ -237,7 +241,7 @@ export function SensorScreen() {
                   label={
                     sensor.stale
                       ? "Stale reading — waiting for update"
-                      : provisionalLabel(sensor.provisionalStatus)
+                      : provisionalLabel(sensor.provisionalStatus, sensor.medianAdc)
                   }
                   tone={
                     sensor.stale || !sensor.provisionalStatus
@@ -249,19 +253,6 @@ export function SensorScreen() {
                 />
               </>
             )}
-          </Card>
-          <Card>
-            <Row label="Connection" value={sensor.state} />
-            <Row
-              label="Last updated"
-              value={
-                sensor.updatedAt ? dateTime(sensor.updatedAt) : "No reading"
-              }
-            />
-            <Row
-              label={sensor.isMock ? "Compliance requirement" : "ADC threshold"}
-              value={sensor.isMock ? "Below 14.0%" : String(ADC_THRESHOLD)}
-            />
           </Card>
           {sensor.state === "connected" ? (
             <Button
@@ -279,45 +270,6 @@ export function SensorScreen() {
               disabled={busy}
               onPress={() => void action(sensor.reconnect)}
             />
-          )}
-          {sensor.isMock && (
-            <>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => setShowChecks(!showChecks)}
-                style={{ paddingVertical: 10 }}
-              >
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: theme.primary,
-                    textAlign: "center",
-                  }}
-                >
-                  {showChecks ? "Hide connection checks" : "Connection checks"}
-                </Text>
-              </Pressable>
-              {showChecks && (
-                <Card>
-                  <Button
-                    title="Simulate Connection Loss"
-                    secondary
-                    onPress={() => {
-                      if (sensorService instanceof MockSensorService)
-                        sensorService.simulateFailure("disconnect");
-                    }}
-                  />
-                  <Button
-                    title="Simulate Timeout"
-                    secondary
-                    onPress={() => {
-                      if (sensorService instanceof MockSensorService)
-                        sensorService.simulateFailure("timeout");
-                    }}
-                  />
-                </Card>
-              )}
-            </>
           )}
         </View>
       </View>

@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import { validationSteps } from "../src/utils/validationSteps";
 import type { SampleResult } from "../src/types/decision";
+
 function result(overrides = {}) {
   return {
     status: "VALID",
@@ -15,9 +16,9 @@ function result(overrides = {}) {
 }
 it("never invents passed checks while awaiting a response", () => {
   expect(validationSteps(null).every((s) => s.state === "pending")).toBe(true);
-  expect(
-    validationSteps(null, true).every((s) => s.state === "unavailable"),
-  ).toBe(true);
+  expect(validationSteps(null, true).every((s) => s.state === "unavailable")).toBe(
+    true,
+  );
 });
 it("ticks all completed valid checks without exposing a grade", () => {
   const steps = validationSteps(result());

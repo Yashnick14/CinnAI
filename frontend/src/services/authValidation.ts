@@ -1,3 +1,4 @@
+/** Validate authentication form inputs before submitting them to Firebase. */
 export function validateCredentials(
   email: string,
   password: string,
@@ -11,10 +12,11 @@ export function validateCredentials(
   if (registration && !name.trim()) return "Enter your name.";
   if (registration && password.length < 8)
     return "Use at least 8 characters for your password.";
-  if (registration && password !== confirmation)
-    return "Passwords do not match.";
+  if (registration && password !== confirmation) return "Passwords do not match.";
   return null;
 }
+
+/** Translate authentication failures into user-facing messages. */
 export function authError(error: unknown): string {
   const code = (error as { code?: string })?.code;
   const messages: Record<string, string> = {
@@ -24,10 +26,8 @@ export function authError(error: unknown): string {
     "auth/invalid-credential": "Email or password is incorrect.",
     "auth/wrong-password": "Email or password is incorrect.",
     "auth/user-not-found": "Email or password is incorrect.",
-    "auth/email-already-in-use":
-      "An account already uses this email. Try signing in.",
-    "auth/weak-password":
-      "Choose a stronger password that meets your account policy.",
+    "auth/email-already-in-use": "An account already uses this email. Try signing in.",
+    "auth/weak-password": "Choose a stronger password that meets your account policy.",
     "auth/password-does-not-meet-requirements":
       "Choose a stronger password that meets your account policy.",
     "auth/network-request-failed":
@@ -44,7 +44,5 @@ export function authError(error: unknown): string {
       "Firebase Authentication has not been configured yet.",
     "auth/invalid-api-key": "Check the Firebase web app configuration.",
   };
-  return (
-    (code && messages[code]) || "Unable to complete sign-in. Please try again."
-  );
+  return (code && messages[code]) || "Unable to complete sign-in. Please try again.";
 }

@@ -20,15 +20,13 @@ export const VisualResponseSchema = z
       });
     if (
       Math.abs(
-        result.probabilities[result.visual_prediction] -
-          result.visual_confidence,
+        result.probabilities[result.visual_prediction] - result.visual_confidence,
       ) > 0.0001 ||
       result.visual_confidence + 0.0001 < Math.max(...values)
     )
       context.addIssue({
         code: "custom",
-        message:
-          "Prediction and confidence must match the probability distribution.",
+        message: "Prediction and confidence must match the probability distribution.",
       });
   });
 

@@ -7,6 +7,7 @@ import { Body, Card, Label, Row, StatusBadge } from "./ui";
 import { ConfidenceRing } from "./ConfidenceRing";
 import { ConfidenceDisplay } from "./ConfidenceDisplay";
 
+/** Show the RF visual prediction and class probabilities as supporting evidence. */
 export function VisualResultDisplay({ result }: { result: VisualResult }) {
   return (
     <>
@@ -19,10 +20,7 @@ export function VisualResultDisplay({ result }: { result: VisualResult }) {
         }}
       >
         <StatusBadge label="Visual prediction complete" tone="success" />
-        <ConfidenceRing
-          value={result.visualConfidence}
-          label="VISUAL CONFIDENCE"
-        />
+        <ConfidenceRing value={result.visualConfidence} label="VISUAL CONFIDENCE" />
         <Text
           style={{
             fontSize: 36,
@@ -42,14 +40,11 @@ export function VisualResultDisplay({ result }: { result: VisualResult }) {
         <Label>Visual Analysis</Label>
         <Row label="Detected quills" value={String(result.detectedQuills)} />
         <Row label="Visual prediction" value={result.visualPrediction} />
-        <ConfidenceDisplay
-          label="Visual confidence"
-          value={result.visualConfidence}
-        />
+        <ConfidenceDisplay label="Visual confidence" value={result.visualConfidence} />
         <Body>
           The detected count includes all returned YOLO boxes and may include
-          overlapping detections. Confidence is the model probability, not a
-          validated accuracy score.
+          overlapping detections. Confidence is the model probability, not a validated
+          accuracy score.
         </Body>
       </Card>
       <Card>

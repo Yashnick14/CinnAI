@@ -19,14 +19,15 @@ export const ApiResultSchema = z.object({
   diameter_mm: GradingResultSchema.shape.diameterMm,
   diameter_candidates: GradingResultSchema.shape.diameterCandidates,
   candidate_probabilities: GradingResultSchema.shape.candidateProbabilities,
-  final_candidate_confidence:
-    GradingResultSchema.shape.finalCandidateConfidence,
+  final_candidate_confidence: GradingResultSchema.shape.finalCandidateConfidence,
   moisture_percent: GradingResultSchema.shape.moisturePercent,
   moisture_status: GradingResultSchema.shape.moistureStatus,
   final_grade: GradingResultSchema.shape.finalGrade,
   final_status: GradingResultSchema.shape.finalStatus,
   warnings: z.array(z.string()),
 });
+
+/** Validate and map a legacy API result into the frontend grading structure. */
 export function mapApiResult(raw: unknown, imageUri: string): GradingResult {
   const r = ApiResultSchema.parse(raw);
   return GradingResultSchema.parse({
@@ -50,6 +51,8 @@ export function mapApiResult(raw: unknown, imageUri: string): GradingResult {
     warnings: r.warnings,
   });
 }
+
+/** Upload the sample to the legacy grading API and map its response. */
 export async function gradeViaApi(
   request: GradeRequest,
   signal: AbortSignal,

@@ -10,13 +10,13 @@ vi.mock("../src/storage/photos", () => ({
 }));
 vi.mock("../src/services/uploadPhoto", () => ({
   uploadPhoto: vi.fn(
-    async () =>
-      new Blob([new Uint8Array([0xff, 0xd8, 0xff])], { type: "image/jpeg" }),
+    async () => new Blob([new Uint8Array([0xff, 0xd8, 0xff])], { type: "image/jpeg" }),
   ),
 }));
 import { predictVisual, visualEndpoint } from "../src/services/visualApi";
 import { validatePhoto } from "../src/storage/photos";
 import { uploadPhoto } from "../src/services/uploadPhoto";
+
 const payload = {
   detected_quills: 1,
   visual_prediction: "C4",
@@ -72,8 +72,7 @@ it("uploads the existing photo as a file to the visual endpoint with no hybrid f
 it("uses visual inference even when an old demo environment flag remains", async () => {
   config.mode = "mock";
   expect(
-    (await predictVisual(request, new AbortController().signal))
-      .visualPrediction,
+    (await predictVisual(request, new AbortController().signal)).visualPrediction,
   ).toBe("C4");
   expect(fetcher).toHaveBeenCalledOnce();
 });
@@ -164,11 +163,9 @@ function pendingFetch() {
   fetcher.mockImplementation(
     (_url, { signal }) =>
       new Promise((_resolve, reject) => {
-        signal.addEventListener(
-          "abort",
-          () => reject(new Error("request cancelled")),
-          { once: true },
-        );
+        signal.addEventListener("abort", () => reject(new Error("request cancelled")), {
+          once: true,
+        });
       }),
   );
 }
@@ -198,9 +195,9 @@ it("cancels an in-flight request when leaving the screen", async () => {
 it("does not upload an already cancelled request", async () => {
   const controller = new AbortController();
   controller.abort();
-  await expect(predictVisual(request, controller.signal)).rejects.toMatchObject(
-    { kind: "cancelled" },
-  );
+  await expect(predictVisual(request, controller.signal)).rejects.toMatchObject({
+    kind: "cancelled",
+  });
   expect(fetcher).not.toHaveBeenCalled();
 });
 it("reports an unreadable photo without contacting the backend", async () => {
@@ -212,7 +209,8 @@ it("reports an unreadable photo without contacting the backend", async () => {
 });
 
 it("routes uploaded images to a configured Azure HTTPS backend", async () => {
-  config.baseUrl = "https://cinnai.wittymushroom-238da769.centralindia.azurecontainerapps.io";
+  config.baseUrl =
+    "https://cinnai.wittymushroom-238da769.centralindia.azurecontainerapps.io";
   await predictVisual(request, new AbortController().signal);
   expect(fetcher.mock.calls[0]![0]).toBe(`${config.baseUrl}/predict-visual`);
   expect(fetcher.mock.calls[0]![1].body.get("image")).toBeInstanceOf(Blob);

@@ -1,6 +1,7 @@
 import Svg, { Path, Circle } from "react-native-svg";
 import { Platform } from "react-native";
 import { theme } from "../config/theme";
+
 export type IconName =
   | "home"
   | "camera"
@@ -12,6 +13,7 @@ export type IconName =
   | "search"
   | "settings"
   | "check"
+  | "info-off"
   | "info"
   | "refresh"
   | "flash"
@@ -28,11 +30,14 @@ const paths: Record<IconName, string> = {
   settings:
     "M12 3V5M12 19V21M3 12H5M19 12H21M5.6 5.6 7 7M17 17 18.4 18.4M5.6 18.4 7 17M17 7 18.4 5.6",
   check: "M5 12 10 17 20 6",
+  "info-off": "M12 11V17M12 7V7.1M3 3L21 21",
   info: "M12 11V17M12 7V7.1",
   refresh: "M20 8A8 8 0 1 0 20 16M20 3V8H15",
   flash: "M13 2 4 14H11L10 22 20 9H13Z",
   leaf: "M20 3C8 2 2 8 5 16C13 21 21 13 20 3ZM4 21 16 8",
 };
+
+/** Render an application SVG icon using the shared size and colour conventions. */
 export function Icon({
   name,
   size = 22,
@@ -52,11 +57,13 @@ export function Icon({
       strokeWidth={1.7}
       strokeLinecap="round"
       strokeLinejoin="round"
-      {...(Platform.OS === "web" ? { "aria-hidden": true as const } : { accessible: false })}
+      {...(Platform.OS === "web"
+        ? { "aria-hidden": true as const }
+        : { accessible: false })}
     >
       <Path d={paths[name]} />
       {name === "camera" && <Circle cx={12} cy={13} r={3.5} />}
-      {(name === "history" || name === "info") && (
+      {(name === "history" || name === "info" || name === "info-off") && (
         <Circle cx={12} cy={12} r={9} />
       )}
       {name === "search" && <Circle cx={10} cy={10} r={6.5} />}

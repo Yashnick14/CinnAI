@@ -53,8 +53,8 @@ describe("captured photo storage", () => {
   });
   it("rebases a saved image after the iOS app container path changes", async () => {
     const { resolvePhotoUri } = await import("../src/storage/photos");
-    expect(
-      resolvePhotoUri("file://old/Documents/grading-images/sample-1.jpg"),
-    ).toBe("file://current/Documents/grading-images/sample-1.jpg");
+    expect(resolvePhotoUri("file://old/Documents/grading-images/sample-1.jpg")).toBe(
+      "file://current/Documents/grading-images/sample-1.jpg",
+    );
   });
 });

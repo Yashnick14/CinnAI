@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { theme } from "../config/theme";
 import { statusLabel } from "../utils/format";
 import { Icon, type IconName } from "./Icon";
-import { useFadeInUp, staggerDelay } from "../utils/animations";
+import { useFadeIn, staggerDelay } from "../utils/animations";
 
 /* ─── Page Shell ────────────────────────────────────────────────────── */
 
@@ -49,7 +49,7 @@ export function Heading({
   title: string;
   subtitle?: string;
 }) {
-  const anim = useFadeInUp(0, 400);
+  const anim = useFadeIn(0, 400);
   return (
     <Animated.View style={[s.heading, anim]}>
       {eyebrow && <Text style={s.eyebrow}>{eyebrow}</Text>}
@@ -61,11 +61,8 @@ export function Heading({
 
 /* ─── Card ──────────────────────────────────────────────────────────── */
 
-export function Card({
-  children,
-  style,
-}: PropsWithChildren<{ style?: ViewStyle }>) {
-  const anim = useFadeInUp(60, 380);
+export function Card({ children, style }: PropsWithChildren<{ style?: ViewStyle }>) {
+  const anim = useFadeIn(60, 380);
   return (
     <Animated.View style={[s.card, theme.shadow(2), style, anim]}>
       {children}
@@ -79,6 +76,7 @@ export function Body({ children }: PropsWithChildren) {
   return <Text style={s.body}>{children}</Text>;
 }
 
+/** Render a compact label using the shared typography. */
 export function Label({ children }: PropsWithChildren) {
   return <Text style={s.label}>{children}</Text>;
 }
@@ -147,9 +145,7 @@ export function Button({
         {busy ? (
           <ActivityIndicator color={secondary ? color : "#FFFFFF"} />
         ) : (
-          icon && (
-            <Icon name={icon} size={18} color={secondary ? color : "#FFFFFF"} />
-          )
+          icon && <Icon name={icon} size={18} color={secondary ? color : "#FFFFFF"} />
         )}
         <Text style={[s.buttonText, secondary && { color }]}>{title}</Text>
       </Pressable>
@@ -169,6 +165,7 @@ const tones = {
   blue: { color: theme.blue, backgroundColor: theme.blueBg },
 };
 
+/** Display a status label and its semantic colour indicator. */
 export function StatusBadge({
   label,
   tone = "neutral",
@@ -206,11 +203,7 @@ export function WarningMessage({
         },
       ]}
     >
-      <Icon
-        name="info"
-        size={15}
-        color={error ? theme.danger : theme.warning}
-      />
+      <Icon name="info" size={15} color={error ? theme.danger : theme.warning} />
       <Text
         style={{
           flex: 1,
@@ -231,7 +224,7 @@ export function DemoNotice() {
   return (
     <View style={s.demo}>
       <Icon name="info" size={14} color={theme.primary} />
-      <Text style={s.demoText}>Simulated data · Image not analysed</Text>
+      <Text style={s.demoText}>Sample data · Image not analysed</Text>
     </View>
   );
 }
@@ -262,7 +255,7 @@ export function Progress({ stage, api }: { stage: number; api: boolean }) {
       <Card>
         <Label>Hybrid grading pipeline</Label>
         {stages.map((name, index) => {
-          const anim = useFadeInUp(staggerDelay(index, 100), 350);
+          const anim = useFadeIn(staggerDelay(index, 100), 350);
           return (
             <Animated.View key={name} style={[s.progressRow, anim]}>
               <View

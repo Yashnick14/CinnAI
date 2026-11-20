@@ -2,4 +2,3 @@
 
 Intentionally unimplemented. The mock service does not import this module.
 """
-

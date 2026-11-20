@@ -1,5 +1,4 @@
 import { createCloudHistory } from "./cloudHistory";
-import { CLOUD_ENABLED } from "../services/cloudApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createUserHistory } from "./userHistory";
 import { firebaseAuth } from "../services/firebaseAuth";
@@ -15,4 +14,4 @@ const localHistory = createUserHistory(
 );
 
 export const cloudHistory = createCloudHistory(localHistory);
-export const history = CLOUD_ENABLED ? cloudHistory : localHistory;
+export const history = cloudHistory;

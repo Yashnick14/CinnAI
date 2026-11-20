@@ -25,17 +25,25 @@ export class MockSensorService implements SensorService {
     timer: ReturnType<typeof setTimeout>;
     finish: () => void;
   };
+
+  /** Return the current state snapshot for subscribers. */
   getSnapshot = () => this.snapshot;
+
+  /** Register a state listener and return its unsubscribe callback. */
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
     };
   };
+
+  /** Merge a sensor state update and notify registered listeners. */
   protected set(patch: Partial<SensorSnapshot>) {
     this.snapshot = { ...this.snapshot, ...patch };
     this.listeners.forEach((listener) => listener());
   }
+
+  /** Cancel outstanding simulated operations and invalidate their generation. */
   private cancelPending() {
     this.generation++;
     if (this.pending) {
@@ -46,6 +54,8 @@ export class MockSensorService implements SensorService {
     clearInterval(this.interval);
     this.interval = undefined;
   }
+
+  /** Wait for the simulated sensor delay while respecting cancellation. */
   private wait(ms: number) {
     return new Promise<void>((resolve) => {
       this.pending = {
@@ -57,6 +67,8 @@ export class MockSensorService implements SensorService {
       };
     });
   }
+
+  /** Discover available sensors using the configured service implementation. */
   async scan() {
     this.disconnect();
     const generation = this.generation;
@@ -68,6 +80,8 @@ export class MockSensorService implements SensorService {
       devices: [{ id: "demo-esp32", name: "Cinnamon-ESP32 (Simulated)" }],
     });
   }
+
+  /** Connect to the selected sensor and begin receiving its readings. */
   async connect(id: string) {
     this.cancelPending();
     const device = this.snapshot.devices.find((d) => d.id === id);
@@ -97,6 +111,8 @@ export class MockSensorService implements SensorService {
       this.set({ moisturePercent: 11.8, updatedAt: new Date().toISOString() });
     }, 5000);
   }
+
+  /** Stop active sensor work and clear the connection's current reading. */
   disconnect() {
     this.cancelPending();
     this.set({
@@ -107,10 +123,11 @@ export class MockSensorService implements SensorService {
       error: null,
     });
   }
+
+  /** Retry the service's selected or configured sensor connection. */
   async reconnect() {
     await this.scan();
-    if (this.snapshot.devices[0])
-      await this.connect(this.snapshot.devices[0].id);
+    if (this.snapshot.devices[0]) await this.connect(this.snapshot.devices[0].id);
   }
   // Deliberate simulation controls, never exposed as actual sensor measurements.
   simulateFailure(kind: "disconnect" | "timeout") {
@@ -126,6 +143,8 @@ export class MockSensorService implements SensorService {
       });
     }
   }
+
+  /** Release timers, subscriptions and service resources. */
   dispose() {
     this.cancelPending();
     this.listeners.clear();
@@ -136,19 +155,19 @@ export const sensorService: SensorService =
   BLE.mode === "cloud"
     ? new CloudSensorService()
     : BLE.mode === "wifi"
-    ? new WifiSensorService()
-    : BLE.mode === "mock"
-      ? new MockSensorService()
-      : new RealBleService();
+      ? new WifiSensorService()
+      : BLE.mode === "mock"
+        ? new MockSensorService()
+        : new RealBleService();
+
+/** Return a usable moisture value only while the sensor reading is fresh. */
 export function freshMoisture(
   snapshot: SensorSnapshot,
   now = Date.now(),
 ): number | null {
   if (snapshot.state !== "connected" || !snapshot.updatedAt) return null;
   const age = now - Date.parse(snapshot.updatedAt);
-  return age >= 0 && age <= APP.sensorFreshnessMs
-    ? snapshot.moisturePercent
-    : null;
+  return age >= 0 && age <= APP.sensorFreshnessMs ? snapshot.moisturePercent : null;
 }
 
 if (BLE.mode === "cloud") {

@@ -1,4 +1,5 @@
 """Isolated lazy assistant. No imports or mutations of visual model services."""
+
 import logging
 import os
 import re
@@ -22,57 +23,78 @@ class AssistantGenerationError(Exception):
 
 INTERNAL_LANGUAGE = re.compile(
     r"\b(?:rag|retrieval|embeddings?|vectors?|semantic search|gemini|llms?|"
-    r"prompts?|context windows?|record ids?|similarity scores?|[RGWP]\d{2})\b", re.I
+    r"prompts?|context windows?|record ids?|similarity scores?|[RGWP]\d{2})\b",
+    re.I,
 )
 
 
 class AssistantService:
+    # Retain the retriever and provider client with a lock for shared inference.
     def __init__(self, retriever, client):
         self.retriever = retriever
         self.client = client
         self.lock = Lock()
 
+    # Initialize MiniLM retrieval and the Gemini client from runtime configuration.
     @classmethod
     def load(cls):
         key = os.environ.get("GEMINI_API_KEY", "").strip()
         if not key:
-            raise AssistantUnavailable("Assistant is not configured. Set GEMINI_API_KEY in backend/.env and restart.")
+            raise AssistantUnavailable(
+                "Assistant is not configured. Set GEMINI_API_KEY in backend/.env and restart."
+            )
         try:
             from sentence_transformers import SentenceTransformer
             from google import genai
             from google.genai import types
             from app.ai_assistant.retrieval import Retriever
+
             cache = ASSISTANT_ENCODER_CACHE
-            retriever = Retriever(SentenceTransformer(
-                ASSISTANT_ENCODER_PATH, cache_folder=str(cache)
-            ))
-            client = genai.Client(api_key=key, http_options=types.HttpOptions(timeout=60000))
+            retriever = Retriever(
+                SentenceTransformer(ASSISTANT_ENCODER_PATH, cache_folder=str(cache))
+            )
+            client = genai.Client(
+                api_key=key, http_options=types.HttpOptions(timeout=60000)
+            )
             return cls(retriever, client)
         except Exception as exc:
             logger.warning("Assistant initialization failed (%s)", type(exc).__name__)
-            raise AssistantUnavailable("Assistant resources are unavailable. Check server configuration.") from exc
+            raise AssistantUnavailable(
+                "Assistant resources are unavailable. Check server configuration."
+            ) from exc
 
+    # Generate and validate a public answer while keeping provider errors and internal retrieval details private.
     def ask(self, question):
         try:
             # Serialize use of the shared encoder/client without blocking the async loop.
             with self.lock:
-                result = ask_cinnamon_assistant(question, self.retriever.retrieve,
-                                                self.retriever.documents, self.client)
+                result = ask_cinnamon_assistant(
+                    question,
+                    self.retriever.retrieve,
+                    self.retriever.documents,
+                    self.client,
+                )
             answer = (result["answer"] or "").strip()
             if not answer or INTERNAL_LANGUAGE.search(answer):
                 raise ValueError("Unsupported public answer")
-            return AssistantAnswer(answer=answer, detected_diameter_mm=result["diameter_mm"],
-                                   application_grade=result["application_result"])
+            return AssistantAnswer(
+                answer=answer,
+                detected_diameter_mm=result["diameter_mm"],
+                application_grade=result["application_result"],
+            )
         except Exception as exc:
             # Never expose provider bodies, credentials, or internal records to clients.
             logger.warning("Assistant answer failed (%s)", type(exc).__name__)
-            raise AssistantGenerationError("The assistant could not answer right now. Please try again.") from exc
+            raise AssistantGenerationError(
+                "The assistant could not answer right now. Please try again."
+            ) from exc
 
 
 _service = None
 _load_lock = Lock()
 
 
+# Lazily initialize and reuse the assistant behind a loading lock.
 def get_assistant_service():
     global _service
     with _load_lock:

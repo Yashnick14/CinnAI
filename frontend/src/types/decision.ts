@@ -2,6 +2,7 @@ import { z } from "zod";
 import { GradeSchema } from "./grading";
 import { DiameterSchema } from "./diameter";
 import { VisualResponseSchema } from "./visual";
+
 export const DecisionSchema = z
   .object({
     status: z.enum(["VALID", "UNCERTAIN", "INVALID"]),
@@ -67,6 +68,8 @@ export type SampleResult = z.infer<typeof DecisionSchema> & {
   sessionId?: string;
   moisture?: import("../services/sessionMoisture").SessionMoisture;
 };
+
+/** Expose a final grade only when the sample validation status permits it. */
 export function displayedGrade(result: SampleResult) {
   return result.status === "VALID" ? result.final_grade : null;
 }

@@ -1,14 +1,13 @@
 import { API } from "../config/api";
 import { fetch as streamingFetch } from "expo/fetch";
-import {
-  readValidationStream,
-  type ValidationProgress,
-} from "./validationStream";
+import { readValidationStream, type ValidationProgress } from "./validationStream";
 import { visualEndpoint } from "./visualApi";
 import { uploadPhoto } from "./uploadPhoto";
 import { validatePhoto } from "../storage/photos";
 import { DecisionSchema, type SampleResult } from "../types/decision";
 import type { VisualRequest } from "../types/visual";
+
+/** Upload the sample for combined validation and parse its result or progress stream. */
 export async function validateSample(
   request: VisualRequest,
   signal: AbortSignal,
@@ -17,6 +16,8 @@ export async function validateSample(
   if (!request.captureGeometry)
     throw new Error("Retake the sample using the capture guides.");
   const controller = new AbortController();
+
+  /** Cancel the current asynchronous operation and its pending work. */
   const cancel = () => controller.abort();
   signal.addEventListener("abort", cancel, { once: true });
   if (signal.aborted) cancel();
@@ -54,16 +55,12 @@ export async function validateSample(
         "Sample validation is temporarily unavailable. Please retry. No grade has been assigned.",
       );
     if (!response.body)
-      throw new Error(
-        "Live validation is temporarily unavailable. Please retry.",
-      );
+      throw new Error("Live validation is temporarily unavailable. Please retry.");
     const parsed = DecisionSchema.safeParse(
       await readValidationStream(response.body.getReader(), onProgress),
     );
     if (!parsed.success)
-      throw new Error(
-        "Invalid validation response. No grade has been assigned.",
-      );
+      throw new Error("Invalid validation response. No grade has been assigned.");
     return {
       ...parsed.data,
       imageUri,

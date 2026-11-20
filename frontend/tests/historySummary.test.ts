@@ -40,15 +40,9 @@ describe("dashboard and searchable register", () => {
   it("uses the local calendar day for Today", () => {
     const now = new Date(2026, 9, 11, 12);
     expect(isToday(new Date(2026, 9, 11, 0).toISOString(), now)).toBe(true);
-    expect(isToday(new Date(2026, 9, 10, 23, 59).toISOString(), now)).toBe(
-      false,
-    );
+    expect(isToday(new Date(2026, 9, 10, 23, 59).toISOString(), now)).toBe(false);
     expect(
-      filterHistory(
-        [a, { ...b, timestamp: "2000-01-01T00:00:00.000Z" }],
-        "",
-        "Today",
-      ),
+      filterHistory([a, { ...b, timestamp: "2000-01-01T00:00:00.000Z" }], "", "Today"),
     ).toEqual([a]);
   });
 });

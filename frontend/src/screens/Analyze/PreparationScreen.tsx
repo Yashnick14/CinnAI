@@ -2,14 +2,7 @@ import { useDesktopLayout } from "../../hooks/useDesktopLayout";
 import { View } from "react-native";
 import { Text } from "../../components/AppText";
 import type { ScreenProps } from "../../types/navigation";
-import {
-  Button,
-  Card,
-  Heading,
-  Label,
-  Page,
-  StatusBadge,
-} from "../../components/ui";
+import { Button, Card, Heading, Label, Page } from "../../components/ui";
 import { theme } from "../../config/theme";
 
 const steps = [
@@ -19,6 +12,8 @@ const steps = [
   "Photograph straight from above.",
   "Review the captured photo, then tap Analyse.",
 ];
+
+/** Present the sample-placement checklist before opening the camera. */
 export function PreparationScreen({ navigation }: ScreenProps<"Preparation">) {
   const desktop = useDesktopLayout();
   return (
@@ -27,7 +22,6 @@ export function PreparationScreen({ navigation }: ScreenProps<"Preparation">) {
         title="Set up your sample."
         subtitle="Prepare a clear photo for the visual grading model."
       />
-      <StatusBadge label="Visual analysis" tone="blue" />
       <View
         style={{
           flexDirection: desktop ? "row" : "column",
@@ -45,12 +39,8 @@ export function PreparationScreen({ navigation }: ScreenProps<"Preparation">) {
           {desktop && <Label>Capture checklist</Label>}
           {steps.map((text, i) => (
             <View key={text} style={{ flexDirection: "row", gap: 12 }}>
-              <Text style={{ color: theme.accent, fontWeight: "800" }}>
-                {i + 1}.
-              </Text>
-              <Text style={{ color: theme.ink, lineHeight: 23, flex: 1 }}>
-                {text}
-              </Text>
+              <Text style={{ color: theme.accent, fontWeight: "800" }}>{i + 1}.</Text>
+              <Text style={{ color: theme.ink, lineHeight: 23, flex: 1 }}>{text}</Text>
             </View>
           ))}
         </Card>

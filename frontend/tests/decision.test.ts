@@ -4,21 +4,20 @@ import {
   DecisionSchema,
   type SampleResult,
 } from "../src/types/decision";
+
 describe("sample grade visibility", () => {
-  it.each([
-    "PASS_PROVISIONAL",
-    "FAIL_PROVISIONAL",
-    "UNAVAILABLE",
-    "DEMO",
-  ] as const)("moisture %s cannot override diameter", (status) => {
-    const result = {
-      status: "VALID",
-      final_grade: "M4",
-      moisture: { status },
-    } as SampleResult;
-    expect(displayedGrade(result)).toBe("M4");
-    expect(displayedGrade({ ...result, status: "INVALID" })).toBeNull();
-  });
+  it.each(["PASS_PROVISIONAL", "FAIL_PROVISIONAL", "UNAVAILABLE", "DEMO"] as const)(
+    "moisture %s cannot override diameter",
+    (status) => {
+      const result = {
+        status: "VALID",
+        final_grade: "M4",
+        moisture: { status },
+      } as SampleResult;
+      expect(displayedGrade(result)).toBe("M4");
+      expect(displayedGrade({ ...result, status: "INVALID" })).toBeNull();
+    },
+  );
   it.each(["INVALID", "UNCERTAIN"] as const)(
     "hides all grades for %s even with RF diagnostics",
     (status) => {

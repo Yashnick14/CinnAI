@@ -1,10 +1,15 @@
 """Retain validated original upload bytes for local visual-pipeline debugging."""
+
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 from app.core.config import TEMP_VISUAL_UPLOAD_DIRECTORY
 
-def save_temporary_visual_upload(data: bytes, directory: Path = TEMP_VISUAL_UPLOAD_DIRECTORY) -> Path:
+
+# Persist original upload bytes under a unique temporary filename for diagnostics.
+def save_temporary_visual_upload(
+    data: bytes, directory: Path = TEMP_VISUAL_UPLOAD_DIRECTORY
+) -> Path:
     # Caller validates JPEG/PNG first. Use the content rather than an untrusted filename.
     suffix = ".png" if data.startswith(b"\x89PNG\r\n\x1a\n") else ".jpg"
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")

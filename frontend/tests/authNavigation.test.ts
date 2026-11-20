@@ -22,23 +22,20 @@ vi.mock("@react-navigation/native", () => ({
 }));
 vi.mock("@react-navigation/native-stack", () => ({
   createNativeStackNavigator: () => ({
-    Navigator: ({ children }: any) =>
-      React.createElement("div", null, children),
+    Navigator: ({ children }: any) => React.createElement("div", null, children),
     Group: ({ children }: any) => React.createElement("div", null, children),
-    Screen: ({ name }: any) =>
-      React.createElement("span", null, "route:" + name + ";"),
+    Screen: ({ name }: any) => React.createElement("span", null, "route:" + name + ";"),
   }),
 }));
 vi.mock("../src/navigation/WorkspaceFrame", () => ({
-  WorkspaceFrame: ({ children }: any) =>
-    React.createElement("div", null, children),
+  WorkspaceFrame: ({ children }: any) => React.createElement("div", null, children),
 }));
 vi.mock("../src/navigation/BottomNavigation", () => ({
   BottomNavigation: () => React.createElement("span", null, "tabs"),
 }));
+vi.mock("../src/components/HomeNavbar", () => ({ HomeNavbar: () => null }));
 vi.mock("../src/components/AssistantLauncher", () => ({
-  AssistantLauncher: () =>
-    React.createElement("span", null, "assistant-launcher"),
+  AssistantLauncher: () => React.createElement("span", null, "assistant-launcher"),
 }));
 vi.mock("../src/screens/Auth/AuthScreen", () => ({ AuthScreen: () => null }));
 vi.mock("../src/screens/Auth/AccountScreen", () => ({ AccountScreen: () => null }));
@@ -70,6 +67,7 @@ vi.mock("../src/screens/Settings/SettingsScreen", () => ({
   SettingsScreen: () => null,
 }));
 import { AppNavigator } from "../src/navigation/AppNavigator";
+
 it("signed-out users can only access auth routes", () => {
   session.user = null;
   session.loading = false;

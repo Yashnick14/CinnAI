@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { captureGuides, captureGeometry } from "../src/config/captureGuides";
+
 describe("controlled capture mapping", () => {
   it("keeps the coin square and guides separated on different phone previews", () => {
     for (const view of [
@@ -20,8 +21,8 @@ describe("controlled capture mapping", () => {
     expect(g.coin.height * g.image_height).toBeCloseTo(384);
   });
   it("rejects incompatible image aspect ratios", () => {
-    expect(() =>
-      captureGeometry({ width: 300, height: 400 }, 1600, 1200),
-    ).toThrow("dimensions");
+    expect(() => captureGeometry({ width: 300, height: 400 }, 1600, 1200)).toThrow(
+      "dimensions",
+    );
   });
 });

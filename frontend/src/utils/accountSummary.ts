@@ -1,5 +1,7 @@
 import type { GradingResult } from "../types/grading";
 import { summarize } from "./historySummary";
+
+/** Calculate account dashboard statistics from the user's saved records. */
 export function accountSummary(records: GradingResult[]) {
   const graded = records.filter((record) => record.finalGrade !== null);
   const counts = new Map<string, number>();
@@ -8,10 +10,7 @@ export function accountSummary(records: GradingResult[]) {
   );
   return {
     assessments: records.length,
-    gradedQuills: graded.reduce(
-      (sum, record) => sum + record.detectedQuillCount,
-      0,
-    ),
+    gradedQuills: graded.reduce((sum, record) => sum + record.detectedQuillCount, 0),
     manualReviews: records.filter((record) => !!record.manualReview).length,
     common: summarize(graded).common,
     grades: [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),

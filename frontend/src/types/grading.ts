@@ -48,11 +48,7 @@ export const GradingResultSchema = z.object({
 });
 export type GradingResult = z.infer<typeof GradingResultSchema>;
 export type DemoScenario =
-  | "accepted"
-  | "moisture_fail"
-  | "manual_review"
-  | "measurement_error"
-  | "no_quill";
+  "accepted" | "moisture_fail" | "manual_review" | "measurement_error" | "no_quill";
 export interface GradeRequest {
   imageUri: string;
   moisturePercent: number | null;

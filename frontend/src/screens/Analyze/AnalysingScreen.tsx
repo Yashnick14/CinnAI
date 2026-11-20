@@ -6,16 +6,13 @@ import type { SampleResult } from "../../types/decision";
 import type { ScreenProps } from "../../types/navigation";
 import { Button, Card, Heading, Page, WarningMessage } from "../../components/ui";
 import { CapturedPhoto } from "../../components/CapturedPhoto";
-import { DetectorComparison } from "../../components/DetectorComparison";
 import { SessionMoistureCard } from "../../components/SessionMoistureCard";
 import { theme } from "../../config/theme";
 import { errorMessage } from "../../utils/format";
 import type { ValidationProgress } from "../../services/validationStream";
 
-export function AnalysingScreen({
-  navigation,
-  route,
-}: ScreenProps<"Analysing">) {
+/** Run sample validation, show staged progress and gate the displayed assessment. */
+export function AnalysingScreen({ navigation, route }: ScreenProps<"Analysing">) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SampleResult | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -31,10 +28,7 @@ export function AnalysingScreen({
     setResult(null);
     setElapsed(0);
     setProgress({});
-    const timer = setInterval(
-      () => setElapsed((Date.now() - start) / 1000),
-      200,
-    );
+    const timer = setInterval(() => setElapsed((Date.now() - start) / 1000), 200);
     validateSample(route.params, controller.signal, (event) => {
       if (!controller.signal.aborted)
         setProgress((previous) => ({ ...previous, [event.step]: event.state }));
@@ -51,6 +45,8 @@ export function AnalysingScreen({
       clearInterval(timer);
     };
   }, [attempt, route.params]);
+
+  /** Restart the current operation using its existing retry flow. */
   const retry = () => {
     setResult(null);
     setError(null);
@@ -161,16 +157,13 @@ export function AnalysingScreen({
       )}
       {error && <WarningMessage text={error} error />}
       <SessionMoistureCard reading={route.params.moisture} />
-      {result && <DetectorComparison comparison={result.debug_comparison} />}
       {result && result.status !== "VALID" && (
         <WarningMessage text="No grade assigned. Review the checks above, then recapture or request manual review." />
       )}
       {result && (
         <Button
           title={
-            result.status === "VALID"
-              ? "View Validated Result"
-              : "View Assessment"
+            result.status === "VALID" ? "View Validated Result" : "View Assessment"
           }
           onPress={() => navigation.replace("Result", { result })}
         />

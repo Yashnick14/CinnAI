@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { VisualRequest } from "./visual";
 import type { SampleResult } from "./decision";
+
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -20,5 +21,7 @@ export type RootStackParamList = {
   Sensor: undefined;
   Settings: undefined;
 };
-export type ScreenProps<T extends keyof RootStackParamList> =
-  NativeStackScreenProps<RootStackParamList, T>;
+export type ScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
+  RootStackParamList,
+  T
+>;

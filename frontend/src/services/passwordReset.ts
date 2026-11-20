@@ -1,6 +1,8 @@
 import { sendPasswordResetEmail } from "firebase/auth";
 import { firebaseAuth } from "./firebaseAuth";
 import { validateCredentials } from "./authValidation";
+
+/** Validate the email and request Firebase's password-reset message. */
 export async function requestPasswordReset(email: string) {
   const address = email.trim();
   const problem = validateCredentials(address, "reset");

@@ -2,15 +2,18 @@ import type { CameraView } from "expo-camera";
 import { preservePhoto } from "../storage/photos";
 import { saveCaptureGeometry } from "../storage/photos";
 import { captureGeometry, type Viewport } from "../config/captureGuides";
+
+/** Capture a photo and return its URI through the shared capture helper. */
 export async function capturePhoto(camera: CameraView | null): Promise<string> {
   return (await capturePhotoDetails(camera)).imageUri;
 }
+
+/** Capture photo metadata and persist the image and available guide geometry. */
 export async function capturePhotoDetails(
   camera: CameraView | null,
   viewport?: Viewport,
 ) {
-  if (!camera)
-    throw new Error("The camera is unavailable. Please restart the camera.");
+  if (!camera) throw new Error("The camera is unavailable. Please restart the camera.");
   let photo;
   try {
     photo = await camera.takePictureAsync({

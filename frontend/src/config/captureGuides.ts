@@ -31,6 +31,8 @@ export function captureGuides(view: Viewport) {
     quill: { x: 0.55, y: 0.08, width: 0.36, height: 0.84 },
   };
 }
+
+/** Describe the preview-to-photo mapping so capture ROIs can be reconstructed. */
 export function captureGeometry(
   view: Viewport,
   width: number,

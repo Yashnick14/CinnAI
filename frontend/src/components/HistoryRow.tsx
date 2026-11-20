@@ -6,6 +6,8 @@ import { theme } from "../config/theme";
 import { dateTime, measurement, percent } from "../utils/format";
 import { recordLabel } from "../utils/historySummary";
 import { Icon } from "./Icon";
+
+/** Render one saved grading record with its navigation action. */
 export function HistoryRow({
   result,
   onPress,
@@ -32,10 +34,7 @@ export function HistoryRow({
           />
         ) : (
           <View
-            style={[
-              styles.image,
-              { alignItems: "center", justifyContent: "center" },
-            ]}
+            style={[styles.image, { alignItems: "center", justifyContent: "center" }]}
           >
             <Icon name="camera" />
           </View>
@@ -43,7 +42,7 @@ export function HistoryRow({
       <View style={{ flex: 1, gap: 4 }}>
         <Text style={styles.id}>#{recordLabel(result.id)}</Text>
         <Text style={styles.meta}>
-          {result.isMock ? "Simulated · " : ""}
+          {result.isMock ? "Sample data · " : ""}
           {dateTime(result.timestamp)}
         </Text>
         <Text style={styles.meta}>

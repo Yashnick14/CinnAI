@@ -1,4 +1,4 @@
-import { BLE } from "../config/ble";
+import { BLE, ADC_UNTOUCHED_THRESHOLD } from "../config/ble";
 import { MOISTURE_CAPTURE } from "../config/moistureCapture";
 import type { SensorSnapshot } from "../types/sensor";
 import { snapshotMoisture, type SessionMoisture } from "./sessionMoisture";
@@ -13,6 +13,8 @@ export interface MoistureCapture {
   deviceId: string | null;
   captured: SessionMoisture | null;
 }
+
+/** Record the prompt baseline so a background reading is not immediately accepted. */
 export function beginMoistureCapture(
   sensor: SensorSnapshot,
   now = Date.now(),
@@ -28,6 +30,8 @@ export function beginMoistureCapture(
     captured: null,
   };
 }
+
+/** Require a fresh snapshot from the currently connected device before starting analysis. */
 export function usableCapture(
   capture: MoistureCapture,
   sensor: SensorSnapshot,
@@ -36,6 +40,8 @@ export function usableCapture(
   const reading = capture.captured;
   return (
     !!reading &&
+    sensor.medianAdc != null &&
+    sensor.medianAdc < ADC_UNTOUCHED_THRESHOLD &&
     sensor.state === "connected" &&
     !sensor.error &&
     !sensor.stale &&
@@ -45,6 +51,8 @@ export function usableCapture(
     now - Date.parse(reading.timestamp) <= BLE.readingFreshnessMs
   );
 }
+
+/** Count new post-prompt readings with consistent status and snapshot them once the configured count is reached. */
 export function advanceMoistureCapture(
   capture: MoistureCapture,
   sensor: SensorSnapshot,
@@ -81,10 +89,11 @@ export function advanceMoistureCapture(
     deviceId: reading.device_id,
     count,
     status: reading.status,
-    captured:
-      count >= MOISTURE_CAPTURE.consecutiveReadings ? { ...reading } : null,
+    captured: count >= MOISTURE_CAPTURE.consecutiveReadings ? { ...reading } : null,
   };
 }
+
+/** Map a fresh provisional status to PASS or FAIL, otherwise return UNAVAILABLE. */
 export function moistureQuality(
   reading?: SessionMoisture,
 ): "PASS" | "FAIL" | "UNAVAILABLE" {

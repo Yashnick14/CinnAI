@@ -1,3 +1,4 @@
+import { ADC_UNTOUCHED_THRESHOLD } from "../../config/ble";
 import { useEffect, useRef, useState } from "react";
 import type { ScreenProps } from "../../types/navigation";
 import {
@@ -14,10 +15,7 @@ import { validatePhoto } from "../../storage/photos";
 import { errorMessage } from "../../utils/format";
 import { randomUUID } from "expo-crypto";
 import { sensorService } from "../../services/ble";
-import {
-  snapshotMoisture,
-  type SessionMoisture,
-} from "../../services/sessionMoisture";
+import { snapshotMoisture, type SessionMoisture } from "../../services/sessionMoisture";
 import { useSensor } from "../../hooks/useSensor";
 import {
   advanceMoistureCapture,
@@ -26,10 +24,9 @@ import {
   moistureQuality,
 } from "../../services/moistureCapture";
 import { MOISTURE_CAPTURE } from "../../config/moistureCapture";
-export function ImageReviewScreen({
-  navigation,
-  route,
-}: ScreenProps<"ImageReview">) {
+
+/** Review the captured image and associate a fresh moisture snapshot before analysis. */
+export function ImageReviewScreen({ navigation, route }: ScreenProps<"ImageReview">) {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -40,8 +37,7 @@ export function ImageReviewScreen({
   );
   const [armed, setArmed] = useState(false);
   useEffect(() => {
-    if (armed)
-      setCapture((previous) => advanceMoistureCapture(previous, sensor));
+    if (armed) setCapture((previous) => advanceMoistureCapture(previous, sensor));
   }, [
     armed,
     sensor.updatedAt,
@@ -51,8 +47,9 @@ export function ImageReviewScreen({
     sensor.medianAdc,
   ]);
   const available = usableCapture(capture, sensor);
-  const unavailable =
-    sensor.state !== "connected" || sensor.stale || !!sensor.error;
+  const unavailable = sensor.state !== "connected" || sensor.stale || !!sensor.error;
+
+  /** Validate the review state and continue analysis with the chosen moisture snapshot. */
   async function analyse(withoutMoisture = false) {
     if (!ready || lock.current) return;
     lock.current = true;
@@ -101,24 +98,23 @@ export function ImageReviewScreen({
       />
       <Card>
         <Label>Capture sample moisture</Label>
+        <Body>Place the moisture sensor firmly against the cinnamon quill.</Body>
         <Body>
-          Place the moisture sensor firmly against the cinnamon quill.
-        </Body>
-        <Body>
-          Connection: {sensor.state} · Live ADC:{" "}
-          {sensor.medianAdc ?? "Unavailable"}
+          Connection: {sensor.state} · Live ADC: {sensor.medianAdc ?? "Unavailable"}
         </Body>
         <Body>
           {available
-            ? `Moisture reading captured — ${moistureQuality(capture.captured!)} (raw sensor). Captured ADC: ${capture.captured!.raw_value}`
+            ? `Moisture reading captured — ${moistureQuality(capture.captured!)}. ADC: ${capture.captured!.raw_value}`
             : unavailable
               ? "Moisture reading unavailable"
-              : "Waiting for moisture reading..."}
+              : sensor.medianAdc != null && sensor.medianAdc >= ADC_UNTOUCHED_THRESHOLD
+                ? "Untouched — place sensor against the quill"
+                : "Waiting for moisture reading..."}
         </Body>
         <Body>
           Confirm sensor placement, then hold it steady for{" "}
-          {MOISTURE_CAPTURE.consecutiveReadings} new readings with the same
-          sensor status. No calibrated percentage is available.
+          {MOISTURE_CAPTURE.consecutiveReadings} new readings with the same sensor
+          status.
         </Body>
         {armed && !available && (
           <Body>
@@ -126,9 +122,7 @@ export function ImageReviewScreen({
           </Body>
         )}
         <Button
-          title={
-            armed ? "Recapture moisture" : "Sensor placed — capture reading"
-          }
+          title={armed ? "Recapture moisture" : "Sensor placed — capture reading"}
           secondary
           disabled={busy}
           onPress={() => {
@@ -160,9 +154,7 @@ export function ImageReviewScreen({
         />
       )}
       {!available && (
-        <Body>
-          Continuing without moisture reports Export Quality: UNAVAILABLE.
-        </Body>
+        <Body>Continuing without moisture reports Export Quality: UNAVAILABLE.</Body>
       )}
       <Button
         title="Retake"
