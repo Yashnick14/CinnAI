@@ -8,22 +8,36 @@ import { adminReportRecords } from "../services/adminReports";
 import type { GradingResult } from "../types/grading";
 import { QualityReportExport } from "./QualityReportExport";
 import { Text } from "./AppText";
+import { WarningMessage, Button } from "./ui";
 import { theme } from "../config/theme";
 
 /** Keep admin reporting in History and fail closed on sign-out or permission errors. */
-export function AdminQualityReport() {
+export type AdminHistoryData = {
+  owner: string;
+  records: Awaited<ReturnType<typeof adminReportRecords>>;
+  names: Record<string, string>;
+};
+export function AdminQualityReport({
+  onHistory,
+}: {
+  onHistory: (data: AdminHistoryData | null) => void;
+}) {
   const { user } = useAuth();
   const [authorized, setAuthorized] = useState<string | null>(null);
   const [users, setUsers] = useState<{ uid: string; name: string }[]>([]);
   const [selected, setSelected] = useState("");
   const [records, setRecords] = useState<GradingResult[]>([]);
+  const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
   const [loading, setLoading] = useState(true);
   useFocusEffect(
     useCallback(() => {
       let active = true;
       const owner = user?.uid;
+      onHistory(null);
       setAuthorized(null);
       setLoading(true);
+      setError("");
       setRecords([]);
       if (owner)
         void (async () => {
@@ -32,17 +46,34 @@ export function AdminQualityReport() {
               .object({ can_generate_reports: z.boolean() })
               .parse(await cloudRequest("/permissions", {}, owner));
             if (!permission.can_generate_reports || !active) return;
+            setAuthorized(owner);
             const people = z
               .array(z.object({ uid: z.string(), name: z.string() }))
               .parse(await cloudRequest("/admin/report-users", {}, owner));
+            const names = Object.fromEntries(
+              people.map((person, index) => [
+                person.uid,
+                person.name.trim() &&
+                person.name !== person.uid &&
+                person.name !== "Name not available"
+                  ? person.name
+                  : `Grader ${index + 1}`,
+              ]),
+            );
             const rows = await adminReportRecords(selected, owner);
             if (active) {
-              setUsers(people);
+              setUsers(
+                people.map((person) => ({
+                  ...person,
+                  name: names[person.uid] ?? "Name not available",
+                })),
+              );
+              onHistory({ owner, records: rows, names });
               setRecords(rows);
               setAuthorized(owner);
             }
           } catch {
-            if (active) setAuthorized(null);
+            if (active) setError("Could not load grader records. Please retry.");
           } finally {
             if (active) setLoading(false);
           }
@@ -50,11 +81,17 @@ export function AdminQualityReport() {
       return () => {
         active = false;
       };
-    }, [user?.uid, selected]),
+    }, [user?.uid, selected, onHistory, retry]),
   );
   if (!user || authorized !== user.uid) return null;
   return (
     <View style={{ gap: 12 }}>
+      {!!error && (
+        <>
+          <WarningMessage text={error} error />
+          <Button title="Retry" onPress={() => setRetry((value) => value + 1)} />
+        </>
+      )}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -81,7 +118,7 @@ export function AdminQualityReport() {
       <QualityReportExport
         records={records}
         loading={loading}
-        unavailable={false}
+        unavailable={!!error}
         reportUser={selected}
         reportLabel={
           selected

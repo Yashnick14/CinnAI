@@ -200,3 +200,16 @@ it("review metadata survives history storage", async () => {
   await repo.save(record);
   expect((await repo.get(id))?.manualReview).toEqual(record.manualReview);
 });
+
+it.each(["2026-10-25T10:00:00+00:00", "2026-10-25T15:30:00+05:30"])(
+  "saves cloud moisture timestamps with an ISO offset: %s",
+  (timestamp) => {
+    const record = toHistoryRecord(
+      { ...sample, moisture: { ...sample.moisture!, timestamp, raw_value: 1800 } },
+      id,
+      time,
+    );
+    expect(record.moistureCapturedAt).toBe(time);
+    expect(record.moistureRawAdc).toBe(1800);
+  },
+);

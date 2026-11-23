@@ -82,3 +82,10 @@ class History(Base):
     __table_args__ = (
         Index("ix_cloud_history_owner_date", "user_uid", "created_at", "id"),
     )
+
+
+class ReportSettings(Base):
+    """Report branding owned by the administrator who generates the PDF."""
+    __tablename__ = "cloud_report_settings"
+    user_uid: Mapped[str] = mapped_column(ForeignKey("cloud_users.uid"), primary_key=True)
+    payload: Mapped[dict] = mapped_column(JSON)

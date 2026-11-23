@@ -26,7 +26,10 @@ export function toHistoryRecord(result: SampleResult, id: string, timestamp: str
     moisturePercent: null,
     moistureStatus: moisture,
     moistureRawAdc: result.moisture?.raw_value ?? null,
-    moistureCapturedAt: result.moisture?.timestamp ?? null,
+    // Azure uses ISO offsets such as +00:00; persist the equivalent canonical UTC instant.
+    moistureCapturedAt: result.moisture?.timestamp
+      ? new Date(result.moisture.timestamp).toISOString()
+      : null,
     finalGrade: grade,
     finalStatus: grade
       ? moisture === "FAIL"
@@ -38,9 +41,7 @@ export function toHistoryRecord(result: SampleResult, id: string, timestamp: str
     warnings: [
       result.message,
       ...(result.visual_disagreement
-        ? [
-            "Visual evidence differs from the diameter grade. The diameter grade is retained.",
-          ]
+        ? ["Visual evidence differs from the diameter grade."]
         : []),
     ],
   });

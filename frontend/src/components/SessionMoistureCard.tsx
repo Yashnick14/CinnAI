@@ -1,6 +1,6 @@
 import { Card, Label, Row } from "./ui";
 import type { SessionMoisture } from "../services/sessionMoisture";
-import { measurement } from "../utils/format";
+import { moistureLabel } from "../utils/moistureLabel";
 
 /** Show captured sensor values only when this assessment includes a valid reading. */
 export function SessionMoistureCard({ reading }: { reading?: SessionMoisture }) {
@@ -14,8 +14,10 @@ export function SessionMoistureCard({ reading }: { reading?: SessionMoisture }) 
   return (
     <Card>
       <Label>Moisture</Label>
-      <Row label="ADC" value={String(reading.raw_value)} />
-      <Row label="Moisture percentage" value={measurement(reading.percentage, "%")} />
+      <Row
+        label="Moisture screening"
+        value={moistureLabel(reading.status, reading.raw_value)}
+      />
     </Card>
   );
 }

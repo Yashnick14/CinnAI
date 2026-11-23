@@ -22,7 +22,7 @@ export function decodeSensorReading(value: string | null) {
   };
 }
 
-/** Format the provisional sensor compliance state for display. */
+/** Format the sensor screening state for display. */
 export function provisionalLabel(
   status: "PASS" | "FAIL" | null | undefined,
   adc?: number | null,

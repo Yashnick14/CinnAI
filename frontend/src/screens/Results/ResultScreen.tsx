@@ -24,13 +24,19 @@ export function ResultScreen({ navigation, route }: ScreenProps<"Result">) {
   const summary = finalSummary(result);
   return (
     <Page>
-      <Heading title={`Sample ${result.status}`} subtitle={result.message} />
+      <Heading
+        title={`Sample ${result.status}`}
+        subtitle={
+          /sample verified|grade is based on/i.test(result.message)
+            ? undefined
+            : result.message
+        }
+      />
       <CapturedPhoto uri={result.imageUri} height={180} />
       {grade && diameter ? (
         <>
           <Text style={{ fontWeight: "700", fontSize: 28 }}>Grade: {grade}</Text>
           <Text>Diameter: {diameter.quill_diameter_mm.toFixed(2)} mm</Text>
-          <Text>Grade based on diameter. Visual analysis is supporting evidence.</Text>
           <SessionMoistureCard reading={result.moisture} />
           <Card>
             <Label>Final summary</Label>
@@ -38,14 +44,14 @@ export function ResultScreen({ navigation, route }: ScreenProps<"Result">) {
             <Body>Export Quality: {summary.exportQuality}</Body>
           </Card>
           {result.visual_disagreement && (
-            <WarningMessage text="Visual evidence differs from the diameter grade. The diameter grade is retained; consider manual review." />
+            <WarningMessage text="Visual evidence differs from the diameter grade." />
           )}
           {result.diagnostics.visual && (
             <Text style={{ fontSize: 13 }}>
               Supporting visual prediction:{" "}
               {result.diagnostics.visual.visual_prediction} (
               {(result.diagnostics.visual.visual_confidence * 100).toFixed(1)}%
-              confidence). Does not determine the official grade.
+              confidence).
             </Text>
           )}
           <Image

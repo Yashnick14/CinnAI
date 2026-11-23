@@ -11,6 +11,8 @@ from sqlalchemy import select
 from .auth import user_uid, admin_uid, device_auth, digest
 from .database import get_session
 from .moisture import screening_status
+from .report_settings import ReportSettingsInput
+from .models import ReportSettings
 from .models import User, Admin, Device, Ownership, Reading, History, now
 
 router = APIRouter(prefix="/cloud", tags=["cloud"])
@@ -67,7 +69,7 @@ class Telemetry(BaseModel):
     adc: StrictInt = Field(ge=0, le=4095)
 
 
-# Serialize raw ADC with server-derived freshness and provisional compliance; no percentage is inferred.
+# Serialize raw ADC with server-derived freshness and moisture screening; no percentage is inferred.
 def reading_json(r, at=None):
     at = at or now()
     age = max(0, (at - aware(r.received_at)).total_seconds())
@@ -318,7 +320,7 @@ def permissions(uid=Depends(user_uid), s=Depends(get_session)):
 @router.get("/admin/report-users")
 def report_users(uid=Depends(admin_uid), s=Depends(get_session)):
     """List application profiles for the administrator's report filter."""
-    return [{"uid": u.uid, "name": u.display_name or u.uid}
+    return [{"uid": u.uid, "name": u.display_name.strip() or "Name not available"}
             for u in s.scalars(select(User).order_by(User.display_name, User.uid)).all()]
 
 
@@ -335,3 +337,33 @@ def report_records(
     rows = s.scalars(query.order_by(History.created_at.desc(), History.user_uid, History.id)
                      .offset(offset).limit(limit)).all()
     return [{"user_uid": r.user_uid, "record": r.payload} for r in rows]
+
+
+@router.get("/admin/history/{owner_uid}/{record_id}")
+def admin_history_detail(owner_uid: str, record_id: UUID, uid=Depends(admin_uid), s=Depends(get_session)):
+    """Read another grader's assessment only with administrator authorization."""
+    record = s.get(History, (owner_uid, str(record_id)))
+    if record is None or record.deleted:
+        raise HTTPException(404, "Record not found.")
+    return record.payload
+
+
+
+@router.get("/admin/report-settings")
+def get_report_settings(uid=Depends(admin_uid), s=Depends(get_session)):
+    """Read only the requesting administrator's report branding."""
+    settings = s.get(ReportSettings, uid)
+    return settings.payload if settings else ReportSettingsInput().model_dump()
+
+
+@router.put("/admin/report-settings")
+def save_report_settings(body: ReportSettingsInput, uid=Depends(admin_uid), s=Depends(get_session)):
+    """Save validated company details without changing roles or grading records."""
+    settings = s.get(ReportSettings, uid)
+    if settings is None:
+        settings = ReportSettings(user_uid=uid, payload=body.model_dump())
+        s.add(settings)
+    else:
+        settings.payload = body.model_dump()
+    s.commit()
+    return settings.payload

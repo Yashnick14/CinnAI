@@ -20,6 +20,8 @@ export async function adminReportRecords(user = "", owner = cloudUid()) {
       ...page.map((item) => ({
         ...item.record,
         id: `${item.user_uid}:${item.record.id}`,
+        recordId: item.record.id,
+        userUid: item.user_uid,
       })),
     );
     if (page.length < 100) return records;

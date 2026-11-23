@@ -1,3 +1,4 @@
+import { moistureLabel } from "../utils/moistureLabel";
 import { useState } from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "./AppText";
@@ -12,10 +13,14 @@ export function HistoryRow({
   result,
   onPress,
   compact = false,
+  onDelete,
+  deleteDisabled = false,
 }: {
   result: GradingResult;
   onPress: () => void;
   compact?: boolean;
+  onDelete?: () => void;
+  deleteDisabled?: boolean;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   return (
@@ -51,7 +56,7 @@ export function HistoryRow({
         {!compact && (
           <Text style={styles.meta}>
             {measurement(result.diameterMm, "mm")} ·{" "}
-            {measurement(result.moisturePercent, "% moisture")}
+            {moistureLabel(result.moistureStatus, result.moistureRawAdc)}
           </Text>
         )}
         {!compact && (
@@ -74,7 +79,29 @@ export function HistoryRow({
       <View style={styles.grade}>
         <Text style={styles.gradeText}>{result.finalGrade ?? "Review"}</Text>
       </View>
-      {!compact && <Icon name="chevron" size={14} />}
+      {!compact && (
+        <View style={{ gap: 8, alignItems: "center" }}>
+          <Icon name="chevron" size={14} />
+          {onDelete && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Delete record"
+              disabled={deleteDisabled}
+              onPress={(event) => {
+                event.stopPropagation();
+                onDelete();
+              }}
+              style={{
+                paddingVertical: 10,
+                paddingHorizontal: 6,
+                opacity: deleteDisabled ? 0.5 : 1,
+              }}
+            >
+              <Text style={{ color: theme.danger, fontSize: 11 }}>Delete</Text>
+            </Pressable>
+          )}
+        </View>
+      )}
     </Pressable>
   );
 }

@@ -111,7 +111,8 @@ it.each([2850, 2975, 4095])("never captures untouched ADC %d", (adc) => {
   expect(c.count).toBe(0);
 });
 it("contact loss clears a pending capture and requires three new contact readings", () => {
-  let c = captured(1800);
+  let c = beginMoistureCapture(sensor(), start);
+  c = advanceMoistureCapture(c, sensor(2000), start + 2000);
   expect(usableCapture(c, sensor(8000, 2850), start + 8000)).toBe(false);
   c = advanceMoistureCapture(c, sensor(8000, 2850), start + 8000);
   expect(c.captured).toBeNull();
@@ -121,4 +122,20 @@ it("contact loss clears a pending capture and requires three new contact reading
   }
   c = advanceMoistureCapture(c, sensor(14000, 2849), start + 14000);
   expect(c.captured?.status).toBe("PASS_PROVISIONAL");
+});
+
+it("retains a completed snapshot when the probe becomes untouched", () => {
+  const c = captured(1800);
+  const lifted = sensor(8000, 2975);
+  expect(usableCapture(c, lifted, start + 8000)).toBe(true);
+  expect(advanceMoistureCapture(c, lifted, start + 8000)).toBe(c);
+  expect(c.captured?.raw_value).toBe(1800);
+  expect(usableCapture(c, lifted, start + 37000)).toBe(false);
+  expect(
+    usableCapture(
+      c,
+      { ...lifted, device: { id: "other", name: "Other" } },
+      start + 8000,
+    ),
+  ).toBe(false);
 });

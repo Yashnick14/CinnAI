@@ -1,3 +1,4 @@
+import { loadReportSettings } from "../services/reportSettings";
 import { useRef, useState } from "react";
 import { Platform, Pressable, TextInput, View } from "react-native";
 import { Text } from "./AppText";
@@ -63,7 +64,10 @@ export function QualityReportExport({
       const generatedAt = new Date();
       const range = reportRange(period, generatedAt, from, to);
       destination = prepareReportExport();
-      const records = await adminReportRecords(reportUser, owner);
+      const [records, settings] = await Promise.all([
+        adminReportRecords(reportUser, owner),
+        loadReportSettings(owner),
+      ]);
       if (firebaseAuth().currentUser?.uid !== owner)
         throw new Error("Account changed. Please try again.");
       if (!summarizeQuality(records, range, generatedAt).assessments)
@@ -74,6 +78,7 @@ export function QualityReportExport({
           range,
           `${user.displayName || user.email || "Administrator"} � ${reportLabel || "All graders"}`,
           generatedAt,
+          settings,
         ),
       );
     } catch (e) {
@@ -87,7 +92,7 @@ export function QualityReportExport({
   return (
     <Card style={{ gap: 14 }}>
       <Label>Quality report</Label>
-      <Body>Grade totals and average moisture readings for your selected period.</Body>
+      <Body>Grade totals and moisture screening for your selected period.</Body>
       <View style={{ flexDirection: "row", gap: 4 }}>
         {(
           [

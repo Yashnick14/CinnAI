@@ -1,4 +1,8 @@
-import { AdminQualityReport } from "../../components/AdminQualityReport";
+import { useAuth } from "../../context/AuthContext";
+import {
+  AdminQualityReport,
+  type AdminHistoryData,
+} from "../../components/AdminQualityReport";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -30,6 +34,9 @@ import { theme } from "../../config/theme";
 
 /** List the current user's saved assessments with filtering and deletion actions. */
 export function HistoryScreen({ navigation }: ScreenProps<"History">) {
+  const { user } = useAuth();
+  const [adminHistory, setAdminHistory] = useState<AdminHistoryData | null>(null);
+  const adminView = adminHistory?.owner === user?.uid ? adminHistory : null;
   const [deleting, setDeleting] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -77,12 +84,16 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
       };
     }, [retry]),
   );
-  const visible = filterHistory(records, search, filter);
+  const displayed = adminView ? adminView.records : records;
+  const visible = filterHistory(displayed, search, filter);
   const summary = summarize(visible);
   return (
     <Page>
-      <Heading title="Grading History" subtitle="Your saved assessments" />
-      <AdminQualityReport />
+      <Heading
+        title="Grading History"
+        subtitle={adminView ? "Graders' saved assessments" : "Your saved assessments"}
+      />
+      <AdminQualityReport onHistory={setAdminHistory} />
 
       <View
         style={{
@@ -167,7 +178,7 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
           <Button title="Retry History" onPress={() => setRetry((r) => r + 1)} />
         </>
       )}
-      {!loading && !error && records.length === 0 && (
+      {!loading && !error && displayed.length === 0 && (
         <Card>
           <Label>No saved results yet</Label>
           <Body>
@@ -179,21 +190,42 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
           />
         </Card>
       )}
-      {!loading && records.length > 0 && visible.length === 0 && (
+      {!loading && displayed.length > 0 && visible.length === 0 && (
         <Body>No records match this search and filter.</Body>
       )}
       {visible.map((r) => (
         <View key={r.id} style={{ gap: 8 }}>
+          {adminView && (
+            <Body>
+              {
+                adminView.names[
+                  adminView.records.find((item) => item.id === r.id)!.userUid
+                ]
+              }
+            </Body>
+          )}
           <HistoryRow
-            result={r}
-            onPress={() => navigation.navigate("HistoryDetail", { id: r.id })}
+            onDelete={adminView ? undefined : () => setDeleting(r.id)}
+            deleteDisabled={busy}
+            result={
+              adminView
+                ? {
+                    ...r,
+                    id: adminView.records.find((item) => item.id === r.id)!.recordId,
+                  }
+                : r
+            }
+            onPress={() => {
+              const item = adminView?.records.find((item) => item.id === r.id);
+              navigation.navigate(
+                "HistoryDetail",
+                item ? { id: item.recordId, ownerUid: item.userUid } : { id: r.id },
+              );
+            }}
           />
-          {deleting === r.id ? (
+          {adminView ? null : deleting === r.id ? (
             <Card>
-              <Body>
-                Delete this saved record from this device? This does not delete backend
-                captures.
-              </Body>
+              <Body>Delete this saved record from your history?</Body>
               <Button
                 title="Delete Record"
                 busy={busy}
@@ -206,14 +238,7 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
                 onPress={() => setDeleting(null)}
               />
             </Card>
-          ) : (
-            <Button
-              title="Delete"
-              secondary
-              disabled={busy}
-              onPress={() => setDeleting(r.id)}
-            />
-          )}
+          ) : null}
         </View>
       ))}
     </Page>

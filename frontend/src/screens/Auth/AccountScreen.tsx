@@ -1,3 +1,4 @@
+import { ReportSettingsCard } from "../../components/ReportSettingsCard";
 import { requestPasswordReset } from "../../services/passwordReset";
 import { useDesktopLayout } from "../../hooks/useDesktopLayout";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -363,6 +364,7 @@ export function AccountScreen() {
           )}
         </View>
       </View>
+      <ReportSettingsCard />
     </Page>
   );
 }

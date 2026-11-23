@@ -64,5 +64,5 @@ npm run export:web
 ```
 
 Tests and reproducibility scripts stay in Git. Models, secrets, encoder cache, historical captures,
-build outputs and FYP evidence need separate provisioning/storage. See `docs/refactor-report.md`.
+build outputs and FYP evidence need separate provisioning/storage.
 No Azure resources have been deployed.

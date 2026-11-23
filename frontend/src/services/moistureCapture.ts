@@ -1,4 +1,4 @@
-import { BLE, ADC_UNTOUCHED_THRESHOLD } from "../config/ble";
+import { BLE } from "../config/ble";
 import { MOISTURE_CAPTURE } from "../config/moistureCapture";
 import type { SensorSnapshot } from "../types/sensor";
 import { snapshotMoisture, type SessionMoisture } from "./sessionMoisture";
@@ -40,8 +40,8 @@ export function usableCapture(
   const reading = capture.captured;
   return (
     !!reading &&
-    sensor.medianAdc != null &&
-    sensor.medianAdc < ADC_UNTOUCHED_THRESHOLD &&
+    reading.read_status === "fresh" &&
+    !sensor.isMock &&
     sensor.state === "connected" &&
     !sensor.error &&
     !sensor.stale &&
@@ -58,6 +58,8 @@ export function advanceMoistureCapture(
   sensor: SensorSnapshot,
   now = Date.now(),
 ): MoistureCapture {
+  // A completed sample snapshot is independent of subsequent probe contact.
+  if (capture.captured && usableCapture(capture, sensor, now)) return capture;
   const reading = snapshotMoisture(sensor, now);
   if (
     reading.read_status !== "fresh" ||
@@ -93,7 +95,7 @@ export function advanceMoistureCapture(
   };
 }
 
-/** Map a fresh provisional status to PASS or FAIL, otherwise return UNAVAILABLE. */
+/** Map a fresh sensor screening status to PASS or FAIL, otherwise return UNAVAILABLE. */
 export function moistureQuality(
   reading?: SessionMoisture,
 ): "PASS" | "FAIL" | "UNAVAILABLE" {

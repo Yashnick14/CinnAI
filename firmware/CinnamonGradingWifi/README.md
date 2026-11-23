@@ -40,7 +40,7 @@ on your board if it changed. Use **http**, not https. You should see JSON simila
 ```
 
 1800 is an example; actual data comes from GPIO34. Nothing returns an exact
-moisture percentage. The threshold and labels remain PROVISIONAL. A disconnected
+moisture percentage. The threshold provides ADC-based screening, not a calibrated moisture percentage. A disconnected
 probe can still produce ADC numbers: these numbers do not prove correct sensor wiring.
 
 ## Open in Expo Go

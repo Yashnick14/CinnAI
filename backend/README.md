@@ -57,4 +57,3 @@ thresholds, probability renormalization, or hybrid decisions are applied.
 
 `constraints-tested.txt` records the local dependency environment. Notebook feature-parity tests retain their original fixtures.
 `verify_visual.py` is a historical notebook comparison utility; its original detector-era outcomes are not V5 acceptance targets.
-Current refactor test evidence is summarized in `../docs/refactor-report.md`.

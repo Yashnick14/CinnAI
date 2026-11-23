@@ -1,3 +1,4 @@
+import { cloudRequest } from "../../services/cloudApi";
 import { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -82,6 +83,11 @@ export function AuthScreen({
           password,
         );
         await updateProfile(result.user, { displayName: name.trim() });
+        void cloudRequest(
+          "/profile",
+          { method: "POST", body: JSON.stringify({ display_name: name.trim() }) },
+          result.user.uid,
+        ).catch(() => {});
       } else await signInWithEmailAndPassword(firebaseAuth(), email.trim(), password);
       // Firebase's auth observer switches the navigator to Home. Never navigate across auth stacks.
     } catch (e) {

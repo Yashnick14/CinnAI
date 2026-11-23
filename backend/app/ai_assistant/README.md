@@ -18,7 +18,7 @@ The supplied Colab ranking boosts and stable ordering are preserved. Scores are 
 
 Only explicit single-sample measurement statements invoke the existing diameter_grade function. Policy/reference clauses are excluded. Multiple differing sample measurements and unrecognized/ambiguous wording produce null measurement fields and instructions to clarify; the extractor deliberately favors avoiding false measurement claims. This endpoint does not validate a physical sample or update a grading session.
 
-The deterministic application_grade is never calculated by the language model. Answer generation receives that result plus the handbook/application distinction and existing provisional ADC rule. Generated answers are rejected if empty or if they contain prohibited internal vocabulary/record identifiers. API status: 422 invalid question; 503 assistant not configured/resources unavailable; 502 answer service failure. Provider bodies and credentials are not returned.
+The deterministic application_grade is never calculated by the language model. Answer generation receives that result plus the handbook/application distinction and existing ADC screening rule. Generated answers are rejected if empty or if they contain prohibited internal vocabulary/record identifiers. API status: 422 invalid question; 503 assistant not configured/resources unavailable; 502 answer service failure. Provider bodies and credentials are not returned.
 
 Tests use a controlled encoder and answer generator to verify routing, prompts, classification, exact ranking weights, failure handling and public response shape. They do not establish live generated-answer quality. All six requested questions still need a live answer check once a valid API key is configured.
 

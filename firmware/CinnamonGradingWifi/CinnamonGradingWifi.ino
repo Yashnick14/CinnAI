@@ -15,7 +15,6 @@
 
 #define MOISTURE_PIN 34
 const int SAMPLE_COUNT = 20;
-// PROVISIONAL prototype threshold, NOT an ADC-to-percent calibration.
 // Empirical screening thresholds; ADC does not provide a calibrated percentage.
 const int ADC_THRESHOLD = 1711;
 const int ADC_UNTOUCHED_THRESHOLD = 2850;
@@ -98,7 +97,7 @@ int readMedianADC() {
   return (readings[SAMPLE_COUNT / 2 - 1] + readings[SAMPLE_COUNT / 2]) / 2;
 }
 
-// Serve the latest raw ADC, sample age and provisional status through the local HTTP
+// Serve the latest raw ADC, sample age and screening status through the local HTTP
 // endpoint.
 void sendSensorReading() {
   server.sendHeader("Cache-Control", "no-store");

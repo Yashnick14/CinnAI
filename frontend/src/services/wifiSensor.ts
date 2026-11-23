@@ -138,7 +138,7 @@ export class WifiSensorService implements SensorService {
             : "Cannot reach the ESP32 sensor.",
         );
       }
-      // TEMPORARY diagnostics for real-world Wi-Fi firmware compatibility.
+      // Diagnostics for Wi-Fi firmware compatibility.
       console.info("[moisture:wifi] HTTP", response.status);
       const body = await response.text();
       const receivedAt = Date.now();

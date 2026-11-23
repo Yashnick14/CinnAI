@@ -104,3 +104,10 @@ it("includes saved records when a custom range ends in the future", () => {
     ).assessments,
   ).toBe(1);
 });
+
+it("reports category counts rather than presenting ADC as moisture percentage", () => {
+  const html = qualityReportHtml([base], reportRange("day", now), "Admin", now);
+  expect(html).not.toContain("Avg. ADC");
+  expect(html).not.toContain("Avg. moisture %");
+  expect(html).toContain("application screening categories");
+});

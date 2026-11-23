@@ -1,4 +1,4 @@
-"""Temporary coin instrumentation. These checks do not accept/reject measurements."""
+"""Coin measurement diagnostics. These checks do not accept/reject measurements."""
 
 import cv2
 import numpy as np

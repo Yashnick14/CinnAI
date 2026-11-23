@@ -1,3 +1,4 @@
+import { moistureLabel } from "../../utils/moistureLabel";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Share, View } from "react-native";
 import { Text } from "../../components/AppText";
@@ -12,6 +13,8 @@ import {
   StatusBadge,
   WarningMessage,
 } from "../../components/ui";
+import { cloudRequest } from "../../services/cloudApi";
+import { GradingResultSchema } from "../../types/grading";
 import { history } from "../../storage/history";
 import type { GradingResult } from "../../types/grading";
 import type { ScreenProps } from "../../types/navigation";
@@ -27,8 +30,14 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
   const [expanded, setExpanded] = useState(false);
   useEffect(() => {
     let active = true;
-    history
-      .get(route.params.id)
+    setResult(undefined);
+    setError("");
+    const request = route.params.ownerUid
+      ? cloudRequest(
+          `/admin/history/${encodeURIComponent(route.params.ownerUid)}/${encodeURIComponent(route.params.id)}`,
+        ).then((value) => GradingResultSchema.parse(value))
+      : history.get(route.params.id);
+    request
       .then((r) => {
         if (active) {
           if (r) setResult(r);
@@ -41,7 +50,7 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
     return () => {
       active = false;
     };
-  }, [route.params.id]);
+  }, [route.params.id, route.params.ownerUid]);
 
   /** Share the selected record using the platform share interface. */
   async function share() {
@@ -53,7 +62,7 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
           `Date: ${new Date(result.timestamp).toLocaleString()}`,
           `Grade: ${result.finalGrade ?? "Manual review"}`,
           `Diameter: ${measurement(result.diameterMm, "mm")}`,
-          `Moisture: ${measurement(result.moisturePercent, "%")} (${result.moistureStatus})`,
+          `Moisture: ${moistureLabel(result.moistureStatus, result.moistureRawAdc)}`,
           `Status: ${result.finalStatus.replace(/_/g, " ")}`,
           ...result.warnings.map((w) =>
             w
@@ -156,11 +165,6 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
               value={result.visualPrediction ?? "Unavailable"}
             />
             <Row label="Visual confidence" value={percent(result.visualConfidence)} />
-            <Row
-              label="Candidate confidence"
-              value={percent(result.finalCandidateConfidence)}
-            />
-            <Row label="Source" value={result.source} />
           </Section>
           <Section title="VISUAL & PHYSICAL EVIDENCE">
             <Row
@@ -173,28 +177,34 @@ export function HistoryDetailScreen({ route }: ScreenProps<"HistoryDetail">) {
               value={result.diameterCandidates.join(", ") || "None"}
             />
           </Section>
-          <Section title="MOISTURE COMPLIANCE" blue>
+          <Section title="MOISTURE SCREENING" blue>
             <Row
-              label="Measured moisture"
-              value={measurement(result.moisturePercent, "%")}
+              label="Moisture"
+              value={moistureLabel(result.moistureStatus, result.moistureRawAdc)}
             />
             <Row
-              label="Raw sensor ADC"
+              label="Date"
               value={
-                result.moistureRawAdc == null
-                  ? "Unavailable"
-                  : String(result.moistureRawAdc)
+                result.moistureCapturedAt
+                  ? new Date(result.moistureCapturedAt).toLocaleDateString()
+                  : "Unavailable"
               }
             />
             <Row
-              label="Sensor captured"
-              value={result.moistureCapturedAt ?? "Unavailable"}
+              label="Time"
+              value={
+                result.moistureCapturedAt
+                  ? new Date(result.moistureCapturedAt).toLocaleTimeString()
+                  : "Unavailable"
+              }
             />
-            <Row label="Compliance" value={result.moistureStatus} />
-            <Row label="Requirement" value="Maximum 14.0% (reference requirement)" />
           </Section>
           {result.warnings
-            .filter((w) => !w.startsWith("DEMO ONLY:"))
+            .filter(
+              (w) =>
+                !w.startsWith("DEMO ONLY:") &&
+                !/sample verified|grade is based on/i.test(w),
+            )
             .map((w, i) => (
               <WarningMessage
                 key={i}

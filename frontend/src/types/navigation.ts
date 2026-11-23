@@ -17,7 +17,7 @@ export type RootStackParamList = {
   Result: { result: SampleResult };
   ManualReview: { result: SampleResult };
   History: undefined;
-  HistoryDetail: { id: string };
+  HistoryDetail: { id: string; ownerUid?: string };
   Sensor: undefined;
   Settings: undefined;
 };

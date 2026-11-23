@@ -9,7 +9,7 @@ export const SUPPORTED_GRADES = [
   "M5",
 ] as const;
 export const REFERENCE_COIN_DIAMETER_MM = 26.4;
-// Reserved for the later real decision pipeline; demo fixtures do not execute these rules.
+// Legacy reference values; authoritative application grading is performed by the backend.
 export const GRADING_RULES = {
   diameterMm: {
     Alba: { min: 0, max: 7, maxInclusive: false },

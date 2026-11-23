@@ -6,6 +6,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import { onAuthStateChanged, updateProfile, type User } from "firebase/auth";
+import { cloudRequest } from "../services/cloudApi";
 import { firebaseConfigured } from "../config/firebase";
 import { firebaseAuth } from "../services/firebaseAuth";
 
@@ -42,6 +43,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
     await updateProfile(current, { displayName: trimmed });
     setProfileVersion((value) => value + 1);
   }
+  // Keep the signed-in profile name available to authorized admin reports.
+  useEffect(() => {
+    if (!user?.displayName?.trim()) return;
+    void cloudRequest(
+      "/profile",
+      {
+        method: "POST",
+        body: JSON.stringify({ display_name: user.displayName.trim() }),
+      },
+      user.uid,
+    ).catch(() => {});
+  }, [user, profileVersion]);
   useEffect(() => {
     if (!firebaseConfigured) return;
     try {
