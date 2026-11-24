@@ -25,7 +25,7 @@ An initial backend run failed because the sandbox could not create the default s
 
 This process receives Access is denied opening Docker Desktop's Linux-engine named pipe. This is a session access limitation, not evidence that Docker Desktop is stopped. No controller or agent build/start was claimed. Jenkins Pipeline runtime compilation, container image build, disposable PostgreSQL integration, Linux model inference and real deployment/rollback remain unexecuted in this session.
 
-Run `validate-local.ps1` from your own PowerShell as described in README.md. It requires no Azure credentials and does not deploy. After that passes, configure Jenkins and run the protected pipeline only following your manual review/merge/push to main. Azure service-principal setup is also pending; no identity or RBAC resources were created.
+Run `validate-local.ps1` from your own PowerShell as described in the [main README](../../../README.md#jenkins-and-releases). It requires no Azure credentials and does not deploy. After that passes, configure Jenkins and run the protected pipeline only following your manual review/merge/push to main. Azure service-principal setup is also pending; no identity or RBAC resources were created.
 
 Dependency installation reported 33 npm audit findings across the dependency tree (2 low, 21 moderate, 8 high, 2 critical). No broad automatic dependency upgrades were attempted; this is not a dependency-security certification.
 
@@ -52,3 +52,8 @@ Dependency installation reported 33 npm audit findings across the dependency tre
 - `infrastructure/jenkins/README.md`, `REMOTE_SETUP.md`: point to the current local setup. The remote scaffold from the preceding unfinished work remains unused.
 
 Application models, inference, calibration, grading rules, firmware, live infrastructure and Terraform state remain unchanged.
+
+
+Documentation consolidation: the setup README files listed in this historical record
+were moved to `delete/` after consolidation into the root README. Historical validation
+results above are preserved; follow the root README for the current release workflow.

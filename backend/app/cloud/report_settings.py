@@ -4,7 +4,11 @@ import binascii
 import io
 import warnings
 from PIL import Image, ImageOps, UnidentifiedImageError
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, Field, ConfigDict, StrictBool, field_validator
+
+
+MAX_LOGO_BYTES = 10 * 1024 * 1024
+MAX_LOGO_DATA_URL_LENGTH = 4 * ((MAX_LOGO_BYTES + 2) // 3) + len("data:image/jpeg;base64,")
 
 
 class ReportSettingsInput(BaseModel):
@@ -13,9 +17,16 @@ class ReportSettingsInput(BaseModel):
     address: str = Field(default="", max_length=400)
     phone: str = Field(default="", max_length=50)
     email: str = Field(default="", max_length=150)
+    # Retain legacy fields for older app versions; current reports omit them.
     website: str = Field(default="", max_length=200)
     registration_number: str = Field(default="", max_length=80)
-    logo_data_url: str | None = Field(default=None, max_length=2800000)
+    include_non_export_quality: StrictBool = False
+    show_logo: StrictBool = True
+    show_company_name: StrictBool = True
+    show_address: StrictBool = True
+    show_phone: StrictBool = True
+    show_email: StrictBool = True
+    logo_data_url: str | None = Field(default=None, max_length=MAX_LOGO_DATA_URL_LENGTH)
 
     @field_validator("logo_data_url")
     @classmethod
@@ -28,8 +39,8 @@ class ReportSettingsInput(BaseModel):
             if prefix not in ("data:image/png;base64", "data:image/jpeg;base64"):
                 raise ValueError("Choose a PNG or JPEG logo.")
             raw = base64.b64decode(encoded, validate=True)
-            if len(raw) > 2 * 1024 * 1024:
-                raise ValueError("Logo must be smaller than 2 MB.")
+            if len(raw) > MAX_LOGO_BYTES:
+                raise ValueError("Logo must be 10 MB or smaller.")
             with warnings.catch_warnings():
                 warnings.simplefilter("error", Image.DecompressionBombWarning)
                 with Image.open(io.BytesIO(raw)) as source:
@@ -40,8 +51,6 @@ class ReportSettingsInput(BaseModel):
                     image.thumbnail((800, 400))
                     output = io.BytesIO()
                     image.save(output, format="PNG", optimize=True)
-            if output.tell() > 512 * 1024:
-                raise ValueError("Choose a simpler or smaller logo.")
             return "data:image/png;base64," + base64.b64encode(output.getvalue()).decode("ascii")
         except (binascii.Error, UnidentifiedImageError, OSError, Image.DecompressionBombError, Image.DecompressionBombWarning) as exc:
             raise ValueError("Choose a valid PNG or JPEG logo.") from exc

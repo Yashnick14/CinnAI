@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(PROJECT_ROOT / ".env")
 MODEL_DIRECTORY = Path(os.getenv("MODEL_DIRECTORY", str(PROJECT_ROOT / "models")))
+if not MODEL_DIRECTORY.is_absolute():
+    MODEL_DIRECTORY = PROJECT_ROOT / MODEL_DIRECTORY
 YOLO_MODEL_NAME = "quill_detector_v5.pt"
 RF_MODEL_NAME = "rf_vision_8_class.pkl"
 SEGMENTATION_MODEL_NAME = "coin_quill_segmentation.pt"
@@ -23,18 +25,13 @@ TEMP_VISUAL_UPLOAD_DIRECTORY = Path(
 )
 if not TEMP_VISUAL_UPLOAD_DIRECTORY.is_absolute():
     TEMP_VISUAL_UPLOAD_DIRECTORY = PROJECT_ROOT / TEMP_VISUAL_UPLOAD_DIRECTORY
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg://cinnamon:cinnamon@localhost:5432/cinnamon_grading",
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 UPLOAD_DIRECTORY = Path(
     os.getenv("UPLOAD_DIRECTORY", str(PROJECT_ROOT / "data" / "grading-images"))
 )
 ALLOWED_ORIGINS = tuple(
     origin.strip()
-    for origin in os.getenv(
-        "ALLOWED_ORIGINS", "http://localhost:8081,http://localhost:8082"
-    ).split(",")
+    for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
     if origin.strip()
 )
 # Configuration for future integration only; not executed by the mock service.

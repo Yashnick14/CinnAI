@@ -25,7 +25,7 @@
 - Expo export passed for web, iOS and Android (including native Hermes bytecode).
 - The generated decorative hero is bundled locally; no remote image dependency.
 - The in-app browser could not reach the static preview server either; native and visual
-  walkthroughs remain pending. See DESIGN.md for changes and restart instructions.
+  walkthroughs remain pending. Current setup instructions are in [the main README](../README.md#local-setup-and-environment).
 
 The foundation validation below records the earlier backend and service checks.
 
@@ -48,7 +48,7 @@ not model accuracy, physical measurements, or a signed native app.
 - EAS cloud build, Apple signing and installation on a registered iPhone.
 - Real BLE and ML/measurement validation: deliberately pending the supplied artifacts.
 
-Use TESTING.md for the device acceptance sequence. Browser preview is optional and does not
+Use [the main README](../README.md#tests-and-docker) for current testing instructions. Browser preview is optional and does not
 replace native testing.
 
 ## Environment notes

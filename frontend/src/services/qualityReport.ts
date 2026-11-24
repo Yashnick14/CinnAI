@@ -68,11 +68,23 @@ export function summarizeQuality(
   records: GradingResult[],
   range: ReportRange,
   generatedAt = new Date(),
+  includeNonExportQuality = true,
 ) {
   const unique = new Map(records.map((record) => [record.id, record]));
   const selected = [...unique.values()].filter((record) => {
     const at = Date.parse(record.timestamp);
     return (
+      (includeNonExportQuality ||
+        (record.finalGrade != null &&
+          record.moistureStatus === "PASS" &&
+          record.moistureRawAdc != null &&
+          Number.isFinite(record.moistureRawAdc) &&
+          record.moistureRawAdc >= 0 &&
+          record.moistureRawAdc < ADC_UNTOUCHED_THRESHOLD &&
+          (record.moisturePercent == null ||
+            (Number.isFinite(record.moisturePercent) &&
+              record.moisturePercent >= 0 &&
+              record.moisturePercent <= 14)))) &&
       !record.isMock &&
       record.source === "api" &&
       at >= +range.start &&
@@ -135,7 +147,7 @@ export function escapeReportText(value: string) {
   );
 }
 
-/** Build a self-contained printable quality summary with explicit units and denominators. */
+/** Build the printable report using saved company visibility preferences. */
 export function qualityReportHtml(
   records: GradingResult[],
   range: ReportRange,
@@ -143,41 +155,90 @@ export function qualityReportHtml(
   generatedAt = new Date(),
   settings?: ReportSettings,
 ) {
-  const report = summarizeQuality(records, range, generatedAt);
   const branding = settings ? ReportSettingsSchema.parse(settings) : undefined;
-  const company = branding
-    ? `<div class="company">${branding.logo_data_url ? `<img alt="Company logo" class="company-logo" src="${branding.logo_data_url}">` : ""}<div class="brand">${escapeReportText(branding.company_name || "CinnAI")}</div>${[
-        branding.address,
-        branding.phone,
-        branding.email,
-        branding.website,
-        branding.registration_number
-          ? `Registration: ${branding.registration_number}`
-          : "",
-      ]
-        .filter(Boolean)
-        .map((line) => `<p class="muted">${escapeReportText(line)}</p>`)
-        .join("")}</div>`
-    : '<div class="brand">CinnAI</div>';
+  const report = summarizeQuality(
+    records,
+    range,
+    generatedAt,
+    branding?.include_non_export_quality ?? false,
+  );
+  const logo =
+    branding?.show_logo && branding.logo_data_url
+      ? `<td class="logo-cell"><img alt="Company logo" src="${branding.logo_data_url}"></td>`
+      : "";
+  const details: [string, string][] = [];
+  if (branding) {
+    for (const [key, label] of [
+      ["company_name", "Company name"],
+      ["address", "Address"],
+      ["phone", "Phone"],
+      ["email", "Email"],
+    ] as const) {
+      if (branding[`show_${key}`] && branding[key].trim())
+        details.push([label, branding[key]]);
+    }
+  }
+  details.push(
+    [
+      "Records",
+      branding?.include_non_export_quality
+        ? "All saved assessments"
+        : "Moisture-compliant graded assessments",
+    ],
+    ["Report period", range.label],
+    ["Prepared for", account],
+    ["Generated", generatedAt.toLocaleString()],
+    ["Time zone", Intl.DateTimeFormat().resolvedOptions().timeZone],
+  );
+  const detailRows = [];
+  for (let i = 0; i < details.length; i += 2) {
+    detailRows.push(
+      `<tr>${details
+        .slice(i, i + 2)
+        .map(
+          ([label, value]) =>
+            `<td><strong>${escapeReportText(label)}:</strong> <span>${escapeReportText(value)}</span></td>`,
+        )
+        .join("")}${i + 1 === details.length ? "<td></td>" : ""}</tr>`,
+    );
+  }
   const rows = report.rows
     .map(
       (row) =>
-        `<tr><td><strong>${escapeReportText(row.grade)}</strong></td><td>${row.assessments}</td><td>${row.quills}</td><td>${row.pass}</td><td>${row.fail}</td><td>${row.unavailable}</td></tr>`,
+        `<tr><td>${escapeReportText(row.grade)}</td><td>${row.assessments}</td><td>${row.quills}</td><td>${row.pass}</td><td>${row.fail}</td><td>${row.unavailable}</td></tr>`,
     )
     .join("");
-  const quality = report.rows
-    .map(
-      (row) =>
-        `<tr><td>${escapeReportText(row.grade)}</td><td>${row.pass}</td><td>${row.fail}</td><td>${row.unavailable}</td></tr>`,
-    )
-    .join("");
+  const totals = report.rows.reduce(
+    (total, row) => ({
+      assessments: total.assessments + row.assessments,
+      quills: total.quills + row.quills,
+      pass: total.pass + row.pass,
+      fail: total.fail + row.fail,
+      unavailable: total.unavailable + row.unavailable,
+    }),
+    { assessments: 0, quills: 0, pass: 0, fail: 0, unavailable: 0 },
+  );
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CinnAI Quality Report</title><style>
-  @page {size:A4; margin:18mm;} *{box-sizing:border-box} body{font-family:Arial,sans-serif;color:#29221d;font-size:11px;line-height:1.5;margin:0} header{border-bottom:3px solid #80502f;padding-bottom:16px} .company-logo{max-width:180px;max-height:85px;object-fit:contain;display:block;margin-bottom:10px}.company p{white-space:pre-line}.brand{color:#80502f;font-size:25px;font-weight:700;letter-spacing:1px} h1{font-size:23px;margin:6px 0} h2{font-size:15px;color:#80502f;margin:24px 0 10px} p{margin:5px 0;overflow-wrap:anywhere} .muted{color:#72685e} .metrics{display:table;width:100%;margin:20px 0;background:#f6f0e9;border-radius:8px} .metric{display:table-cell;width:25%;padding:13px} .number{font-size:23px;font-weight:bold;color:#80502f;display:block} table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:10px} th{background:#80502f;color:white;font-weight:600} th,td{padding:9px 6px;text-align:right;border-bottom:1px solid #e5ded7;overflow-wrap:anywhere} th:first-child,td:first-child{text-align:left;width:19%} tbody tr:nth-child(even){background:#faf7f3} thead{display:table-header-group} tr{break-inside:avoid} .note{font-size:10px;color:#72685e;margin-top:10px} footer{border-top:1px solid #e5ded7;margin-top:20px;padding-top:10px;font-size:10px;color:#72685e} .section{break-inside:avoid}
-  </style></head><body><header>${company}<h1>Grading quality report</h1><p>${escapeReportText(range.label)}</p><p class="muted">Prepared for ${escapeReportText(account)}</p><p class="muted">Generated ${escapeReportText(generatedAt.toLocaleString())} | ${escapeReportText(Intl.DateTimeFormat().resolvedOptions().timeZone)}</p></header>
-  <div class="metrics"><div class="metric"><span class="number">${report.assessments}</span>Saved assessments</div><div class="metric"><span class="number">${report.quills}</span>Quills in graded records</div><div class="metric"><span class="number">${report.manualReviews}</span>Manual reviews</div><div class="metric"><span class="number">${report.unassigned}</span>Unassigned assessments</div></div>
+  @page {size:A4; margin:16mm;}
+  *{box-sizing:border-box} body{font-family:Arial,sans-serif;color:#29221d;font-size:11px;line-height:1.45;margin:0}
+  table{width:100%;border-collapse:collapse;table-layout:fixed} td,th{border:1px solid #d8cfc5;padding:8px;overflow-wrap:anywhere}
+  .heading{break-inside:avoid;border-bottom:7px solid #80502f}.masthead td{padding:0;text-align:center}
+  .masthead .logo-cell{width:27%;padding:12px}.logo-cell img{max-width:100%;max-height:78px;object-fit:contain}
+  h1{background:#80502f;color:white;font-size:22px;letter-spacing:1px;margin:0;padding:14px 8px;text-transform:uppercase}
+  .subtitle{font-size:17px;font-weight:bold;padding:10px;text-transform:uppercase}
+  .details td{width:50%;vertical-align:top;padding:6px 9px}.details strong{color:#80502f}.details span{white-space:pre-line}
+  h2{background:#80502f;color:white;font-size:12px;font-weight:600;padding:6px 9px;margin:22px 0 0}
+  .summary th{background:#f6f0e9;font-weight:normal}.summary td{text-align:center;font-size:18px;font-weight:bold;color:#80502f}
+  .grades th{background:#f6f0e9;font-weight:600}.grades td,.grades th{text-align:center}.grades td:first-child{text-align:left;font-weight:600}
+  .grades tbody tr:nth-child(even){background:#faf7f3}.grades tfoot td{background:#f6f0e9;font-weight:bold}
+  thead{display:table-header-group} tr{break-inside:avoid}.section{break-inside:avoid}
+  .note,footer{font-size:9px;color:#72685e;line-height:1.5}.note{margin:8px 0}footer{border-top:2px solid #80502f;margin-top:20px;padding-top:9px}
+  </style></head><body>
+  <header class="heading"><table class="masthead"><tr>${logo}<td><h1>Quality report</h1><div class="subtitle">Cinnamon quill grading</div></td></tr></table>
+  <table class="details">${detailRows.join("")}</table></header>
+  <section class="section"><h2>Assessment summary</h2><table class="summary"><thead><tr><th>Saved assessments</th><th>Quills in graded records</th><th>Manual reviews</th><th>Unassigned assessments</th></tr></thead><tbody><tr><td>${report.assessments}</td><td>${report.quills}</td><td>${report.manualReviews}</td><td>${report.unassigned}</td></tr></tbody></table></section>
   ${report.assessments ? "" : "<p>No saved assessments in this period.</p>"}
-  <section class="section"><h2>Grade distribution &amp; moisture screening</h2><table><thead><tr><th>Grade</th><th>Assessments</th><th>Detected quills</th><th>Screening ≤14%</th><th>Screening &gt;14%</th><th>Unavailable</th></tr></thead><tbody>${rows}</tbody></table></section>
-  <p class="note">Moisture columns count assessments in application screening categories, not measured moisture percentages. Exact percentages and averages require calibrated measurements. Missing and untouched readings are excluded.</p>
-  <section class="section"><h2>Moisture screening by grade</h2><table><thead><tr><th>Grade</th><th>Screening ≤14%</th><th>Screening &gt;14%</th><th>Unavailable</th></tr></thead><tbody>${quality}</tbody></table><p class="note">Counts refer to assessments. Saved screening results are preserved. ADC screening is not a calibrated moisture percentage or an export certificate.</p></section>
+  <section class="section"><h2>Grade distribution &amp; moisture</h2><table class="grades"><thead><tr><th rowspan="2">Grade</th><th rowspan="2">Assessments</th><th rowspan="2">Detected quills</th><th colspan="3">Moisture</th></tr><tr><th>Comply</th><th>Non-comply</th><th>Unavailable</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td>Total</td><td>${totals.assessments}</td><td>${totals.quills}</td><td>${totals.pass}</td><td>${totals.fail}</td><td>${totals.unavailable}</td></tr></tfoot></table></section>
+  <p class="note">Moisture columns count assessments by their saved application result. Comply and Non-comply reflect the configured sensor threshold, not a laboratory measurement or certification. Missing and untouched readings are listed as Unavailable.</p>
   <footer>Includes saved database assessments for the selected graders within the selected dates, through generation time. Grades reflect the saved final assessment, including recorded manual reviews.</footer></body></html>`;
 }

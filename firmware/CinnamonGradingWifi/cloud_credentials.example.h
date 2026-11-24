@@ -1,8 +1,8 @@
 #pragma once
 // Copy to cloud_credentials.h locally. Never commit that file.
 #define CLOUD_ENABLED 0
-#define CLOUD_BASE_URL                                                                 \
-  "https://cinnai.wittymushroom-238da769.centralindia.azurecontainerapps.io"
+// Set your backend HTTPS base URL in the private cloud_credentials.h.
+#define CLOUD_BASE_URL ""
 #define CLOUD_DEVICE_ID "cinnai-probe-001"
 // Operator provisions this device; the token is copied to firmware via USB only.
 #define CLOUD_DEVICE_TOKEN ""

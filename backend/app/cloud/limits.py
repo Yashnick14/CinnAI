@@ -1,6 +1,7 @@
 """Bound JSON bodies on new cloud routes without touching image uploads."""
 
 from starlette.responses import JSONResponse
+from .report_settings import MAX_LOGO_DATA_URL_LENGTH
 
 
 class CloudBodyLimit:
@@ -12,13 +13,18 @@ class CloudBodyLimit:
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http" or not scope.get("path", "").startswith("/cloud/"):
             return await self.app(scope, receive, send)
+        # Only authenticated admin report uploads need room for base64 logo data.
+        # Authorization remains enforced by the route; other cloud limits stay unchanged.
+        limit = (MAX_LOGO_DATA_URL_LENGTH + 16 * 1024
+                 if scope.get("path", "").rstrip("/") == "/cloud/admin/report-settings"
+                 and scope.get("method") == "PUT" else self.limit)
         body = bytearray()
         while True:
             message = await receive()
             if message["type"] == "http.disconnect":
                 return
             body.extend(message.get("body", b""))
-            if len(body) > self.limit:
+            if len(body) > limit:
                 return await JSONResponse(
                     {"detail": "Cloud request is too large."}, status_code=413
                 )(scope, receive, send)

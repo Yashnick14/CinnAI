@@ -1,3 +1,4 @@
+import { loadReportSettings, type ReportSettings } from "../services/reportSettings";
 import { useCallback, useState } from "react";
 import { View, ScrollView, Pressable } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
@@ -26,6 +27,7 @@ export function AdminQualityReport({
   const [authorized, setAuthorized] = useState<string | null>(null);
   const [users, setUsers] = useState<{ uid: string; name: string }[]>([]);
   const [selected, setSelected] = useState("");
+  const [settings, setSettings] = useState<ReportSettings | null>(null);
   const [records, setRecords] = useState<GradingResult[]>([]);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
@@ -39,6 +41,7 @@ export function AdminQualityReport({
       setLoading(true);
       setError("");
       setRecords([]);
+      setSettings(null);
       if (owner)
         void (async () => {
           try {
@@ -60,7 +63,10 @@ export function AdminQualityReport({
                   : `Grader ${index + 1}`,
               ]),
             );
-            const rows = await adminReportRecords(selected, owner);
+            const [rows, savedSettings] = await Promise.all([
+              adminReportRecords(selected, owner),
+              loadReportSettings(owner),
+            ]);
             if (active) {
               setUsers(
                 people.map((person) => ({
@@ -70,6 +76,7 @@ export function AdminQualityReport({
               );
               onHistory({ owner, records: rows, names });
               setRecords(rows);
+              setSettings(savedSettings);
               setAuthorized(owner);
             }
           } catch {
@@ -117,6 +124,7 @@ export function AdminQualityReport({
       </ScrollView>
       <QualityReportExport
         records={records}
+        settings={settings}
         loading={loading}
         unavailable={!!error}
         reportUser={selected}

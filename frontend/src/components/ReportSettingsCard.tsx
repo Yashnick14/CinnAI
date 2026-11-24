@@ -1,5 +1,6 @@
+import { MAX_LOGO_BYTES, logoByteLength } from "../config/reportSettings";
 import { useCallback, useRef, useState } from "react";
-import { Image, TextInput, View } from "react-native";
+import { Image, Switch, TextInput, View } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "../context/AuthContext";
@@ -78,7 +79,8 @@ export function ReportSettingsCard() {
           ? "image/jpeg"
           : null;
       if (!mime) throw new Error("Choose a PNG or JPEG logo.");
-      if (data.length > 2796204) throw new Error("Choose a logo smaller than 2 MB.");
+      if (logoByteLength(data) > MAX_LOGO_BYTES)
+        throw new Error("Choose a logo of 10 MB or smaller.");
       setValue((current) => ({
         ...current,
         logo_data_url: `data:${mime};base64,${data}`,
@@ -104,10 +106,12 @@ export function ReportSettingsCard() {
         setValue(saved);
         setMessage("Report settings saved.");
       }
-    } catch {
+    } catch (e) {
       if (cloudUid() === owner)
         setError(
-          "Could not save report settings. Check the logo is PNG/JPEG and smaller than 2 MB, then retry.",
+          e instanceof Error
+            ? e.message
+            : "Could not save report settings. Please retry.",
         );
     } finally {
       lock.current = false;
@@ -126,6 +130,39 @@ export function ReportSettingsCard() {
         </>
       ) : (
         <>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              <Body>Include non-export quality records</Body>
+            </View>
+            <Switch
+              accessibilityLabel="Include non-export quality records"
+              value={value.include_non_export_quality}
+              disabled={busy}
+              trackColor={{ true: theme.primary }}
+              onValueChange={(on) => {
+                setValue((v) => ({ ...v, include_non_export_quality: on }));
+                setMessage("");
+              }}
+            />
+          </View>
+          <Body>
+            When off, only graded records accepted as export quality are included.
+          </Body>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              <Body>Company logo</Body>
+            </View>
+            <Switch
+              accessibilityLabel="Show logo in report"
+              value={value.show_logo}
+              disabled={busy}
+              trackColor={{ true: theme.primary }}
+              onValueChange={(on) => {
+                setValue((v) => ({ ...v, show_logo: on }));
+                setMessage("");
+              }}
+            />
+          </View>
           {value.logo_data_url && (
             <Image
               accessibilityLabel="Company logo preview"
@@ -151,28 +188,46 @@ export function ReportSettingsCard() {
               }}
             />
           )}
-          <Body>PNG or JPEG, up to 2 MB.</Body>
+          <Body>PNG or JPEG, up to 10 MB.</Body>
           {(
             [
               ["company_name", "Company name", 120],
               ["address", "Company address", 400],
               ["phone", "Phone", 50],
               ["email", "Company email", 150],
-              ["website", "Website", 200],
-              ["registration_number", "Registration number", 80],
             ] as const
           ).map(([key, label, max]) => (
             <View key={key} style={{ gap: 6 }}>
-              <Body>{label}</Body>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                <View style={{ flex: 1 }}>
+                  <Body>{label}</Body>
+                </View>
+                <Switch
+                  accessibilityLabel={`Show ${label.toLowerCase()} in report`}
+                  value={value[`show_${key}`]}
+                  disabled={busy}
+                  trackColor={{ true: theme.primary }}
+                  onValueChange={(on) => {
+                    setValue((v) => ({ ...v, [`show_${key}`]: on }));
+                    setMessage("");
+                  }}
+                />
+              </View>
               <TextInput
                 accessibilityLabel={label}
                 value={value[key]}
                 maxLength={max}
                 editable={!busy}
                 multiline={key === "address"}
-                autoCapitalize={
-                  key === "email" || key === "website" ? "none" : "sentences"
+                autoCapitalize={key === "email" ? "none" : "sentences"}
+                keyboardType={
+                  key === "email"
+                    ? "email-address"
+                    : key === "phone"
+                      ? "phone-pad"
+                      : "default"
                 }
+                autoCorrect={key !== "email"}
                 onChangeText={(text) => {
                   setValue((v) => ({ ...v, [key]: text }));
                   setMessage("");

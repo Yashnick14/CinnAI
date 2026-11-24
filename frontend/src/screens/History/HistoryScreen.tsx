@@ -91,7 +91,7 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
     <Page>
       <Heading
         title="Grading History"
-        subtitle={adminView ? "Graders' saved assessments" : "Your saved assessments"}
+        subtitle={adminView ? "All Records" : "Your saved assessments"}
       />
       <AdminQualityReport onHistory={setAdminHistory} />
 
@@ -199,7 +199,7 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
             <Body>
               {
                 adminView.names[
-                  adminView.records.find((item) => item.id === r.id)!.userUid
+                adminView.records.find((item) => item.id === r.id)!.userUid
                 ]
               }
             </Body>
@@ -210,9 +210,9 @@ export function HistoryScreen({ navigation }: ScreenProps<"History">) {
             result={
               adminView
                 ? {
-                    ...r,
-                    id: adminView.records.find((item) => item.id === r.id)!.recordId,
-                  }
+                  ...r,
+                  id: adminView.records.find((item) => item.id === r.id)!.recordId,
+                }
                 : r
             }
             onPress={() => {

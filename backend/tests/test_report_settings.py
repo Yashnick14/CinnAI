@@ -61,3 +61,81 @@ def test_migration_upgrade_and_downgrade():
         assert 'cloud_report_settings' in inspect(connection).get_table_names()
         migration.downgrade()
         assert 'cloud_report_settings' not in inspect(connection).get_table_names()
+
+
+def test_visibility_defaults_and_roundtrip():
+    engine = create_engine('sqlite://')
+    Base.metadata.create_all(engine)
+    assert ReportSettingsInput(company_name='Existing').show_company_name is True
+    with Session(engine) as session:
+        session.add(User(uid='admin'))
+        session.commit()
+        body = ReportSettingsInput(company_name='Retained company', show_company_name=False,
+            show_logo=False, show_address=False, show_phone=False, show_email=False)
+        save_report_settings(body, 'admin', session)
+        saved = get_report_settings('admin', session)
+        assert saved['company_name'] == 'Retained company'
+        for key in ('logo', 'company_name', 'address', 'phone', 'email'):
+            assert saved['show_' + key] is False
+        save_report_settings(ReportSettingsInput(**{**saved, 'show_company_name': True}), 'admin', session)
+        assert get_report_settings('admin', session)['show_company_name'] is True
+    with pytest.raises(ValidationError):
+        ReportSettingsInput(show_logo='false')
+
+
+def test_export_quality_preference_persists():
+    assert ReportSettingsInput().include_non_export_quality is False
+    engine = create_engine('sqlite://')
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        session.add(User(uid='admin'))
+        session.commit()
+        for enabled in (True, False):
+            save_report_settings(ReportSettingsInput(include_non_export_quality=enabled), 'admin', session)
+            assert get_report_settings('admin', session)['include_non_export_quality'] is enabled
+
+
+def test_ten_mb_logo_limit_and_email_roundtrip():
+    from app.cloud.report_settings import MAX_LOGO_BYTES
+    raw = io.BytesIO()
+    Image.new('RGB', (20, 20), 'brown').save(raw, format='PNG')
+    data = raw.getvalue().ljust(MAX_LOGO_BYTES, b'\0')
+    value = 'data:image/png;base64,' + base64.b64encode(data).decode()
+    body = ReportSettingsInput(email='quality@example.com', logo_data_url=value)
+    assert body.email == 'quality@example.com'
+    assert len(body.logo_data_url) < 1000
+    with pytest.raises(ValidationError):
+        ReportSettingsInput(logo_data_url='data:image/png;base64,' + base64.b64encode(data+b'0').decode())
+
+
+def test_report_upload_body_limit_is_scoped_and_counts_chunks():
+    from app.cloud.limits import CloudBodyLimit
+    from app.cloud.report_settings import MAX_LOGO_DATA_URL_LENGTH
+
+    async def run(path, size):
+        messages = []
+        chunks = iter([{'type': 'http.request', 'body': b'x' * (size//2), 'more_body': True},
+                       {'type': 'http.request', 'body': b'x' * (size-size//2), 'more_body': False}])
+        async def receive():
+            return next(chunks)
+        async def send(message):
+            messages.append(message)
+        async def app(scope, receive, send):
+            assert len((await receive())['body']) == size
+            await send({'type': 'http.response.start', 'status': 204, 'headers': []})
+        await CloudBodyLimit(app)({'type': 'http', 'path': path, 'method': 'PUT'}, receive, send)
+        return messages[0]['status']
+    def execute(coroutine):
+        # These in-memory ASGI mocks never suspend on I/O, so no socket-based
+        # event loop is needed for this middleware unit test on Windows.
+        try:
+            coroutine.send(None)
+        except StopIteration as completed:
+            return completed.value
+        finally:
+            coroutine.close()
+        raise AssertionError("Unexpected I/O suspension in in-memory ASGI test")
+
+    assert execute(run('/cloud/admin/report-settings', MAX_LOGO_DATA_URL_LENGTH + 1000)) == 204
+    assert execute(run('/cloud/admin/report-settings', MAX_LOGO_DATA_URL_LENGTH + 16385)) == 413
+    assert execute(run('/cloud/history', 131073)) == 413

@@ -109,5 +109,33 @@ it("reports category counts rather than presenting ADC as moisture percentage", 
   const html = qualityReportHtml([base], reportRange("day", now), "Admin", now);
   expect(html).not.toContain("Avg. ADC");
   expect(html).not.toContain("Avg. moisture %");
-  expect(html).toContain("application screening categories");
+  expect(html).toContain('<th colspan="3">Moisture</th>');
+  expect(html).toContain("<th>Comply</th>");
+  expect(html).toContain("<th>Non-comply</th>");
+  expect(html).not.toContain("Moisture screening by grade");
+  expect(html).not.toContain("Screening ≤14%");
+});
+
+it("filters every report total to valid moisture-compliant graded records when disabled", () => {
+  const records = [
+    base,
+    { ...base, id: "fail", moistureStatus: "FAIL" as const },
+    { ...base, id: "missing", moistureStatus: "UNAVAILABLE" as const },
+    { ...base, id: "untouched", moistureRawAdc: 2900 },
+    { ...base, id: "null", moistureRawAdc: null },
+    { ...base, id: "nan", moistureRawAdc: NaN },
+    { ...base, id: "ungraded", finalGrade: null },
+    { ...base, id: "contradiction", moisturePercent: 15 },
+  ];
+  const filtered = summarizeQuality(records, reportRange("day", now), now, false);
+  expect(filtered.assessments).toBe(1);
+  expect(filtered.quills).toBe(2);
+  expect(filtered.rows.find((r) => r.grade === "M4")!.pass).toBe(1);
+  expect(filtered.rows.reduce((n, r) => n + r.fail + r.unavailable, 0)).toBe(0);
+  expect(
+    summarizeQuality(records, reportRange("day", now), now, true).assessments,
+  ).toBe(8);
+  expect(
+    summarizeQuality(records.slice(1), reportRange("day", now), now, false).assessments,
+  ).toBe(0);
 });

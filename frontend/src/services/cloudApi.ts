@@ -37,6 +37,18 @@ export async function cloudRequest(
       },
     });
     if (cloudUid() !== owner) throw new Error("Account changed. Please retry.");
+    if (!response.ok && path === "/admin/report-settings") {
+      const messages: Record<number, string> = {
+        401: "Sign in again to save report settings.",
+        403: "Report settings require an administrator account.",
+        413: "The server rejected the upload size. Use a PNG or JPEG up to 10 MB; the backend must support the updated limit.",
+        422: "The server rejected report settings. Check the logo and fields; if valid, the backend needs the latest report-settings update.",
+        503: "Report settings storage is unavailable. Please retry shortly.",
+      };
+      throw new Error(
+        messages[response.status] ?? "Could not save report settings. Please retry.",
+      );
+    }
     if (!response.ok)
       throw new Error(
         response.status === 401

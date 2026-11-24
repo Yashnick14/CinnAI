@@ -9,7 +9,7 @@ $workspace = "/home/jenkins/agent/local-check-$id"
 $report = Join-Path $root ".test-tmp/local-ci-$id"
 New-Item -ItemType Directory -Force $report | Out-Null
 if (!(Test-Path "$PSScriptRoot/secrets/admin-password") -or !(Test-Path "$PSScriptRoot/secrets/agent-secret")) {
-    throw 'First create local secret files using set-secret.ps1 as described in local/README.md. No Azure credentials are needed.'
+    throw 'First create local secret files using set-secret.ps1 as described in the root README (Jenkins and releases). No Azure credentials are needed.'
 }
 Push-Location $root
 $created = $false

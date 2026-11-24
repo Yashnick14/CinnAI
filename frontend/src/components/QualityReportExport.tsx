@@ -1,4 +1,4 @@
-import { loadReportSettings } from "../services/reportSettings";
+import { loadReportSettings, type ReportSettings } from "../services/reportSettings";
 import { useRef, useState } from "react";
 import { Platform, Pressable, TextInput, View } from "react-native";
 import { Text } from "./AppText";
@@ -21,12 +21,14 @@ import { errorMessage } from "../utils/format";
 /** Export a freshly fetched account report independently of history search filters. */
 export function QualityReportExport({
   records,
+  settings,
   loading,
   unavailable,
   reportUser = "",
   reportLabel,
 }: {
   records: GradingResult[];
+  settings: ReportSettings | null;
   loading: boolean;
   unavailable: boolean;
   reportUser?: string;
@@ -40,11 +42,16 @@ export function QualityReportExport({
   const [error, setError] = useState("");
   const lock = useRef(false);
   let reportMessage = "";
-  if (!loading && !unavailable) {
+  if (!loading && !unavailable && settings) {
     try {
       const now = new Date();
       if (
-        !summarizeQuality(records, reportRange(period, now, from, to), now).assessments
+        !summarizeQuality(
+          records,
+          reportRange(period, now, from, to),
+          now,
+          settings.include_non_export_quality,
+        ).assessments
       )
         reportMessage = "No records found";
     } catch (e) {
@@ -52,7 +59,7 @@ export function QualityReportExport({
     }
   }
   async function generate() {
-    if (lock.current || loading || unavailable || reportMessage) return;
+    if (lock.current || loading || unavailable || !settings || reportMessage) return;
     lock.current = true;
     setBusy(true);
     setError("");
@@ -70,13 +77,20 @@ export function QualityReportExport({
       ]);
       if (firebaseAuth().currentUser?.uid !== owner)
         throw new Error("Account changed. Please try again.");
-      if (!summarizeQuality(records, range, generatedAt).assessments)
+      if (
+        !summarizeQuality(
+          records,
+          range,
+          generatedAt,
+          settings.include_non_export_quality,
+        ).assessments
+      )
         throw new Error("No records found");
       await destination.exportHtml(
         qualityReportHtml(
           records,
           range,
-          `${user.displayName || user.email || "Administrator"} � ${reportLabel || "All graders"}`,
+          `${user.displayName || user.email || "Administrator"} · ${reportLabel || "All graders"}`,
           generatedAt,
           settings,
         ),
@@ -91,8 +105,7 @@ export function QualityReportExport({
   }
   return (
     <Card style={{ gap: 14 }}>
-      <Label>Quality report</Label>
-      <Body>Grade totals and moisture screening for your selected period.</Body>
+      <Label>Quality Report</Label>
       <View style={{ flexDirection: "row", gap: 4 }}>
         {(
           [
@@ -169,7 +182,7 @@ export function QualityReportExport({
         </View>
       )}
       {!!error && <WarningMessage text={error} error />}
-      {loading || unavailable ? null : reportMessage ? (
+      {loading || unavailable || !settings ? null : reportMessage ? (
         <Text style={{ textAlign: "center", color: theme.muted, width: "100%" }}>
           {reportMessage}
         </Text>
@@ -182,11 +195,15 @@ export function QualityReportExport({
           onPress={() => void generate()}
         />
       )}
-      {!loading && !unavailable && !reportMessage && Platform.OS === "web" && (
-        <Text style={{ textAlign: "center", color: theme.muted }}>
-          Choose Save as PDF in the print window.
-        </Text>
-      )}
+      {!loading &&
+        !unavailable &&
+        settings &&
+        !reportMessage &&
+        Platform.OS === "web" && (
+          <Text style={{ textAlign: "center", color: theme.muted }}>
+            Choose Save as PDF in the print window.
+          </Text>
+        )}
     </Card>
   );
 }

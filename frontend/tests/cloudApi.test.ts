@@ -70,3 +70,21 @@ it("hides backend error details", async () => {
     "Cloud storage is not available yet",
   );
 });
+
+it.each([413, 422, 403])(
+  "explains report settings errors without leaking server details (%s)",
+  async (status) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("private diagnostic", { status })),
+    );
+    await expect(
+      cloudRequest("/admin/report-settings", { method: "PUT" }),
+    ).rejects.not.toThrow("private diagnostic");
+    await expect(
+      cloudRequest("/admin/report-settings", { method: "PUT" }),
+    ).rejects.toThrow(
+      status === 413 ? "10 MB" : status === 422 ? "backend" : "administrator",
+    );
+  },
+);
